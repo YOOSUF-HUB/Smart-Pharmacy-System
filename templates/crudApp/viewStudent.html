@@ -1,0 +1,146 @@
+{% extends 'crudApp/base.html' %}
+
+{% block title %}Student List{% endblock title %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        text-align: center;
+        color: #343a40;
+        margin-bottom: 2rem;
+    }
+
+    .table-container {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        overflow-x: auto;
+    }
+
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .table thead th {
+        background-color: #343a40;
+        color: #fff;
+        border-top: none;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f1f3f5;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #e2e6ea;
+        transition: background-color 0.3s ease;
+    }
+
+    .alert {
+        text-align: center;
+        font-size: 1.1rem;
+    }
+
+    .btn-primary {
+        background-color: #0d6efd;
+        border: none;
+        font-weight: 500;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 6px;
+    }
+
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+    }
+
+    .add-button-wrapper {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .btn-action {
+        margin: 0 5px;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        color: white;
+        display: inline-block;
+    }
+
+    .btn-update {
+        background-color: #198754; /* green */
+    }
+
+    .btn-update:hover {
+        background-color: #146c43;
+    }
+
+    .btn-delete {
+        background-color: #dc3545; /* red */
+    }
+
+    .btn-delete:hover {
+        background-color: #b02a37;
+    }
+</style>
+
+<h1>All Students</h1>
+
+{% if student %}
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">S.No</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Class</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Actions</th>  {# Added actions header #}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in student %}
+                    <tr>
+                        <td>{{ student.sno }}</td>
+                        <td>{{ student.sname }}</td>
+                        <td>{{ student.sclass }}</td>
+                        <td>{{ student.saddress }}</td>
+                        <td>
+                            <a href="/update/{{student.id}}" class="btn-action btn-update">Update</a>
+                            <a href="/delete/{{student.id}}" class="btn-action btn-delete" onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="alert alert-info mt-4" role="alert">
+        No students found.
+    </div>
+{% endif %}
+
+<div class="add-button-wrapper">
+    <a href="{% url 'student_create' %}" class="btn btn-primary">➕ Add New Student</a>
+</div>
+{% endblock content %}
