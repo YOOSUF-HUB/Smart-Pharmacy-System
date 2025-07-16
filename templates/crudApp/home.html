@@ -1,4 +1,4 @@
-{% extends 'crudApp/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Home{% endblock title %}
 
@@ -72,6 +72,7 @@
     <div class="btn-group">
         <a href="{% url 'student_view' %}" class="btn-home btn-view">📋 View Students</a>
         <a href="{% url 'student_create' %}" class="btn-home btn-add">➕ Add Student</a>
+        <a href="{% url 'medicine_list' %}" class="btn btn-success">📦 Go to Medicine Inventory</a>
     </div>
 </div>
 {% endblock content %}
