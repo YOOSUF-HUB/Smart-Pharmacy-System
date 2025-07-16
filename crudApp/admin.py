@@ -3,5 +3,5 @@ from crudApp.models import Student
 # Register your models here.
 
 class StudentAdmin(admin.ModelAdmin):
-    list = ['sno' ,'sage', 'sname' , 'sclass' , 'saddress']
+    list = ['sno' ,'sage', 'sdob' ,'sname' , 'sclass' , 'saddress']
 admin.site.register(Student , StudentAdmin)

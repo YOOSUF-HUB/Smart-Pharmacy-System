@@ -8,6 +8,7 @@ class StudentForm(forms.ModelForm):
         widgets = {
             'sno': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ' '}),
             'sage': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ' '}),
+            'sdob': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'YYYY-MM-DD', 'type': 'date'}),
             'sname': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ' '}),
             'sclass': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ' '}),
             'saddress': forms.TextInput(attrs={'class': 'form-control', 'placeholder': ' '}),

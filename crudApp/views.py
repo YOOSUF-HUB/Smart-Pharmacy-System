@@ -31,6 +31,7 @@ def update_student(request , id):
     if request.method == 'POST':
         student.sname = request.POST['sname']
         student.sage = request.POST['sage']
+        student.sdob = request.POST['sdob']
         student.sclass = request.POST['sclass']
         student.saddress = request.POST['saddress']
         student.save()
