@@ -54,6 +54,7 @@
       <thead>
         <tr>
           <th>S.No</th>
+          <th>Batch</th>
           <th>Name</th>
           <th>Brand</th>
           <th>Category</th>
@@ -66,6 +67,7 @@
         {% for med in medicine %}
         <tr>
           <td>{{ forloop.counter }}</td>
+          <td>{{ med.batch_number }}</td>
           <td>{{ med.name }}</td>
           <td>{{ med.brand }}</td>
           <td>{{ med.category }}</td>
