@@ -3,91 +3,41 @@
 {% block title %}Medicine List{% endblock title %}
 
 {% block content %}
-<style>
-  body { background-color: #f8f9fa; }
-  h1 {
-    font-size: 2rem; font-weight: 600; text-align: center; color: #343a40; margin-bottom: 2rem;
-  }
-  .table-container {
-    background: #fff; padding: 2rem; border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08); overflow-x: auto;
-  }
-  table {
-    border-collapse: separate; border-spacing: 0; width: 100%;
-  }
-  th, td {
-    vertical-align: middle; text-align: center;
-  }
-  thead th {
-    background-color: #343a40; color: #fff; border-top: none;
-  }
-  tbody tr:nth-of-type(odd) {
-    background-color: #f1f3f5;
-  }
-  tbody tr:hover {
-    background-color: #e2e6ea; transition: background-color 0.3s ease;
-  }
-  .btn-primary {
-    background-color: #0d6efd; border: none; font-weight: 500;
-    padding: 10px 20px; font-size: 1rem; border-radius: 6px;
-  }
-  .btn-primary:hover { background-color: #0b5ed7; }
-  .btn-action {
-    margin: 0 5px; padding: 5px 12px; border-radius: 6px;
-    font-size: 0.9rem; font-weight: 500; cursor: pointer;
-    text-decoration: none; color: white; display: inline-block;
-  }
-  .btn-update { background-color: #198754; }
-  .btn-update:hover { background-color: #146c43; }
-  .btn-delete { background-color: #dc3545; }
-  .btn-delete:hover { background-color: #b02a37; }
-  .add-button-wrapper {
-    text-align: center; margin-top: 2rem;
-  }
-</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
-<h1>All Medicines</h1>
-
-{% if medicine %}
-  <div class="table-container">
-    <table class="table table-striped table-hover table-bordered align-middle">
-      <thead>
-        <tr>
-          <th>S.No</th>
-          <th>Batch</th>
-          <th>Name</th>
-          <th>Brand</th>
-          <th>Category</th>
-          <th>Dosage</th>
-          <th>Quantity</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for med in medicine %}
-        <tr>
-          <td>{{ forloop.counter }}</td>
-          <td>{{ med.batch_number }}</td>
-          <td>{{ med.name }}</td>
-          <td>{{ med.brand }}</td>
-          <td>{{ med.category }}</td>
-          <td>{{ med.dosage }}</td>
-          <td>{{ med.quantity_in_stock }}</td>
-          <td>
-            <a href="{% url 'medicine_update' med.id %}" class="btn-action btn-update">Update</a>
-            <a href="{% url 'medicine_delete' med.id %}" class="btn-action btn-delete"
-               onclick="return confirm('Are you sure you want to delete this medicine?');">Delete</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<div class="container my-5">
+  <h2 class="text-center mb-4">All Medicines</h2>
+  <div class="row g-4">
+    {% if medicine %}
+      {% for med in medicine %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+              <strong>{{ med.name }}</strong>
+            </div>
+            <div class="card-body">
+              <p><strong>Batch:</strong> {{ med.batch_number }}</p>
+              <p><strong>Brand:</strong> {{ med.brand }}</p>
+              <p><strong>Category:</strong> {{ med.category }}</p>
+              <p><strong>Dosage:</strong> {{ med.dosage }}</p>
+              <p><strong>Quantity:</strong> {{ med.quantity_in_stock }}</p>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+              <a href="{% url 'medicine_update' med.id %}" class="btn btn-success btn-sm">Update</a>
+              <a href="{% url 'medicine_delete' med.id %}" class="btn btn-danger btn-sm"
+                 onclick="return confirm('Are you sure you want to delete this medicine?');">Delete</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12">
+        <div class="alert alert-info text-center">No medicines found.</div>
+      </div>
+    {% endif %}
   </div>
-{% else %}
-  <div class="alert alert-info mt-4 text-center">No medicines found.</div>
-{% endif %}
-
-<div class="add-button-wrapper">
-  <a href="{% url 'medicine_create' %}" class="btn btn-primary">➕ Add New Medicine</a>
+  <div class="text-center mt-4">
+    <a href="{% url 'medicine_create' %}" class="btn btn-primary">➕ Add New Medicine</a>
+  </div>
 </div>
 {% endblock content %}

@@ -2,9 +2,18 @@ from django.db import models
 from datetime import date
 
 class Medicine(models.Model):
+    CATEGORY_CHOICES = [
+        ('Tablet', 'Tablet'),
+        ('Syrup', 'Syrup'),
+        ('Injection', 'Injection'),
+        ('Capsule', 'Capsule'),
+        ('Ointment', 'Ointment'),
+        # Add more as needed
+    ]
+
     name = models.CharField(max_length=100)
     brand = models.CharField(max_length=100)
-    category = models.CharField(max_length=50)  # e.g., Tablet, Syrup, Injection
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     description = models.TextField(blank=True)
     dosage = models.CharField(max_length=50)  # e.g., 500mg
     price = models.DecimalField(max_digits=10, decimal_places=2)
