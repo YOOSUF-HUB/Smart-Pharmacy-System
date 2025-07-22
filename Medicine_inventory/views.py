@@ -7,6 +7,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 # View all medicines
 def view_medicine(request):
     medicine = Medicine.objects.all()
+    for med in medicine:
+        med.low_stock = med.quantity_in_stock < med.reorder_level
+        med.near_expiry = med.is_near_expiry()
     return render(request, 'Medicine_inventory/view_medicine.html', {'medicine': medicine})
 
 def view_medicine_cards(request):
