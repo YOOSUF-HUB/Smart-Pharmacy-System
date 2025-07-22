@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import date
+from datetime import date, timedelta
 
 class Medicine(models.Model):
     CATEGORY_CHOICES = [
@@ -26,6 +26,9 @@ class Medicine(models.Model):
 
     def is_expired(self):
         return date.today() > self.expiry_date
+
+    def is_near_expiry(self):
+        return self.expiry_date and (self.expiry_date - date.today()) <= timedelta(days=30)
 
     def __str__(self):
         return f"{self.name} - {self.dosage} ({self.batch_number})"

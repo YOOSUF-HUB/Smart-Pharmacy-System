@@ -11,10 +11,17 @@ def view_medicine(request):
 
 def view_medicine_cards(request):
     medicine = Medicine.objects.all()
+    # Example for card/table view
+    for med in medicine:
+        med.low_stock = med.quantity_in_stock < med.reorder_level
+        med.near_expiry = med.is_near_expiry()
     return render(request, 'Medicine_inventory/view_medicine.html', {'medicine': medicine})
 
 def view_medicine_table(request):
     medicine = Medicine.objects.all()
+    for med in medicine:
+        med.low_stock = med.quantity_in_stock < med.reorder_level
+        med.near_expiry = med.is_near_expiry()
     return render(request, 'Medicine_inventory/medicine_table.html', {'medicine': medicine})
 
 # Create a new medicine entry

@@ -17,6 +17,12 @@
           <div class="card shadow-sm h-100">
             <div class="card-header bg-primary text-white">
               <strong>{{ med.name }}</strong>
+              {% if med.near_expiry %}
+                <span class="badge bg-danger">Near Expiry!</span>
+              {% endif %}
+              {% if med.low_stock %}
+                <span class="badge bg-warning text-dark">Low Stock!</span>
+              {% endif %}
             </div>
             <div class="card-body">
               <p><strong>Batch:</strong> {{ med.batch_number }}</p>

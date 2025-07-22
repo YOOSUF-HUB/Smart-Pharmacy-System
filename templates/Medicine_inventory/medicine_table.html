@@ -60,6 +60,25 @@
     transition: background-color 0.25s ease;
   }
 
+  .badge {
+    font-size: 0.95rem;
+    padding: 0.4em 0.8em;
+    border-radius: 8px;
+    font-weight: 600;
+    margin: 0 2px;
+    display: inline-block;
+  }
+
+  .bg-danger {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  .bg-warning {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
   .btn-action {
     margin: 0 5px;
     padding: 6px 14px;
@@ -175,6 +194,7 @@
             <th>Category</th>
             <th>Dosage</th>
             <th>Quantity</th>
+            <th>Alerts</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -188,6 +208,14 @@
             <td>{{ med.category }}</td>
             <td>{{ med.dosage }}</td>
             <td>{{ med.quantity_in_stock }}</td>
+            <td>
+              {% if med.near_expiry %}
+                <span class="badge bg-danger">Near Expiry!</span>
+              {% endif %}
+              {% if med.low_stock %}
+                <span class="badge bg-warning">Low Stock!</span>
+              {% endif %}
+            </td>
             <td>
               <a href="{% url 'medicine_update' med.id %}" class="btn-action btn-update">Update</a>
               <a href="{% url 'medicine_delete' med.id %}" class="btn-action btn-delete"
