@@ -7,6 +7,9 @@
 
 <div class="container my-5">
   <h2 class="text-center mb-4">All Medicines</h2>
+  <div class="text-center mb-4">
+    <a href="{% url 'medicine_table' %}" class="btn btn-outline-primary">View as Table</a>
+  </div>
   <div class="row g-4">
     {% if medicine %}
       {% for med in medicine %}
