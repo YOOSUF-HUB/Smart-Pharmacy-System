@@ -11,6 +11,7 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
     overflow-x: auto;
     margin-top: 2rem;
+    margin-bottom: 2rem;
     border: 1px solid #dee2e6;
   }
 
@@ -183,6 +184,7 @@
   <h2 class="text-center my-4">Medicine Table</h2>
   <div class="text-center mb-4">
     <a href="{% url 'medicine_cards' %}" class="btn btn-outline-primary">View as Cards</a>
+    <a href="{% url 'export_medicine_csv' %}" class="btn btn-outline-success mb-3">Export as CSV</a>
   </div>
 
   <!-- Filter Form -->
@@ -211,9 +213,13 @@
         <option value="low" {% if request.GET.low_stock == 'low' %}selected{% endif %}>Low Stock</option>
       </select>
     </div>
+    
     <div class="col-md-2">
       <button type="submit" class="btn btn-primary w-100">Filter</button>
     </div>
+  <div class="text-center mt-4">
+    <a href="{% url 'medicine_create' %}" class="btn btn-primary">➕ Add New Medicine</a>
+  </div>
   </form>
 
   {% if medicine %}
@@ -263,8 +269,6 @@
   {% else %}
     <div class="alert alert-info mt-4 text-center">No medicines found.</div>
   {% endif %}
-  <div class="add-button-wrapper">
-    <a href="{% url 'medicine_create' %}" class="btn btn-primary">➕ Add New Medicine</a>
-  </div>
+
 </div>
 {% endblock content %}

@@ -3,12 +3,34 @@ from datetime import date, timedelta
 
 class Medicine(models.Model):
     CATEGORY_CHOICES = [
-        ('Tablet', 'Tablet'),
-        ('Syrup', 'Syrup'),
-        ('Injection', 'Injection'),
-        ('Capsule', 'Capsule'),
-        ('Ointment', 'Ointment'),
-        # Add more as needed
+    ('Analgesic', 'Analgesic'),               # Pain relief
+    ('Antibiotic', 'Antibiotic'),             # Bacterial infections
+    ('Antiviral', 'Antiviral'),               # Viral infections
+    ('Antifungal', 'Antifungal'),             # Fungal infections
+    ('Antihistamine', 'Antihistamine'),       # Allergy relief
+    ('Antacid', 'Antacid'),                   # Acid reflux, ulcers
+    ('Antipyretic', 'Antipyretic'),           # Fever reducers
+    ('Anti-inflammatory', 'Anti-inflammatory'),# Inflammation reduction
+    ('Antihypertensive', 'Antihypertensive'), # Blood pressure
+    ('Antidiabetic', 'Antidiabetic'),         # Blood sugar control
+    ('Antidepressant', 'Antidepressant'),     # Mood disorders
+    ('Anticoagulant', 'Anticoagulant'),       # Blood thinners
+    ('Diuretic', 'Diuretic'),                 # Fluid removal
+    ('Sedative', 'Sedative'),                 # Anxiety, sleep aid
+    ('Bronchodilator', 'Bronchodilator'),     # Asthma/COPD
+    ('Vaccine', 'Vaccine'),                   # Immunization
+    ('Steroid', 'Steroid'),                   # Corticosteroids
+    ('Contraceptive', 'Contraceptive'),       # Birth control
+    ('Antiemetic', 'Antiemetic'),             # Nausea/vomiting
+    ('Antipsychotic', 'Antipsychotic'),       # Mental illness
+    ('Muscle Relaxant', 'Muscle Relaxant'),   # Muscle spasms
+    ('Chemotherapy', 'Chemotherapy'),         # Cancer treatment
+    ('Immunosuppressant', 'Immunosuppressant'),# Transplant, autoimmune
+    ('Ophthalmic', 'Ophthalmic'),             # Eye treatments
+    ('Dermatological', 'Dermatological'),     # Skin applications
+    ('Nutritional Supplement', 'Nutritional Supplement'), # Vitamins
+    ('Respiratory Agent', 'Respiratory Agent'),# Cough, congestion
+    ('Local Anesthetic', 'Local Anesthetic'), # Numbing agents
     ]
 
     name = models.CharField(max_length=100)
