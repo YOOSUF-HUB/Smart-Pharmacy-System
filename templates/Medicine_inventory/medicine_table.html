@@ -5,12 +5,12 @@
 {% block content %}
 <style>
   .table-container {
-    background: #ffffff;
-    padding: 2.5rem;
+    /* background: #ffffff;
+    padding: 2.5rem; */
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
     overflow-x: auto;
-    margin-top: 2rem;
+    /* margin-top: 2rem; */
     margin-bottom: 2rem;
     border: 1px solid #dee2e6;
   }
@@ -178,6 +178,11 @@
       padding: 0.75rem;
     }
   }
+
+  .bg-dark {
+    background-color: #343a40;
+    margin-bottom: 5px;
+  }
 </style>
 
 <div class="container">
@@ -249,7 +254,9 @@
             <td>{{ med.dosage }}</td>
             <td>{{ med.quantity_in_stock }}</td>
             <td>
-              {% if med.near_expiry %}
+              {% if med.is_expired %}
+                <span class="badge bg-dark">Expired!</span>
+              {% elif med.near_expiry %}
                 <span class="badge bg-danger">Near Expiry!</span>
               {% endif %}
               {% if med.low_stock %}

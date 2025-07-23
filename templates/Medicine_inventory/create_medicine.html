@@ -11,7 +11,7 @@
   }
 
   .form-container {
-    max-width: 600px;
+    max-width: 1000px;
     margin: 3rem auto;
     background-color: #fff;
     padding: 2rem 2.5rem;
@@ -125,4 +125,39 @@
     <button type="submit" class="btn btn-primary">Save Medicine</button>
   </form>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const categoryField = document.getElementById("id_category");
+    const medCodeField = document.getElementById("id_med_code");
+    const manufactureDateField = document.getElementById("id_manufacture_date");
+    const batchDateField = document.getElementById("id_batch_date");
+
+    // Auto-fill med_code
+    if (categoryField && medCodeField) {
+      categoryField.addEventListener('change', function() {
+        const selected = categoryField.options[categoryField.selectedIndex].text;
+        medCodeField.value = selected.substring(0, 5).toUpperCase();
+      });
+      if (categoryField.value) {
+        const selected = categoryField.options[categoryField.selectedIndex].text;
+        medCodeField.value = selected.substring(0, 5).toUpperCase();
+      }
+    }
+
+    // Auto-fill batch_date from manufacture_date
+    if (manufactureDateField && batchDateField) {
+      manufactureDateField.addEventListener('change', function() {
+        if (manufactureDateField.value) {
+          // manufactureDateField.value is in 'YYYY-MM-DD'
+          batchDateField.value = manufactureDateField.value.replace(/-/g, '');
+        }
+      });
+      // Trigger on page load if manufacture_date is pre-selected
+      if (manufactureDateField.value) {
+        batchDateField.value = manufactureDateField.value.replace(/-/g, '');
+      }
+    }
+  });
+</script>
 {% endblock content %}

@@ -69,27 +69,29 @@ suppliers = [
     "Medline Industries", "Henry Schein", "Cipla Distributors", "Sun Pharma Supply Co."
 ]
 
-def generate_batch_number(med_name, supplier, seq):
-    med_code = med_name[:3].upper()
-    today_str = date.today().strftime("%Y%m%d")
+def generate_batch_number(category, manufacture_date, supplier, seq):
+    med_code = category[:5].upper()
+    batch_date = manufacture_date.strftime("%Y%m%d")
     supplier_code = supplier.split()[0].upper()
-    return f"{med_code}-{today_str}-{supplier_code}-{seq:03d}"
+    return f"{med_code}-{batch_date}-{supplier_code}-{seq:03d}"
 
 def create_fake_medicine(n=10):
     for i in range(n):
         med_name = random.choice(real_medicine_names)
+        category = random.choice(categories)
         supplier = random.choice(suppliers)
-        batch_number = generate_batch_number(med_name, supplier, i+1)
+        manufacture_date = fake.date_between(start_date='-2y', end_date='today')
+        batch_number = generate_batch_number(category, manufacture_date, supplier, i+1)
         Medicine.objects.create(
             name=med_name,
             brand=random.choice(real_brands),
-            category=random.choice(categories),
+            category=category,
             description=fake.text(max_nb_chars=100),
             dosage=random.choice(dosages),
             price=round(random.uniform(10, 500), 2),
             quantity_in_stock=random.randint(1, 100),
             reorder_level=random.randint(5, 20),
-            manufacture_date=fake.date_between(start_date='-2y', end_date='today'),
+            manufacture_date=manufacture_date,
             expiry_date=fake.date_between(start_date='today', end_date='+2y'),
             batch_number=batch_number,
             supplier=supplier,

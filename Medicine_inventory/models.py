@@ -50,7 +50,7 @@ class Medicine(models.Model):
         return date.today() > self.expiry_date
 
     def is_near_expiry(self):
-        return self.expiry_date and (self.expiry_date - date.today()) <= timedelta(days=30)
+        return self.expiry_date and (self.expiry_date - date.today()) <= timedelta(days=7)
 
     def __str__(self):
         return f"{self.name} - {self.dosage} ({self.batch_number})"

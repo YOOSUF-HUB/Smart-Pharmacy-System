@@ -54,7 +54,9 @@
           <div class="card shadow-sm h-100">
             <div class="card-header bg-primary text-white">
               <strong>{{ med.name }}</strong>
-              {% if med.near_expiry %}
+              {% if med.is_expired %}
+                <span class="badge bg-dark">Expired!</span>
+              {% elif med.near_expiry %}
                 <span class="badge bg-danger">Near Expiry!</span>
               {% endif %}
               {% if med.low_stock %}
