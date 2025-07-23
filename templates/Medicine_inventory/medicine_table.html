@@ -184,6 +184,38 @@
   <div class="text-center mb-4">
     <a href="{% url 'medicine_cards' %}" class="btn btn-outline-primary">View as Cards</a>
   </div>
+
+  <!-- Filter Form -->
+  <form method="get" class="row g-3 align-items-end mb-4">
+    <div class="col-md-4">
+      <label for="category" class="form-label">Category</label>
+      <select name="category" id="category" class="form-select">
+        <option value="">All</option>
+        {% for cat in categories %}
+          <option value="{{ cat }}" {% if request.GET.category == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="expiry" class="form-label">Expiry Status</label>
+      <select name="expiry" id="expiry" class="form-select">
+        <option value="">All</option>
+        <option value="near" {% if request.GET.expiry == 'near' %}selected{% endif %}>Near Expiry</option>
+        <option value="expired" {% if request.GET.expiry == 'expired' %}selected{% endif %}>Expired</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="low_stock" class="form-label">Stock Status</label>
+      <select name="low_stock" id="low_stock" class="form-select">
+        <option value="">All</option>
+        <option value="low" {% if request.GET.low_stock == 'low' %}selected{% endif %}>Low Stock</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+  </form>
+
   {% if medicine %}
     <div class="table-container">
       <table>

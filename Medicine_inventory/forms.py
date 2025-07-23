@@ -8,4 +8,5 @@ class MedicineForm(forms.ModelForm):
         widgets = {
             'manufacture_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'expiry_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'batch_number': forms.TextInput(attrs={'placeholder': 'RX-###-##', 'class': 'form-control'}),
         }

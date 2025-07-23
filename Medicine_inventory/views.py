@@ -13,19 +13,62 @@ def view_medicine(request):
     return render(request, 'Medicine_inventory/view_medicine.html', {'medicine': medicine})
 
 def view_medicine_cards(request):
-    medicine = Medicine.objects.all()
-    # Example for card/table view
-    for med in medicine:
+    medicines = Medicine.objects.all()
+    categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
+
+    # Filtering
+    category = request.GET.get('category')
+    expiry = request.GET.get('expiry')
+    low_stock = request.GET.get('low_stock')
+
+    if category:
+        medicines = medicines.filter(category=category)
+    filtered = []
+    for med in medicines:
         med.low_stock = med.quantity_in_stock < med.reorder_level
         med.near_expiry = med.is_near_expiry()
-    return render(request, 'Medicine_inventory/view_medicine.html', {'medicine': medicine})
+        med.is_expired = med.is_expired()
+        if expiry == 'near' and not med.near_expiry:
+            continue
+        if expiry == 'expired' and not med.is_expired:
+            continue
+        if low_stock == 'low' and not med.low_stock:
+            continue
+        filtered.append(med)
+    return render(request, 'Medicine_inventory/view_medicine.html', {
+        'medicine': filtered,
+        'categories': categories,
+    })
 
 def view_medicine_table(request):
-    medicine = Medicine.objects.all()
-    for med in medicine:
+    medicines = Medicine.objects.all()
+    categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
+
+    # Filtering
+    category = request.GET.get('category')
+    expiry = request.GET.get('expiry')
+    low_stock = request.GET.get('low_stock')
+
+    if category:
+        medicines = medicines.filter(category=category)
+    filtered = []
+    for med in medicines:
         med.low_stock = med.quantity_in_stock < med.reorder_level
         med.near_expiry = med.is_near_expiry()
-    return render(request, 'Medicine_inventory/medicine_table.html', {'medicine': medicine})
+        med.is_expired = med.is_expired()
+        # Expiry filter
+        if expiry == 'near' and not med.near_expiry:
+            continue
+        if expiry == 'expired' and not med.is_expired:
+            continue
+        # Low stock filter
+        if low_stock == 'low' and not med.low_stock:
+            continue
+        filtered.append(med)
+    return render(request, 'Medicine_inventory/medicine_table.html', {
+        'medicine': filtered,
+        'categories': categories,
+    })
 
 # Create a new medicine entry
 def create_medicine(request):
