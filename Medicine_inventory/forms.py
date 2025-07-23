@@ -3,7 +3,7 @@ from .models import Medicine
 
 class MedicineForm(forms.ModelForm):
     med_code = forms.CharField(
-        max_length=3,
+        max_length=5,
         required=True,
         label="Medicine Code",
         widget=forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'})
@@ -19,3 +19,7 @@ class MedicineForm(forms.ModelForm):
             'manufacture_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'expiry_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
+
+
+
+

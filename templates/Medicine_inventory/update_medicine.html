@@ -85,20 +85,83 @@
   <h2>Update Medicine Details</h2>
   <form method="POST" novalidate>
     {% csrf_token %}
-    {% for field in form %}
-      <div class="mb-3">
-        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-        {{ field }}
-        {% if field.help_text %}
-          <small class="form-text text-muted">{{ field.help_text }}</small>
-        {% endif %}
-        {% for error in field.errors %}
-          <div class="text-danger">{{ error }}</div>
-        {% endfor %}
+    <div class="mb-3">
+      <label class="form-label">Batch Number</label>
+      <div class="row g-2">
+        <div class="col">
+          {{ form.med_code }}
+        </div>
+        <div class="col">
+          {{ form.batch_date }}
+        </div>
+        <div class="col">
+          {{ form.supplier_code }}
+        </div>
+        <div class="col">
+          {{ form.seq }}
+        </div>
       </div>
+    </div>
+    {% for field in form %}
+      {% if field.name not in 'med_code batch_date supplier_code seq' %}
+        <div class="mb-3">
+          <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <small class="form-text text-muted">{{ field.help_text }}</small>
+          {% endif %}
+          {% for error in field.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
     {% endfor %}
+    <div class="mb-3">
+      <label for="{{ form.supplier.id_for_label }}" class="form-label">Supplier</label>
+      {{ form.supplier }}
+      {% for error in form.supplier.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
+    </div>
     <button type="submit" class="btn btn-primary">Update</button>
+              {% if form.errors %}
+            <div class="text-danger">Please correct the errors below.</div>
+            {{ form.errors }}
+          {% endif %}
   </form>
   <a href="{% url 'medicine_list' %}" class="back-link">← Back to Medicine List</a>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const categoryField = document.getElementById("id_category");
+    const medCodeField = document.getElementById("id_med_code");
+    const manufactureDateField = document.getElementById("id_manufacture_date");
+    const batchDateField = document.getElementById("id_batch_date");
+
+    // Auto-fill med_code
+    if (categoryField && medCodeField) {
+      categoryField.addEventListener('change', function() {
+        const selected = categoryField.options[categoryField.selectedIndex].text;
+        medCodeField.value = selected.substring(0, 5).toUpperCase();
+      });
+      if (categoryField.value) {
+        const selected = categoryField.options[categoryField.selectedIndex].text;
+        medCodeField.value = selected.substring(0, 5).toUpperCase();
+      }
+    }
+
+    // Auto-fill batch_date from manufacture_date
+    if (manufactureDateField && batchDateField) {
+      manufactureDateField.addEventListener('change', function() {
+        if (manufactureDateField.value) {
+          batchDateField.value = manufactureDateField.value.replace(/-/g, '');
+        }
+      });
+      if (manufactureDateField.value) {
+        batchDateField.value = manufactureDateField.value.replace(/-/g, '');
+      }
+    }
+  });
+</script>
 {% endblock content %}

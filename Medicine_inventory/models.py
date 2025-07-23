@@ -43,7 +43,7 @@ class Medicine(models.Model):
     reorder_level = models.PositiveIntegerField(default=10)  # Minimum quantity before restock alert
     manufacture_date = models.DateField()
     expiry_date = models.DateField()
-    batch_number = models.CharField(max_length=50, unique=True)
+    batch_number = models.CharField(max_length=150, unique=True)
     supplier = models.CharField(max_length=100)  # You can replace this with a ForeignKey to Supplier model
 
     def is_expired(self):
