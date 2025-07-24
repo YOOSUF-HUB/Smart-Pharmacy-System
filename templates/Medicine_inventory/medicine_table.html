@@ -118,6 +118,16 @@
     margin-bottom: 0.5rem;
   }
 
+  .btn-outline-success,
+  .btn-outline-danger {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 6px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
   .add-button-wrapper {
     text-align: right;
     margin-top: 1.5rem;
@@ -162,6 +172,7 @@
   <div class="col-md-8 d-flex flex-wrap gap-2">
     <a href="{% url 'medicine_cards' %}" class="btn btn-outline-primary">Card View</a>
     <a href="{% url 'export_medicine_csv' %}" class="btn btn-outline-success">Export CSV</a>
+    <a href="{% url 'export_medicine_pdf' %}" class="btn btn-outline-danger">Export PDF</a>
   </div>
   <div class="col-md-4 text-md-end text-center mt-2 mt-md-0">
     <a href="{% url 'medicine_create' %}" class="btn btn-primary">➕ Add Medicine</a>
