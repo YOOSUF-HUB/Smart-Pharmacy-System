@@ -9,4 +9,5 @@ urlpatterns = [
     path('update/<int:id>/', views.update_medicine, name='medicine_update'), # Update medicine by id
     path('delete/<int:id>/', views.delete_medicine, name='medicine_delete'), # Delete medicine by id
     path('export/csv/', views.export_medicine_csv, name='export_medicine_csv'),
+    path('export/pdf/', views.export_medicine_pdf, name='export_medicine_pdf'),
 ]

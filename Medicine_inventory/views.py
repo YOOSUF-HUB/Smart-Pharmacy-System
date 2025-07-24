@@ -5,6 +5,12 @@ from Medicine_inventory.forms import MedicineForm
 from django.shortcuts import render, redirect, get_object_or_404
 import csv
 from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from weasyprint import HTML
+from datetime import datetime
+
+
 
 # View all medicines
 def view_medicine(request):
@@ -169,3 +175,15 @@ def export_medicine_csv(request):
             med.batch_number, med.supplier
         ])
     return response
+
+def export_medicine_pdf(request):
+    medicines = Medicine.objects.all()
+    html_string = render_to_string('Medicine_inventory/medicine_pdf.html', {
+        'medicines': medicines,
+        'now': datetime.now()
+    })
+    pdf_file = HTML(string=html_string).write_pdf()
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="medicine_inventory.pdf"'
+    return response
+
