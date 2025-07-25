@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from weasyprint import HTML
 from datetime import datetime
+from django.db import IntegrityError
 
 
 
@@ -105,15 +106,18 @@ def create_medicine(request):
         form = MedicineForm(request.POST)
         if form.is_valid():
             med_code = form.cleaned_data['med_code']
-            batch_date_int = int(form.cleaned_data['batch_date'])  # Directly convert to integer
+            batch_date_int = int(form.cleaned_data['batch_date'])
             supplier_code = form.cleaned_data['supplier_code']
             seq = form.cleaned_data['seq']
             batch_number = f"{med_code}-{batch_date_int}-{supplier_code}-{seq}"
 
             medicine = form.save(commit=False)
             medicine.batch_number = batch_number
-            medicine.save()
-            return redirect('medicine_list')
+            try:
+                medicine.save()
+                return redirect('medicine_table')
+            except IntegrityError:
+                form.add_error(None, "A medicine with this batch number already exists. Please change the batch details.")
     else:
         form = MedicineForm()
     return render(request, 'Medicine_inventory/create_medicine.html', {'form': form})
@@ -122,7 +126,7 @@ def create_medicine(request):
 def delete_medicine(request, id):
     medicine = Medicine.objects.get(id=id)
     medicine.delete()
-    return redirect('medicine_list')
+    return redirect('medicine_table')
 
 # Update a medicine
 def update_medicine(request, id):
@@ -148,7 +152,7 @@ def update_medicine(request, id):
             medicine = form.save(commit=False)
             medicine.batch_number = batch_number
             medicine.save()
-            return redirect('medicine_list')
+            return redirect('medicine_table')
     else:
         form = MedicineForm(instance=medicine, initial=initial)
     return render(request, 'Medicine_inventory/update_medicine.html', {'form': form})
