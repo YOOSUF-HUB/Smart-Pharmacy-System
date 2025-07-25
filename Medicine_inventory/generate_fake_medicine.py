@@ -6,6 +6,8 @@ from faker import Faker
 from datetime import date
 
 
+# python generate_fake_medicine.py
+
 project_root = "/Users/yoosufahamed/Desktop/Projects/Y2S2_Project/Y2S2_Project_SLIIT"
 sys.path.insert(0, project_root) #locate python crudDemo as package
 
@@ -100,3 +102,4 @@ def create_fake_medicine(n=10):
 
 if __name__ == "__main__":
     create_fake_medicine(50)
+

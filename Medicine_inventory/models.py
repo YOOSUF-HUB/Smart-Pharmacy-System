@@ -47,10 +47,14 @@ class Medicine(models.Model):
     supplier = models.CharField(max_length=100)
 
     def is_expired(self):
-        return date.today() > self.expiry_date
+        return date.today() >= self.expiry_date
 
     def is_near_expiry(self):
-        return self.expiry_date and (self.expiry_date - date.today()) <= timedelta(days=7)
+        return (
+            self.expiry_date
+            and date.today() < self.expiry_date
+            and (self.expiry_date - date.today()) <= timedelta(days=7)
+        )
 
     def __str__(self):
         return f"{self.name} - {self.dosage} ({self.batch_number})"
