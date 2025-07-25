@@ -108,6 +108,36 @@
       </div>
     </div>
   </div>
+
+  <!-- Recently Performed Actions -->
+  <div class="row mb-4" style="margin-top: 50px;">
+    <div class="col-md-8 mx-auto">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Recently Performed Actions</h5>
+          <ul class="list-group list-group-flush">
+            {% for action in recent_actions %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                  <strong>
+                    {% if action.medicine %}
+                      {{ action.medicine.name }} ({{ action.medicine.batch_number }})
+                    {% else %}
+                      Deleted Medicine
+                    {% endif %}
+                  </strong>
+                  <span class="badge bg-primary ms-2">{{ action.get_action_display }}</span>
+                </span>
+                <small class="text-muted">{{ action.timestamp|date:"M d, Y H:i" }}</small>
+              </li>
+            {% empty %}
+              <li class="list-group-item text-muted text-center">No recent actions.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Chart.js for category chart -->

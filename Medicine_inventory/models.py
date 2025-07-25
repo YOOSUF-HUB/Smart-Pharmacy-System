@@ -58,3 +58,16 @@ class Medicine(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.dosage} ({self.batch_number})"
+
+class MedicineAction(models.Model):
+    ACTION_CHOICES = [
+        ('created', 'Created'),
+        ('updated', 'Updated'),
+        ('deleted', 'Deleted'),
+    ]
+    medicine = models.ForeignKey(Medicine, on_delete=models.SET_NULL, null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.medicine.name} {self.get_action_display()} at {self.timestamp}"

@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from weasyprint import HTML
 from datetime import datetime
 from django.db import IntegrityError
+from .models import MedicineAction
 
 
 
@@ -113,8 +114,10 @@ def create_medicine(request):
 
             medicine = form.save(commit=False)
             medicine.batch_number = batch_number
+            
             try:
                 medicine.save()
+                MedicineAction.objects.create(medicine=medicine, action='created')
                 return redirect('medicine_table')
             except IntegrityError:
                 form.add_error(None, "A medicine with this batch number already exists. Please change the batch details.")
@@ -125,6 +128,7 @@ def create_medicine(request):
 # Delete a medicine
 def delete_medicine(request, id):
     medicine = Medicine.objects.get(id=id)
+    MedicineAction.objects.create(medicine=medicine, action='deleted')
     medicine.delete()
     return redirect('medicine_table')
 
@@ -152,10 +156,12 @@ def update_medicine(request, id):
             medicine = form.save(commit=False)
             medicine.batch_number = batch_number
             medicine.save()
+            # Log the update action
+            MedicineAction.objects.create(medicine=medicine, action='updated')
             return redirect('medicine_table')
     else:
         form = MedicineForm(instance=medicine, initial=initial)
-    return render(request, 'Medicine_inventory/update_medicine.html', {'form': form})
+    return render(request, 'Medicine_inventory/update_medicine.html', {'form': form, 'medicine': medicine})
 
 # Home view
 def home(request):
@@ -205,6 +211,8 @@ def med_inventory_dashboard(request):
     category_labels = list(category_counts_dict.keys())
     category_counts = list(category_counts_dict.values())
 
+    recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
+
     context = {
         'total_medicines': total_medicines,
         'low_stock_count': low_stock_count,
@@ -214,5 +222,6 @@ def med_inventory_dashboard(request):
         'category_labels': category_labels,
         'category_counts': category_counts,
     }
+    context.update({'recent_actions': recent_actions})
     return render(request, 'Medicine_inventory/med_inventory_dash.html', context)
 
