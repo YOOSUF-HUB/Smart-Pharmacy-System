@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">Medicine Inventory Dashboard</h2>
+  
+  <!-- Button to go to view medicine page -->
+  <div class="mb-4 text-end">
+    <a href="{% url 'medicine_table' %}" class="btn btn-outline-primary">
+      View All Medicines
+    </a>
+  </div>
+  
+  <div class="row mb-4">
+    <!-- Example summary cards -->
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-2">Total Medicines</h5>
+          <h3 class="card-text text-primary">{{ total_medicines }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-2">Low Stock</h5>
+          <h3 class="card-text text-danger">{{ low_stock_count }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-2">Near Expiry</h5>
+          <h3 class="card-text text-warning">{{ near_expiry_count }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-2">Expired</h5>
+          <h3 class="card-text text-dark">{{ expired_count }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Example chart area (you can use Chart.js or similar) -->
+  <div class="row mb-5">
+    <div class="col-md-8 mx-auto">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-center">Medicines by Category</h5>
+          <canvas id="categoryChart" height="150"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Medicines Table -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">Recently Added Medicines</h5>
+          <div class="table-responsive">
+            <table class="table table-striped align-middle">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Brand</th>
+                  <th>Category</th>
+                  <th>Quantity</th>
+                  <th>Expiry</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for med in recent_medicines %}
+                <tr>
+                  <td>{{ med.name }}</td>
+                  <td>{{ med.brand }}</td>
+                  <td>{{ med.category }}</td>
+                  <td>{{ med.quantity_in_stock }}</td>
+                  <td>{{ med.expiry_date }}</td>
+                  <td>
+                    {% if med.is_expired %}
+                      <span class="badge bg-dark">Expired</span>
+                    {% elif med.is_near_expiry %}
+                      <span class="badge bg-warning text-dark">Near Expiry</span>
+                    {% elif med.low_stock %}
+                      <span class="badge bg-danger">Low Stock</span>
+                    {% else %}
+                      <span class="badge bg-success">OK</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted">No recent medicines.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js for category chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('categoryChart').getContext('2d');
+  const categoryChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: {{ category_labels|safe }},
+      datasets: [{
+        label: 'Medicines',
+        data: {{ category_counts|safe }},
+        backgroundColor: '#b22234',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}

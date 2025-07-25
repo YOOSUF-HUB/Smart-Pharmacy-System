@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.view_medicine, name='medicine_list'),          # List all medicines
+    path('', views.med_inventory_dashboard, name='med_inventory_dash'),  # Root now goes to dashboard
     path('medicine/cards/', views.view_medicine_cards, name='medicine_cards'),
     path('medicine/table/', views.view_medicine_table, name='medicine_table'),
     path('create/', views.create_medicine, name='medicine_create'), # Create new medicine

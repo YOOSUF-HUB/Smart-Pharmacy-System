@@ -187,3 +187,28 @@ def export_medicine_pdf(request):
     response['Content-Disposition'] = 'attachment; filename="medicine_inventory.pdf"'
     return response
 
+def med_inventory_dashboard(request):
+    medicines = Medicine.objects.all()
+    total_medicines = medicines.count()
+    low_stock_count = sum(1 for m in medicines if m.quantity_in_stock < m.reorder_level)
+    near_expiry_count = sum(1 for m in medicines if hasattr(m, 'is_near_expiry') and m.is_near_expiry())
+    expired_count = sum(1 for m in medicines if hasattr(m, 'is_expired') and m.is_expired())
+    recent_medicines = medicines.order_by('-id')[:8]
+
+    # For chart
+    from collections import Counter
+    category_counts_dict = Counter(m.category for m in medicines)
+    category_labels = list(category_counts_dict.keys())
+    category_counts = list(category_counts_dict.values())
+
+    context = {
+        'total_medicines': total_medicines,
+        'low_stock_count': low_stock_count,
+        'near_expiry_count': near_expiry_count,
+        'expired_count': expired_count,
+        'recent_medicines': recent_medicines,
+        'category_labels': category_labels,
+        'category_counts': category_counts,
+    }
+    return render(request, 'Medicine_inventory/med_inventory_dash.html', context)
+
