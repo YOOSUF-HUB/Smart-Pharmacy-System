@@ -15,6 +15,6 @@ class MedicineModelTest(TestCase):
             manufacture_date="2025-01-01",
             expiry_date="2027-01-01",
             supplier="Cardinal",
-            batch_number="ASPIR-20250101-CARDINAL-001"
+            batch_number="ASPIR-20250101-CARDINAL-008"
         )
         self.assertEqual(medicine.name, "Aspirin")
