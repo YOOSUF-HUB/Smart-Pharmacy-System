@@ -20,11 +20,13 @@
   }
 
   h2 {
-    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    text-align: left;
     margin-bottom: 2rem;
-    color: #0d6efd;
+    color: #4c4c4c;
     font-weight: 700;
-    letter-spacing: 1px;
+    margin-bottom: 50px;
+
   }
 
   .form-label {
@@ -84,10 +86,21 @@
     font-size: 0.9rem;
     color: #6c757d;
   }
+
+  .back-link {
+    display: block;
+    margin-top: 1rem;
+    text-align: center;
+    color: #0d6efd;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .back-link:hover { text-decoration: underline; }
 </style>
 
 <div class="form-container">
   <h2>Add New Medicine</h2>
+  <hr style="border: none; height: 2px; background-color: #000000;">
 
   <form method="POST" novalidate>
     {% csrf_token %}
@@ -120,7 +133,9 @@
         </div>
       {% endif %}
     {% endfor %}
-    <button type="submit" class="btn btn-primary">Save Medicine</button>
+    <button type="submit" class="btn btn-primary" style="margin-bottom: 10px;">Save Medicine</button>
+    <a href="{% url 'medicine_table' %}" class="back-link">← Back to Medicine List</a>
+
               {% if form.errors %}
             <div class="text-danger">Please correct the errors below.</div>
             {{ form.errors }}
