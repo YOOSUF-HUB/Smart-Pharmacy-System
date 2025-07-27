@@ -118,6 +118,10 @@
         .table-auto tbody tr:hover {
             background-color: #e5e7eb;
         }
+.popover {
+    max-width: 800px;
+    width: 800px;
+  }
 
 </style>
 
@@ -156,7 +160,7 @@
                         {{ action.medicine_name }} ({{ action.batch_number }})
                       {% endif %}
                     </strong>
-                    <span class="badge bg-primary ms-2">{{ action.get_action_display }}</span>
+                    <span class="badge bg-warning ms-2">{{ action.get_action_display }}</span>
                   </span>
                   <small class="text-muted">{{ action.timestamp|date:"M d, Y H:i" }}</small>
                 </li>

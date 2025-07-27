@@ -168,14 +168,28 @@
       text-align: center;
     }
   }
-  .popover {
-    max-width: 600px;
-    width: 600px;
+.popover {
+    max-width: 800px;
+    width: 800px;
   }
 </style>
 
 <div class="container">
   <h2 class="text-centre">Medicine Inventory</h2>
+</div>
+
+
+
+<div class="row mb-4 align-items-center">
+  <div class="col-md-8 d-flex flex-wrap gap-2">
+    <a href="{% url 'medicine_cards' %}" class="btn btn-outline-primary">Card View</a>
+    <a href="{% url 'med_inventory_dash' %}" class="btn btn-outline-primary me-2">Go to Dashboard</a>
+    <a href="{% url 'export_medicine_csv' %}" class="btn btn-outline-success">Export CSV</a>
+    <a href="{% url 'export_medicine_pdf' %}" class="btn btn-outline-danger">Export PDF</a>
+  </div>
+  <div class="col-md-4 text-md-end text-center mt-2 mt-md-0">
+    <a href="{% url 'medicine_create' %}" class="btn btn-primary">➕ Add Medicine</a>
+  </div>
 </div>
 
 <!-- Add this where your actions table is -->
@@ -198,7 +212,7 @@
                         {{ action.medicine_name }} ({{ action.batch_number }})
                       {% endif %}
                     </strong>
-                    <span class="badge bg-primary ms-2">{{ action.get_action_display }}</span>
+                    <span class="badge bg-warning ms-2">{{ action.get_action_display }}</span>
                   </span>
                   <small class="text-muted">{{ action.timestamp|date:"M d, Y H:i" }}</small>
                 </li>
@@ -209,18 +223,6 @@
           '>
     Hover to see Recent Actions
   </button>
-</div>
-
-<div class="row mb-4 align-items-center">
-  <div class="col-md-8 d-flex flex-wrap gap-2">
-    <a href="{% url 'medicine_cards' %}" class="btn btn-outline-primary">Card View</a>
-    <a href="{% url 'med_inventory_dash' %}" class="btn btn-outline-primary me-2">Go to Dashboard</a>
-    <a href="{% url 'export_medicine_csv' %}" class="btn btn-outline-success">Export CSV</a>
-    <a href="{% url 'export_medicine_pdf' %}" class="btn btn-outline-danger">Export PDF</a>
-  </div>
-  <div class="col-md-4 text-md-end text-center mt-2 mt-md-0">
-    <a href="{% url 'medicine_create' %}" class="btn btn-primary">➕ Add Medicine</a>
-  </div>
 </div>
 
   <!-- Filter Section -->
