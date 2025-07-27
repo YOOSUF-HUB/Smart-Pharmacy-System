@@ -1,0 +1,125 @@
+{% extends 'prescriptions/base.html' %}
+{% load static %}
+
+{% block title %}Prescriptions List{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-800">Prescriptions</h1>
+        <a href="{% url 'prescription_create' %}" class="btn-primary flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            Create New Prescription
+        </a>
+    </div>
+
+    <!-- Search/Filter Form -->
+    <form method="GET" class="mb-6 flex gap-4 items-end">
+        <div class="flex-grow">
+            <label for="patient" class="block text-sm font-medium text-gray-700 mb-1">Filter by Patient:</label>
+            <select name="patient" id="patient" class="form-control">
+                <option value="">All Patients</option>
+                {% for patient_obj in patients %}
+                    <option value="{{ patient_obj.id }}" {% if request.GET.patient == patient_obj.id|stringformat:"s" %}selected{% endif %}>
+                        {{ patient_obj.first_name }} {{ patient_obj.last_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex-grow">
+            <label for="doctor" class="block text-sm font-medium text-gray-700 mb-1">Filter by Doctor:</label>
+            <select name="doctor" id="doctor" class="form-control">
+                <option value="">All Doctors</option>
+                {% for doctor_obj in doctors %}
+                    <option value="{{ doctor_obj.id }}" {% if request.GET.doctor == doctor_obj.id|stringformat:"s" %}selected{% endif %}>
+                        Dr. {{ doctor_obj.first_name }} {{ doctor_obj.last_name }} ({{ doctor_obj.medical_code }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex-grow">
+            <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Filter by Date:</label>
+            <input type="date" name="date" id="date" value="{{ request.GET.date }}" class="form-control">
+        </div>
+        <div>
+            <button type="submit" class="btn-primary">Filter</button>
+        </div>
+        {% if request.GET.patient or request.GET.doctor or request.GET.date %}
+        <div>
+            <a href="{% url 'prescription_list' %}" class="btn-danger">Clear Filters</a>
+        </div>
+        {% endif %}
+    </form>
+
+    {% if prescriptions %}
+    <div class="overflow-x-auto">
+        <table class="table-auto min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Validated</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warning</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for prescription in prescriptions %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ prescription.id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ prescription.patient.first_name }} {{ prescription.patient.last_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }} ({{ prescription.doctor.medical_code }})</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ prescription.prescription_date|date:"Y-m-d" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {% if prescription.is_validated %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        {% else %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">No</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {% if prescription.interaction_warning %}
+                            <span class="text-red-600 font-semibold">Warning!</span> ({{ prescription.interaction_warning|truncatechars:30 }})
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'prescription_detail' prescription.pk %}" class="text-indigo-600 hover:text-indigo-900 mr-4">View</a>
+                        <a href="{% url 'prescription_update' prescription.pk %}" class="text-yellow-600 hover:text-yellow-900 mr-4">Edit</a>
+                        <a href="{% url 'prescription_delete' prescription.pk %}" class="text-red-600 hover:text-red-900">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav class="mt-4 flex justify-center">
+        <ul class="pagination flex">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.patient %}&patient={{ request.GET.patient }}{% endif %}{% if request.GET.doctor %}&doctor={{ request.GET.doctor }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-l-md">Previous</a>
+                </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 bg-gray-200 text-sm font-medium text-gray-700">Page {{ page_obj.number }} of {{ page_obj.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.patient %}&patient={{ request.GET.patient }}{% endif %}{% if request.GET.doctor %}&doctor={{ request.GET.doctor }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-r-md">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <p class="text-gray-600">No prescriptions found. <a href="{% url 'prescription_create' %}" class="text-blue-600 hover:underline">Create the first prescription</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -214,6 +214,12 @@ class PrescriptionDetailView(DetailView):
         context['form'] = PrescriptionItemForm()
         # All medicines for the dropdown in the PrescriptionItemForm
         context['all_medicines'] = Medicine.objects.all().order_by('name', 'batch_number')
+        
+        # Check if there's a confirmation needed from a previous attempt to add an item
+        if 'confirm_needed' in self.request.session:
+            confirm_data = self.request.session.pop('confirm_needed') # Get and remove from session
+            context.update(confirm_data) # Add confirmation data to context
+        
         return context
 
 
@@ -225,34 +231,41 @@ def add_prescription_item(request, pk):
     prescription = get_object_or_404(Prescription, pk=pk)
     if request.method == 'POST':
         form = PrescriptionItemForm(request.POST)
+        
+        # Check for confirmation flag from the modal
+        confirm_dispense = request.POST.get('confirm_dispense') == 'true'
+        
         if form.is_valid():
-            # Get the selected medicine (batch) and requested quantity from the form.
             medicine_selected = form.cleaned_data['medicine']
             requested_quantity = form.cleaned_data['requested_quantity']
 
-            # Use a database transaction to ensure atomicity for stock management.
-            # If any part of this block fails, all changes are rolled back.
             with transaction.atomic():
-                # Re-fetch the medicine within the transaction to ensure we have the latest stock data.
-                # Use select_for_update to lock the row and prevent race conditions during stock check/update.
                 medicine_in_stock = Medicine.objects.select_for_update().get(pk=medicine_selected.pk)
 
-                # Check if the requested quantity is available in stock.
-                if requested_quantity <= medicine_in_stock.quantity_in_stock:
+                if requested_quantity > medicine_in_stock.quantity_in_stock:
+                    # Insufficient stock, confirmation needed
+                    if not confirm_dispense:
+                        # Store data in session and redirect to detail page to show modal
+                        request.session['confirm_needed'] = {
+                            'confirm_needed': True,
+                            'medicine_name': medicine_in_stock.name,
+                            'medicine_batch': medicine_in_stock.batch_number,
+                            'available_quantity': medicine_in_stock.quantity_in_stock,
+                            'requested_quantity_initial': requested_quantity, # Store initial requested
+                            'form_data': request.POST.dict() # Store all form data for re-submission
+                        }
+                        messages.warning(request, f"Insufficient stock for {medicine_in_stock.name} (Batch: {medicine_in_stock.batch_number}). Only {medicine_in_stock.quantity_in_stock} available. Please confirm to dispense available quantity.")
+                        return redirect('prescription_detail', pk=prescription.pk)
+                    else:
+                        # Pharmacist confirmed to dispense available quantity
+                        dispensed_quantity = medicine_in_stock.quantity_in_stock
+                        messages.success(request, f"Dispensing available {dispensed_quantity} units of {medicine_in_stock.name} (Batch: {medicine_in_stock.batch_number}). Stock updated.")
+                else:
+                    # Sufficient stock, dispense requested quantity
                     dispensed_quantity = requested_quantity
                     messages.success(request, f"Added {dispensed_quantity} units of {medicine_in_stock.name} to prescription. Stock updated.")
-                else:
-                    # If insufficient stock, dispense only what's available.
-                    dispensed_quantity = medicine_in_stock.quantity_in_stock
-                    if dispensed_quantity > 0:
-                        messages.warning(request, f"Only {dispensed_quantity} units of {medicine_in_stock.name} (batch {medicine_in_stock.batch_number}) available. Dispensing available quantity.")
-                    else:
-                        messages.error(request, f"No stock available for {medicine_in_stock.name} (batch {medicine_in_stock.batch_number}). Cannot add to prescription.")
-                        return redirect('prescription_detail', pk=prescription.pk)
 
                 if dispensed_quantity > 0:
-                    # Create the PrescriptionItem with the actual dispensed quantity.
-                    # Check if this medicine is already in the prescription
                     existing_item = PrescriptionItem.objects.filter(
                         prescription=prescription,
                         medicine=medicine_in_stock
@@ -260,45 +273,44 @@ def add_prescription_item(request, pk):
 
                     if existing_item:
                         # If item already exists, update its quantity
+                        # When updating, we need to consider the difference from the original dispensed quantity
+                        # to correctly adjust stock. This logic is getting complex, so for simplicity
+                        # in the confirmation flow, we'll just add the newly dispensed amount.
+                        # For a robust update, you'd need to calculate the delta (new_dispensed - old_dispensed)
+                        # and adjust stock by that delta. For now, this is an 'add new' flow.
                         existing_item.requested_quantity += requested_quantity # Update requested
-                        existing_item.dispensed_quantity += dispensed_quantity # Update dispensed
-                        existing_item.dosage = form.cleaned_data['dosage'] # Update dosage/duration if needed
+                        existing_item.dispensed_quantity += dispensed_quantity # Add newly dispensed to existing
+                        existing_item.dosage = form.cleaned_data['dosage']
                         existing_item.duration = form.cleaned_data['duration']
                         existing_item.save()
                         messages.info(request, f"Updated existing item for {medicine_in_stock.name} in prescription.")
                     else:
-                        # Create a new PrescriptionItem instance, linking it to the prescription.
                         prescription_item = form.save(commit=False)
                         prescription_item.prescription = prescription
                         prescription_item.dispensed_quantity = dispensed_quantity
                         prescription_item.save()
 
-                    # Decrement the stock in the Medicine_Inventory app.
                     medicine_in_stock.quantity_in_stock -= dispensed_quantity
                     medicine_in_stock.save()
 
-                    # --- Drug Interaction Auto-Validation (Future Integration Point) ---
-                    # After adding/updating an item, re-check for interactions.
-                    # This part will be implemented later with the DL model.
-                    # For now, we'll just reset validation status.
-                    prescription.is_validated = False # Mark as needing re-validation
-                    prescription.interaction_warning = None # Clear old warnings
-                    prescription.save() # Save the prescription to update its validation status
+                    prescription.is_validated = False
+                    prescription.interaction_warning = None
+                    prescription.save()
 
                     return redirect('prescription_detail', pk=prescription.pk)
+                else:
+                    # This case happens if requested_quantity > available_stock, and available_stock is 0.
+                    # The message is already set above.
+                    return redirect('prescription_detail', pk=prescription.pk)
         else:
-            # If form is not valid, re-render the detail page with errors.
             messages.error(request, "Error adding medicine to prescription. Please check your input.")
-            # We need to manually pass the form and context data back to the template
-            # as this is a function view handling a form submission on a detail page.
             context = {
                 'prescription': prescription,
                 'prescription_items': prescription.items.all(),
-                'form': form, # Pass the form with errors back
+                'form': form,
                 'all_medicines': Medicine.objects.all().order_by('name', 'batch_number')
             }
             return render(request, 'prescriptions/prescription_detail.html', context)
-    # If not POST request, redirect to prescription detail (shouldn't happen for this view)
     return redirect('prescription_detail', pk=prescription.pk)
 
 
