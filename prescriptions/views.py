@@ -466,103 +466,104 @@ class PrescriptionDeleteView(DeleteView):
 # --- PDF Generation View ---
 
 def generate_prescription_pdf(request, pk):
-    prescription = get_object_or_404(Prescription, pk=pk)
+    return 0;
+#     prescription = get_object_or_404(Prescription, pk=pk)
 
-    # Create a file-like buffer to receive PDF data.
-    buffer = io.BytesIO()
+#     # Create a file-like buffer to receive PDF data.
+#     buffer = io.BytesIO()
 
-    # Construct the HTML content for the PDF
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Prescription #{prescription.id}</title>
-        <style>
-            body {{ font-family: sans-serif; margin: 0.75in; font-size: 10pt; }}
-            .header {{ text-align: center; margin-bottom: 20pt; }}
-            .header h1 {{ font-size: 24pt; margin-bottom: 5pt; color: #1a202c; }}
-            .header p {{ font-size: 9pt; color: #4a5568; }}
-            .line {{ border-bottom: 1pt solid #cbd5e0; margin-top: 20pt; margin-bottom: 30pt; }}
-            .section-title {{ font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 20pt; color: #2d3748; }}
-            .info-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; margin-bottom: 20pt; }}
-            .info-item {{ margin-bottom: 5pt; }}
-            .info-item strong {{ font-weight: bold; color: #2d3748; }}
-            table {{ width: 100%; border-collapse: collapse; margin-bottom: 20pt; }}
-            th, td {{ border: 1pt solid #e2e8f0; padding: 8pt; text-align: left; vertical-align: middle; }}
-            th {{ background-color: #f7fafc; font-weight: bold; text-align: center; color: #2d3748; }}
-            .quantity-cell {{ text-align: center; }}
-            .notes-section {{ margin-top: 30pt; }}
-            .notes-section h3 {{ font-size: 12pt; font-weight: bold; margin-bottom: 10pt; color: #2d3748; }}
-            .footer {{ text-align: center; margin-top: 40pt; font-size: 10pt; color: #4a5568; }}
-            .footer strong {{ font-weight: bold; }}
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>Your Pharmacy Name</h1>
-            <p>123 Pharmacy Lane, City, Country | Phone: (123) 456-7890</p>
-        </div>
-        <div class="line"></div>
+#     # Construct the HTML content for the PDF
+#     html_content = f"""
+#     <!DOCTYPE html>
+#     <html>
+#     <head>
+#         <title>Prescription #{prescription.id}</title>
+#         <style>
+#             body {{ font-family: sans-serif; margin: 0.75in; font-size: 10pt; }}
+#             .header {{ text-align: center; margin-bottom: 20pt; }}
+#             .header h1 {{ font-size: 24pt; margin-bottom: 5pt; color: #1a202c; }}
+#             .header p {{ font-size: 9pt; color: #4a5568; }}
+#             .line {{ border-bottom: 1pt solid #cbd5e0; margin-top: 20pt; margin-bottom: 30pt; }}
+#             .section-title {{ font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 20pt; color: #2d3748; }}
+#             .info-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; margin-bottom: 20pt; }}
+#             .info-item {{ margin-bottom: 5pt; }}
+#             .info-item strong {{ font-weight: bold; color: #2d3748; }}
+#             table {{ width: 100%; border-collapse: collapse; margin-bottom: 20pt; }}
+#             th, td {{ border: 1pt solid #e2e8f0; padding: 8pt; text-align: left; vertical-align: middle; }}
+#             th {{ background-color: #f7fafc; font-weight: bold; text-align: center; color: #2d3748; }}
+#             .quantity-cell {{ text-align: center; }}
+#             .notes-section {{ margin-top: 30pt; }}
+#             .notes-section h3 {{ font-size: 12pt; font-weight: bold; margin-bottom: 10pt; color: #2d3748; }}
+#             .footer {{ text-align: center; margin-top: 40pt; font-size: 10pt; color: #4a5568; }}
+#             .footer strong {{ font-weight: bold; }}
+#         </style>
+#     </head>
+#     <body>
+#         <div class="header">
+#             <h1>Your Pharmacy Name</h1>
+#             <p>123 Pharmacy Lane, City, Country | Phone: (123) 456-7890</p>
+#         </div>
+#         <div class="line"></div>
 
-        <h2 class="section-title">Prescription Details</h2>
+#         <h2 class="section-title">Prescription Details</h2>
 
-        <div class="info-grid">
-            <div class="info-item">
-                <strong>Prescription ID:</strong> {prescription.id}
-            </div>
-            <div class="info-item">
-                <strong>Date:</strong> {prescription.prescription_date.strftime('%Y-%m-%d')}
-            </div>
-            <div class="info-item">
-                <strong>Patient:</strong> {prescription.patient.first_name} {prescription.patient.last_name} (DOB: {prescription.patient.date_of_birth.strftime('%Y-%m-%d')})
-            </div>
-            <div class="info-item">
-                <strong>Doctor:</strong> Dr. {prescription.doctor.first_name} {prescription.doctor.last_name} (Code: {prescription.doctor.medical_code}) ({prescription.doctor.specialization or 'N/A'})
-            </div>
-        </div>
+#         <div class="info-grid">
+#             <div class="info-item">
+#                 <strong>Prescription ID:</strong> {prescription.id}
+#             </div>
+#             <div class="info-item">
+#                 <strong>Date:</strong> {prescription.prescription_date.strftime('%Y-%m-%d')}
+#             </div>
+#             <div class="info-item">
+#                 <strong>Patient:</strong> {prescription.patient.first_name} {prescription.patient.last_name} (DOB: {prescription.patient.date_of_birth.strftime('%Y-%m-%d')})
+#             </div>
+#             <div class="info-item">
+#                 <strong>Doctor:</strong> Dr. {prescription.doctor.first_name} {prescription.doctor.last_name} (Code: {prescription.doctor.medical_code}) ({prescription.doctor.specialization or 'N/A'})
+#             </div>
+#         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Medicine Name</th>
-                    <th>Dosage</th>
-                    <th class="quantity-cell">Quantity</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                {"".join([
-                    f"""
-                    <tr>
-                        <td>{item.medicine.name} ({item.medicine.batch_number})</td>
-                        <td>{item.dosage}</td>
-                        <td class="quantity-cell">{item.dispensed_quantity}</td>
-                        <td>{item.medicine.description or 'N/A'}</td>
-                    </tr>
-                    """ for item in prescription.items.all()
-                ])}
-            </tbody>
-        </table>
+#         <table>
+#             <thead>
+#                 <tr>
+#                     <th>Medicine Name</th>
+#                     <th>Dosage</th>
+#                     <th class="quantity-cell">Quantity</th>
+#                     <th>Description</th>
+#                 </tr>
+#             </thead>
+#             <tbody>
+#                 {"".join([
+#                     f"""
+#                     <tr>
+#                         <td>{item.medicine.name} ({item.medicine.batch_number})</td>
+#                         <td>{item.dosage}</td>
+#                         <td class="quantity-cell">{item.dispensed_quantity}</td>
+#                         <td>{item.medicine.description or 'N/A'}</td>
+#                     </tr>
+#                     """ for item in prescription.items.all()
+#                 ])}
+#             </tbody>
+#         </table>
 
-        {" " if not prescription.notes else f"""
-        <div class="notes-section">
-            <h3>Notes:</h3>
-            <p>{prescription.notes}</p>
-        </div>
-        """}
+#         {" " if not prescription.notes else f"""
+#         <div class="notes-section">
+#             <h3>Notes:</h3>
+#             <p>{prescription.notes}</p>
+#         </div>
+#         """}
 
-        <div class="footer">
-            <p>Please present this PDF at the billing counter for payment.</p>
-            <p><strong>Thank you for choosing our pharmacy!</strong></p>
-        </div>
-    </body>
-    </html>
-    """
+#         <div class="footer">
+#             <p>Please present this PDF at the billing counter for payment.</p>
+#             <p><strong>Thank you for choosing our pharmacy!</strong></p>
+#         </div>
+#     </body>
+#     </html>
+#     """
 
-    # Generate PDF from HTML content using WeasyPrint
-    HTML(string=html_content).write_pdf(buffer)
+#     # Generate PDF from HTML content using WeasyPrint
+#     HTML(string=html_content).write_pdf(buffer)
 
-    # Get the value of the BytesIO buffer and set up the HTTP response.
-    buffer.seek(0)
-    return HttpResponse(buffer, content_type='application/pdf')
+#     # Get the value of the BytesIO buffer and set up the HTTP response.
+#     buffer.seek(0)
+#     return HttpResponse(buffer, content_type='application/pdf')
 

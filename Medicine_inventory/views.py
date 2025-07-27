@@ -96,9 +96,13 @@ def view_medicine_table(request):
         if low_stock == 'low' and not med.low_stock:
             continue
         filtered.append(med)
+
+        recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
+        
     return render(request, 'Medicine_inventory/medicine_table.html', {
         'medicine': filtered,
         'categories': categories,
+        'recent_actions' : recent_actions,
     })
 
 # Create a new medicine entry
@@ -117,7 +121,12 @@ def create_medicine(request):
             
             try:
                 medicine.save()
-                MedicineAction.objects.create(medicine=medicine, action='created')
+                MedicineAction.objects.create(
+                    medicine=medicine,
+                    medicine_name=medicine.name,
+                    batch_number=medicine.batch_number,
+                    action='created'
+                )
                 return redirect('medicine_table')
             except IntegrityError:
                 form.add_error(None, "A medicine with this batch number already exists. Please change the batch details.")
@@ -128,7 +137,12 @@ def create_medicine(request):
 # Delete a medicine
 def delete_medicine(request, id):
     medicine = Medicine.objects.get(id=id)
-    MedicineAction.objects.create(medicine=medicine, action='deleted')
+    MedicineAction.objects.create(
+        medicine=medicine,
+        medicine_name=medicine.name,
+        batch_number=medicine.batch_number,
+        action='deleted'
+    )
     medicine.delete()
     return redirect('medicine_table')
 
@@ -157,7 +171,12 @@ def update_medicine(request, id):
             medicine.batch_number = batch_number
             medicine.save()
             # Log the update action
-            MedicineAction.objects.create(medicine=medicine, action='updated')
+            MedicineAction.objects.create(
+                medicine=medicine,
+                medicine_name=medicine.name,
+                batch_number=medicine.batch_number,
+                action='updated'
+            )
             return redirect('medicine_table')
     else:
         form = MedicineForm(instance=medicine, initial=initial)

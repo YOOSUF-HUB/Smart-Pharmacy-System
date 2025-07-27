@@ -66,6 +66,8 @@ class MedicineAction(models.Model):
         ('deleted', 'Deleted'),
     ]
     medicine = models.ForeignKey(Medicine, on_delete=models.SET_NULL, null=True, blank=True)
+    medicine_name = models.CharField(max_length=255, blank=True, null=True)
+    batch_number = models.CharField(max_length=255, blank=True, null=True)
     action = models.CharField(max_length=10, choices=ACTION_CHOICES)
     timestamp = models.DateTimeField(auto_now_add=True)
 
