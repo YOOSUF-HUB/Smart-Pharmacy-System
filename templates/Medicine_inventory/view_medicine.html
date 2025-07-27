@@ -203,6 +203,11 @@
       <div class="flex items-end">
         <button type="submit" class="btn-primary w-full">Filter</button>
       </div>
+        {% if request.GET.category or request.GET.expiry or request.GET.low_stock %}
+          <a href="{% url 'medicine_cards' %}" class="btn btn-outline-secondary">Reset Filters</a>
+        {% endif %}
+
+
     </form>
   </div>
 
