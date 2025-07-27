@@ -1,288 +1,199 @@
-{% extends 'base.html' %}
+{% extends 'Medicine_inventory/base.html' %}
 
-{% block title %}Medicine List{% endblock title %}
+{% block title %}Medical Inventory Management{% endblock title %}
 
 {% block content %}
-<!-- Tailwind CSS and Custom Styles -->
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Light gray background */
-        }
-        .container {
-            max-width: 1800px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-        .navbar {
-            background-color: #1a202c; /* Dark gray for navbar */
-            color: #ffffff;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .navbar a {
-            color: #ffffff;
-            margin-right: 1.5rem;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s ease-in-out;
-        }
-        .navbar a:hover {
-            color: #a0aec0; /* Lighter gray on hover */
-        }
-        .btn-primary {
-            background-color: #4299e1; /* Blue */
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            transition: background-color 0.2s ease-in-out;
-        }
-        .btn-primary:hover {
-            background-color: #3182ce; /* Darker blue */
-        }
-        .btn-danger {
-            background-color: #ef4444; /* Red */
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            transition: background-color 0.2s ease-in-out;
-        }
-        .btn-danger:hover {
-            background-color: #dc2626; /* Darker red */
-        }
-        .form-control {
-            border: 1px solid #d1d5db;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
-            width: 100%;
-            box-sizing: border-box; /* Ensures padding doesn't increase width */
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #374151;
-        }
-        .messages {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 1rem;
-        }
-        .messages li {
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        .messages .success {
-            background-color: #d1fae5; /* Green light */
-            color: #065f46; /* Green dark */
-            border: 1px solid #34d399;
-        }
-        .messages .error {
-            background-color: #fee2e2; /* Red light */
-            color: #991b1b; /* Red dark */
-            border: 1px solid #ef4444;
-        }
-        .messages .warning {
-            background-color: #fffbeb; /* Yellow light */
-            color: #92400e; /* Yellow dark */
-            border: 1px solid #f59e0b;
-        }
-        .messages .info {
-            background-color: #e0f2fe; /* Blue light */
-            color: #1e40af; /* Blue dark */
-            border: 1px solid #60a5fa;
-        }
-        .table-auto {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .table-auto th, .table-auto td {
-            border: 1px solid #e5e7eb;
-            padding: 0.75rem;
-            text-align: left;
-        }
-        .table-auto th {
-            background-color: #f9fafb;
-            font-weight: 600;
-            color: #374151;
-        }
-        .table-auto tbody tr:nth-child(odd) {
-            background-color: #f3f4f6;
-        }
-        .table-auto tbody tr:hover {
-            background-color: #e5e7eb;
-        }
-.popover {
-    max-width: 800px;
-    width: 800px;
+  body {
+    font-family: "Montserrat", sans-serif;
+    background-color: #f8fafc;
   }
-
+  .font-serif {
+    font-family: "Montserrat", sans-serif;
+  }
 </style>
 
-<div class="container mx-auto px-4 py-8">
-  <h2 class="text-center text-3xl font-bold mb-6">Medicine Inventory</h2>
+<div class="container mx-auto max-w-7.5xl px-4 py-10">
+  <h2 class="font-serif text-left text-4xl font-semibold text-slate-800 mb-8">Medicine Inventory Management</h2>
+  <hr class="border-slate-300 mb-10">
 
-  <!-- Top Action Buttons -->
-  <div class="flex flex-wrap justify-between items-center mb-6">
-    <div class="mb-2 space-x-2">
-      <a href="{% url 'medicine_table' %}" class="btn-primary inline-block">View as Table</a>
-      <a href="{% url 'med_inventory_dash' %}" class="btn-primary inline-block">Go to Dashboard</a>
-      <a href="{% url 'export_medicine_csv' %}" class="btn-primary bg-green-500 hover:bg-green-600 inline-block">Export CSV</a>
-      <a href="{% url 'export_medicine_pdf' %}" class="btn-danger inline-block">Export PDF</a>
+  <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+    <div class="flex flex-wrap items-center gap-3">
+      <a href="{% url 'medicine_table' %}" class="bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors">View as Table</a>
+      <a href="{% url 'med_inventory_dash' %}" class="bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors">Return to Dashboard</a>
+      <a href="{% url 'export_medicine_csv' %}" class="bg-green-600 hover:bg-green-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors">Export as CSV</a>
+      <a href="{% url 'export_medicine_pdf' %}" class="bg-red-600 hover:bg-red-900 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors">Export as PDF</a>
     </div>
-    <div class="mb-2">
-      <a href="{% url 'medicine_create' %}" class="btn-primary inline-block">Add New Medicine</a>
+    <div>
+      <a href="{% url 'medicine_create' %}" class="bg-blue-600 hover:bg-blue-900 text-white font-medium py-4 px-40 rounded-md shadow-sm transition-colors">Register New Medication</a>
     </div>
   </div>
 
-  <div class="text-left my-4">
-  <button type="button"
-          class="btn btn-outline-danger"
-          data-bs-toggle="popover"
-          data-bs-html="true"
-          data-bs-trigger="hover focus"
-          title="Recently Performed Actions"
-          data-bs-content='
-            <ul class="list-group list-group-flush text-start">
-              {% for action in recent_actions %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <span>
-                    <strong>
-                      {% if action.medicine %}
-                        {{ action.medicine.name }} ({{ action.medicine.batch_number }})
-                      {% else %}
-                        {{ action.medicine_name }} ({{ action.batch_number }})
-                      {% endif %}
-                    </strong>
-                    <span class="badge bg-warning ms-2">{{ action.get_action_display }}</span>
-                  </span>
-                  <small class="text-muted">{{ action.timestamp|date:"M d, Y H:i" }}</small>
-                </li>
-              {% empty %}
-                <li class="list-group-item text-muted text-center">No recent actions.</li>
-              {% endfor %}
-            </ul>
-          '>
-    Hover to see Recent Actions
-  </button>
-</div>
+  <div class="text-left my-5">
+    <div class="relative inline-block group">
+      <button type="button" class="border border-slate-400 text-slate-700 hover:bg-slate-100 font-semibold py-2 px-4 rounded-md transition-colors duration-200 text-sm">
+        View Activity Log
+      </button>
+      <div class="absolute z-20 hidden group-hover:block bg-white rounded-md shadow-xl border w-96 max-w-md mt-2">
+        <div class="font-serif font-bold text-lg text-slate-800 p-3 border-b">
+          Recent Transaction Log
+        </div>
+        <ul class="divide-y divide-slate-200">
+          {% for action in recent_actions %}
+            <li class="p-3 flex justify-between items-center">
+              <div>
+                <strong class="font-semibold text-slate-800">
+                  {% if action.medicine %}
+                    {{ action.medicine.name }} ({{ action.medicine.batch_number }})
+                  {% else %}
+                    {{ action.medicine_name }} ({{ action.batch_number }})
+                  {% endif %}
+                </strong>
+                <span class="text-xs font-semibold text-yellow-800 bg-yellow-100 border border-yellow-200 ml-2 px-2 py-0.5 rounded-full">{{ action.get_action_display }}</span>
+              </div>
+              <small class="text-slate-500 whitespace-nowrap text-xs">{{ action.timestamp|date:"M d, Y H:i" }}</small>
+            </li>
+          {% empty %}
+            <li class="p-4 text-slate-500 text-center">No recent activity recorded.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
 
-  <!-- Filter Section -->
-  <div class="bg-white shadow rounded-lg p-6 mb-8">
-    <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div class="bg-white shadow-md rounded-md p-6 mb-8 border border-slate-200">
+    <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
       <div>
-        <label for="category" class="block font-medium text-gray-700 mb-1">Category</label>
-        <select name="category" id="category" class="form-control">
-          <option value="">All</option>
+        <label for="category" class="block text-sm font-medium text-slate-700 mb-1">Filter by Category</label>
+        <select name="category" id="category" class="w-full border-slate-300 rounded-md shadow-sm focus:border-blue-700 focus:ring-blue-700">
+          <option value="">All Categories</option>
           {% for cat in categories %}
             <option value="{{ cat }}" {% if request.GET.category == cat %}selected{% endif %}>{{ cat }}</option>
           {% endfor %}
         </select>
       </div>
       <div>
-        <label for="expiry" class="block font-medium text-gray-700 mb-1">Expiry Status</label>
-        <select name="expiry" id="expiry" class="form-control">
-          <option value="">All</option>
+        <label for="expiry" class="block text-sm font-medium text-slate-700 mb-1">Filter by Expiry Status</label>
+        <select name="expiry" id="expiry" class="w-full border-slate-300 rounded-md shadow-sm focus:border-blue-700 focus:ring-blue-700">
+          <option value="">All Statuses</option>
           <option value="near" {% if request.GET.expiry == 'near' %}selected{% endif %}>Near Expiry</option>
           <option value="expired" {% if request.GET.expiry == 'expired' %}selected{% endif %}>Expired</option>
         </select>
       </div>
       <div>
-        <label for="low_stock" class="block font-medium text-gray-700 mb-1">Stock Status</label>
-        <select name="low_stock" id="low_stock" class="form-control">
-          <option value="">All</option>
+        <label for="low_stock" class="block text-sm font-medium text-slate-700 mb-1">Filter by Stock Level</label>
+        <select name="low_stock" id="low_stock" class="w-full border-slate-300 rounded-md shadow-sm focus:border-blue-700 focus:ring-blue-700">
+          <option value="">All Levels</option>
           <option value="low" {% if request.GET.low_stock == 'low' %}selected{% endif %}>Low Stock</option>
         </select>
       </div>
-      <div class="flex items-end">
-        <button type="submit" class="btn-primary w-full">Filter</button>
-      </div>
+      <div class="flex gap-2 col-span-1 md:col-span-2 lg:col-span-2">
+        <button type="submit" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors">Apply Filters</button>
         {% if request.GET.category or request.GET.expiry or request.GET.low_stock %}
-          <a href="{% url 'medicine_cards' %}" class="btn btn-outline-secondary">Reset Filters</a>
+          <a href="{% url 'medicine_cards' %}" class="w-full text-center border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium py-2 px-4 rounded-md shadow-sm transition-colors">Clear Filters</a>
         {% endif %}
-
-
+      </div>
     </form>
   </div>
 
-  <!-- Medicine Cards Grid -->
   <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-    {% if medicine %}
-      {% for med in medicine %}
-        <div class="bg-white rounded-lg shadow border-2 flex flex-col h-full">
-          <div class="flex justify-between items-center p-4 border-b">
-            <strong>{{ med.name }}</strong>
-            <div class="space-x-2">
-              {% if med.is_expired %}
-                <span class="text-xs font-semibold text-white bg-red-500 px-2 py-1 rounded">Expired</span>
-              {% elif med.near_expiry %}
-                <span class="text-xs font-semibold text-white bg-red-400 px-2 py-1 rounded">Near Expiry</span>
-              {% endif %}
-              {% if med.low_stock %}
-                <span class="text-xs font-semibold text-white bg-gray-700 px-2 py-1 rounded">Low Stock</span>
-              {% endif %}
-            </div>
-          </div>
-          <div class="p-4 text-sm text-gray-700 space-y-1">
-            <p><strong>Batch:</strong> {{ med.batch_number }}</p>
-            <p><strong>Brand:</strong> {{ med.brand }}</p>
-            <p><strong>Category:</strong> {{ med.category }}</p>
-            <p><strong>Dosage:</strong> {{ med.dosage }}</p>
-            <p><strong>Quantity:</strong> {{ med.quantity_in_stock }}</p>
-          </div>
-          <div class="p-4 mt-auto border-t flex justify-between items-center">
-            <a href="{% url 'medicine_update' med.id %}" class="btn-primary text-sm px-4 py-2">Edit</a>
-            <button type="button"
-                    class="btn-danger text-sm px-4 py-2"
-                    data-bs-toggle="modal"
-                    data-bs-target="#deleteModal{{ med.id }}">
-              Delete
-            </button>
+    {% for med in medicine %}
+      <div class="bg-white rounded-lg shadow-md border border-slate-200 flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        <div class="p-4 border-b border-slate-200 flex justify-between items-center">
+          <h2 class="font-serif text-lg font-semibold text-slate-800">{{ med.name }}</h2>
+          <div class="flex items-center gap-2">
+            {% if med.is_expired %}
+              <span class="text-s font-semibold text-red-800 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full">Expired</span>
+            {% elif med.near_expiry %}
+              <span class="text-s font-semibold text-yellow-800 bg-yellow-100 border border-yellow-200 px-2 py-0.5 rounded-full">Near Expiry</span>
+            {% endif %}
+            {% if med.low_stock %}
+              <span class="text-s font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">Low Stock</span>
+            {% endif %}
           </div>
         </div>
-
-        <!-- Delete Modal -->
-        <div class="modal fade" id="deleteModal{{ med.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ med.id }}" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                Are you sure you want to delete <strong>{{ med.name }} - {{ med.batch_number }}</strong>?
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn-primary" data-bs-dismiss="modal">Cancel</button>
-                <a href="{% url 'medicine_delete' med.id %}" class="btn-danger">Delete</a>
-              </div>
-            </div>
-          </div>
+        <div class="p-4 text-sm text-slate-600 space-y-2 flex-grow">
+          <p><strong class="font-medium text-slate-700">Batch Number:</strong> {{ med.batch_number }}</p>
+          <p><strong class="font-medium text-slate-700">Brand:</strong> {{ med.brand }}</p>
+          <p><strong class="font-medium text-slate-700">Category:</strong> {{ med.category }}</p>
+          <p><strong class="font-medium text-slate-700">Dosage:</strong> {{ med.dosage }}</p>
+          <p class="font-medium text-base text-slate-800 mt-1"><strong>Quantity in Stock:</strong> {{ med.quantity_in_stock }}</p>
         </div>
-      {% endfor %}
-    {% else %}
-      <div class="col-span-3">
-        <div class="messages">
-          <li class="info text-center">No medicines found.</li>
+        <div class="p-3 mt-auto bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-3">
+          <a href="{% url 'medicine_update' med.id %}" class="text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-2 rounded-md transition-colors">Modify Record</a>
+          <button type="button" class="open-modal-button text-sm font-medium bg-red-100 text-red-800 hover:bg-red-200 px-4 py-2 rounded-md transition-colors" data-modal-target="#deleteModal{{ med.id }}">
+            Remove
+          </button>
         </div>
       </div>
-    {% endif %}
+
+      <div id="deleteModal{{ med.id }}" class="modal fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+          <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+              <svg class="h-6 w-6 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            </div>
+            <h3 class="font-serif text-lg leading-6 font-medium text-slate-900 mt-4">Deletion Confirmation</h3>
+            <div class="mt-2 px-7 py-3">
+              <p class="text-sm text-slate-500">
+                Please confirm your intention to permanently delete the record for <strong>{{ med.name }} (Batch: {{ med.batch_number }})</strong>. This action cannot be reversed.
+              </p>
+            </div>
+            <div class="items-center px-4 py-3 flex justify-center gap-4">
+              <button type="button" class="close-modal-button px-4 py-2 bg-slate-200 text-slate-800 rounded-md hover:bg-slate-300 w-full">
+                Cancel
+              </button>
+              <a href="{% url 'medicine_delete' med.id %}" class="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 w-full">
+                Confirm Deletion
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-span-1 md:col-span-2 lg:col-span-3">
+        <div class="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-3 rounded-md relative text-center" role="alert">
+          <span class="block sm:inline">No records match the specified criteria.</span>
+        </div>
+      </div>
+    {% endfor %}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-    popoverTriggerList.forEach(function (popoverTriggerEl) {
-      new bootstrap.Popover(popoverTriggerEl)
-    })
+    const openModal = (modal) => modal && modal.classList.remove('hidden');
+    const closeModal = (modal) => modal && modal.classList.add('hidden');
+
+    document.querySelectorAll('.open-modal-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const modal = document.querySelector(button.dataset.modalTarget);
+        openModal(modal);
+      });
+    });
+
+    document.querySelectorAll('.close-modal-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const modal = button.closest('.modal');
+        closeModal(modal);
+      });
+    });
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) closeModal(modal);
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+          closeModal(modal);
+        }
+      });
+    });
   });
 </script>
 {% endblock content %}

@@ -1,146 +1,114 @@
-{% extends "base.html" %}
+{% extends 'Medicine_inventory/base.html' %}
 {% block content %}
-<div class="container my-5">
-  <h2 class="text-center mb-4">Medicine Inventory Dashboard</h2>
-  
-  <!-- Button to go to view medicine page -->
-  <div class="mb-4 text-end">
-    <a href="{% url 'medicine_table' %}" class="btn btn-outline-primary">
+<div class="container mx-auto px-4 py-8">
+  <h2 class="text-2xl font-bold text-center mb-8">Medicine Inventory Dashboard</h2>
+
+  <!-- View Medicines Button -->
+  <div class="flex justify-end mb-6">
+    <a href="{% url 'medicine_table' %}" class="px-5 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white transition">
       View All Medicines
     </a>
   </div>
-  
-  <div class="row mb-4">
-    <!-- Example summary cards -->
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm border-0">
-        <div class="card-body text-center">
-          <h5 class="card-title mb-2">Total Medicines</h5>
-          <h3 class="card-text text-primary">{{ total_medicines }}</h3>
-        </div>
-      </div>
+
+  <!-- Stats Buttons -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white border border-blue-100 shadow rounded-lg p-6 text-center">
+      <h5 class="text-lg font-semibold mb-2">Total Medicines</h5>
+      <h3 class="text-2xl text-blue-600 font-bold">{{ total_medicines }}</h3>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm border-0">
-        <div class="card-body text-center">
-          <h5 class="card-title mb-2">Low Stock</h5>
-          <h3 class="card-text text-danger">{{ low_stock_count }}</h3>
-        </div>
-      </div>
+    <div class="bg-white border border-red-100 shadow rounded-lg p-6 text-center">
+      <h5 class="text-lg font-semibold mb-2">Low Stock</h5>
+      <h3 class="text-2xl text-red-600 font-bold">{{ low_stock_count }}</h3>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm border-0">
-        <div class="card-body text-center">
-          <h5 class="card-title mb-2">Near Expiry</h5>
-          <h3 class="card-text text-warning">{{ near_expiry_count }}</h3>
-        </div>
-      </div>
+    <div class="bg-white border border-yellow-100 shadow rounded-lg p-6 text-center">
+      <h5 class="text-lg font-semibold mb-2">Near Expiry</h5>
+      <h3 class="text-2xl text-yellow-500 font-bold">{{ near_expiry_count }}</h3>
     </div>
-    <div class="col-md-3 mb-3">
-      <div class="card shadow-sm border-0">
-        <div class="card-body text-center">
-          <h5 class="card-title mb-2">Expired</h5>
-          <h3 class="card-text text-dark">{{ expired_count }}</h3>
-        </div>
-      </div>
+    <div class="bg-white border border-gray-300 shadow rounded-lg p-6 text-center">
+      <h5 class="text-lg font-semibold mb-2">Expired</h5>
+      <h3 class="text-2xl text-gray-800 font-bold">{{ expired_count }}</h3>
     </div>
   </div>
 
-  <!-- Example chart area (you can use Chart.js or similar) -->
-  <div class="row mb-5">
-    <div class="col-md-8 mx-auto">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
-          <h5 class="card-title text-center">Medicines by Category</h5>
-          <canvas id="categoryChart" height="150"></canvas>
-        </div>
-      </div>
+  <!-- Chart -->
+  <div class="max-w-3xl mx-auto mb-10">
+    <div class="bg-white shadow rounded-lg p-6">
+      <h5 class="text-lg font-semibold text-center mb-4">Medicines by Category</h5>
+      <canvas id="categoryChart" height="150"></canvas>
     </div>
   </div>
 
-  <!-- Recent Medicines Table -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
-          <h5 class="card-title">Recently Added Medicines</h5>
-          <div class="table-responsive">
-            <table class="table table-striped align-middle">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Brand</th>
-                  <th>Category</th>
-                  <th>Quantity</th>
-                  <th>Expiry</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for med in recent_medicines %}
-                <tr>
-                  <td>{{ med.name }}</td>
-                  <td>{{ med.brand }}</td>
-                  <td>{{ med.category }}</td>
-                  <td>{{ med.quantity_in_stock }}</td>
-                  <td>{{ med.expiry_date }}</td>
-                  <td>
-                    {% if med.is_expired %}
-                      <span class="badge bg-dark">Expired</span>
-                    {% elif med.is_near_expiry %}
-                      <span class="badge bg-warning text-dark">Near Expiry</span>
-                    {% elif med.low_stock %}
-                      <span class="badge bg-danger">Low Stock</span>
-                    {% else %}
-                      <span class="badge bg-success">OK</span>
-                    {% endif %}
-                  </td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="6" class="text-center text-muted">No recent medicines.</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+  <!-- Recently Added Medicines Table -->
+  <div class="bg-white shadow rounded-lg p-6 mb-10 overflow-x-auto">
+    <h5 class="text-lg font-semibold mb-4">Recently Added Medicines</h5>
+    <table class="min-w-full text-sm text-left table-auto">
+      <thead>
+        <tr class="bg-gray-100 text-gray-700">
+          <th class="py-2 px-4">Name</th>
+          <th class="py-2 px-4">Brand</th>
+          <th class="py-2 px-4">Category</th>
+          <th class="py-2 px-4">Quantity</th>
+          <th class="py-2 px-4">Expiry</th>
+          <th class="py-2 px-4">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for med in recent_medicines %}
+        <tr class="border-b">
+          <td class="py-2 px-4">{{ med.name }}</td>
+          <td class="py-2 px-4">{{ med.brand }}</td>
+          <td class="py-2 px-4">{{ med.category }}</td>
+          <td class="py-2 px-4">{{ med.quantity_in_stock }}</td>
+          <td class="py-2 px-4">{{ med.expiry_date }}</td>
+          <td class="py-2 px-4">
+            {% if med.is_expired %}
+              <span class="bg-gray-800 text-white text-xs px-2 py-1 rounded">Expired</span>
+            {% elif med.is_near_expiry %}
+              <span class="bg-yellow-400 text-black text-xs px-2 py-1 rounded">Near Expiry</span>
+            {% elif med.low_stock %}
+              <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">Low Stock</span>
+            {% else %}
+              <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">OK</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-gray-500 py-4">No recent medicines.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Actions -->
+  <div class="max-w-3xl mx-auto mb-8">
+    <div class="bg-white shadow rounded-lg p-6">
+      <h5 class="text-lg font-semibold mb-4">Recently Performed Actions</h5>
+      <ul class="divide-y divide-gray-200">
+        {% for action in recent_actions %}
+        <li class="py-3 flex justify-between items-center">
+          <div>
+            <strong>
+              {% if action.medicine %}
+                {{ action.medicine.name }} ({{ action.medicine.batch_number }})
+              {% else %}
+                {{ action.medicine_name }} ({{ action.batch_number }})
+              {% endif %}
+            </strong>
+            <span class="ml-2 inline-block bg-blue-500 text-white text-xs px-2 py-0.5 rounded">{{ action.get_action_display }}</span>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Recently Performed Actions -->
-  <div class="row mb-4" style="margin-top: 50px;">
-    <div class="col-md-8 mx-auto">
-      <div class="card shadow-sm border-0">
-        <div class="card-body">
-          <h5 class="card-title mb-3">Recently Performed Actions</h5>
-          <ul class="list-group list-group-flush">
-            {% for action in recent_actions %}
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>
-                  <strong>
-                    {% if action.medicine %}
-                      {{ action.medicine.name }} ({{ action.medicine.batch_number }})
-                    {% else %}
-                      {{ action.medicine_name }} ({{ action.batch_number }})
-                    {% endif %}
-                  </strong>
-                  <span class="badge bg-primary ms-2">{{ action.get_action_display }}</span>
-                </span>
-                <small class="text-muted">{{ action.timestamp|date:"M d, Y H:i" }}</small>
-              </li>
-            {% empty %}
-              <li class="list-group-item text-muted text-center">No recent actions.</li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
+          <small class="text-gray-500">{{ action.timestamp|date:"M d, Y H:i" }}</small>
+        </li>
+        {% empty %}
+        <li class="py-3 text-center text-gray-400">No recent actions.</li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
 </div>
 
-<!-- Chart.js for category chart -->
+<!-- Chart.js Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const ctx = document.getElementById('categoryChart').getContext('2d');
@@ -151,7 +119,7 @@
       datasets: [{
         label: 'Medicines',
         data: {{ category_counts|safe }},
-        backgroundColor: '#b22234',
+        backgroundColor: '#2563eb', // Tailwind blue-600
         borderRadius: 6,
       }]
     },
