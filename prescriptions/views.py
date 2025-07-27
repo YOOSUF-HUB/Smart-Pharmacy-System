@@ -15,7 +15,6 @@ from .forms import PatientForm, DoctorForm, PrescriptionForm, PrescriptionItemFo
 from Medicine_inventory.models import Medicine
 
 # For PDF generation
-# Changed from reportlab to weasyprint
 from weasyprint import HTML
 import io
 
@@ -112,7 +111,8 @@ class DoctorListView(ListView):
         if query:
             queryset = queryset.filter(first_name__icontains=query) | \
                        queryset.filter(last_name__icontains=query) | \
-                       queryset.filter(specialization__icontains=query)
+                       queryset.filter(specialization__icontains=query) | \
+                       queryset.filter(medical_code__icontains=query) # Added search by medical_code
         return queryset
 
 class DoctorCreateView(CreateView):
@@ -194,7 +194,8 @@ class PrescriptionCreateView(CreateView):
         return reverse_lazy('prescription_detail', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
-        # Save the prescription first
+        # The 'doctor' object is now available in form.cleaned_data due to custom validation in PrescriptionForm.
+        form.instance.doctor = form.cleaned_data['doctor']
         response = super().form_valid(form)
         messages.success(self.request, "Prescription created successfully! Now add medicines.")
         return response
@@ -420,6 +421,8 @@ class PrescriptionUpdateView(UpdateView):
     success_url = reverse_lazy('prescription_list') # Redirect to list after main prescription update
 
     def form_valid(self, form):
+        # The 'doctor' object is now available in form.cleaned_data due to custom validation in PrescriptionForm.
+        form.instance.doctor = form.cleaned_data['doctor']
         # When main prescription details are updated, re-evaluate interactions if needed.
         # For now, just mark for re-validation.
         form.instance.is_validated = False
@@ -502,7 +505,7 @@ def generate_prescription_pdf(request, pk):
                 <strong>Patient:</strong> {prescription.patient.first_name} {prescription.patient.last_name} (DOB: {prescription.patient.date_of_birth.strftime('%Y-%m-%d')})
             </div>
             <div class="info-item">
-                <strong>Doctor:</strong> Dr. {prescription.doctor.first_name} {prescription.doctor.last_name} ({prescription.doctor.specialization or 'N/A'})
+                <strong>Doctor:</strong> Dr. {prescription.doctor.first_name} {prescription.doctor.last_name} (Code: {prescription.doctor.medical_code}) ({prescription.doctor.specialization or 'N/A'})
             </div>
         </div>
 
@@ -542,7 +545,7 @@ def generate_prescription_pdf(request, pk):
         </div>
     </body>
     </html>
-    """ # This is the line that was missing the closing triple quotes.
+    """
 
     # Generate PDF from HTML content using WeasyPrint
     HTML(string=html_content).write_pdf(buffer)

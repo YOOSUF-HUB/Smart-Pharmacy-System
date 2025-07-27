@@ -30,14 +30,16 @@ class Doctor(models.Model):
     last_name = models.CharField(max_length=100)
     specialization = models.CharField(max_length=100, blank=True, null=True)
     contact_number = models.CharField(max_length=20, blank=True, null=True)
+    medical_code = models.CharField(max_length=50, unique=True, help_text="Unique medical license or registration code")
+
 
     class Meta:
         # Orders doctors by their last name, then first name, for consistent listing.
         ordering = ['last_name', 'first_name']
 
     def __str__(self):
-        # String representation of the Doctor object.
-        return f"Dr. {self.first_name} {self.last_name}"
+        # String representation of the Doctor object, including the new medical_code.
+        return f"Dr. {self.first_name} {self.last_name} (Code: {self.medical_code})"
 
 # Model for a prescription.
 # This is the main prescription record, linking a patient and a doctor.

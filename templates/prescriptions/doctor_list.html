@@ -1,0 +1,91 @@
+{% extends 'prescriptions/base.html' %}
+{% load static %}
+
+{% block title %}Doctors List{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-800">Doctors</h1>
+        <a href="{% url 'doctor_create' %}" class="btn-primary flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            Add New Doctor
+        </a>
+    </div>
+
+    <!-- Search/Filter Form -->
+    <form method="GET" class="mb-6 flex gap-4 items-end">
+        <div class="flex-grow">
+            <label for="q" class="block text-sm font-medium text-gray-700 mb-1">Search by Name, Specialization, or Medical Code:</label>
+            <input type="text" name="q" id="q" value="{{ request.GET.q }}" placeholder="Enter name, specialization, or medical code" class="form-control">
+        </div>
+        <div>
+            <button type="submit" class="btn-primary">Search</button>
+        </div>
+        {% if request.GET.q %}
+        <div>
+            <a href="{% url 'doctor_list' %}" class="btn-danger">Clear Search</a>
+        </div>
+        {% endif %}
+    </form>
+
+    {% if doctors %}
+    <div class="overflow-x-auto">
+        <table class="table-auto min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">First Name</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Name</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Medical Code</th> {# Added Medical Code column #}
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialization</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for doctor in doctors %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ doctor.id }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ doctor.first_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ doctor.last_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ doctor.medical_code }}</td> {# Display Medical Code #}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ doctor.specialization|default:"N/A" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ doctor.contact_number|default:"N/A" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'doctor_detail' doctor.pk %}" class="text-indigo-600 hover:text-indigo-900 mr-4">View</a>
+                        <a href="{% url 'doctor_update' doctor.pk %}" class="text-yellow-600 hover:text-yellow-900 mr-4">Edit</a>
+                        <a href="{% url 'doctor_delete' doctor.pk %}" class="text-red-600 hover:text-red-900">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav class="mt-4 flex justify-center">
+        <ul class="pagination flex">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-l-md">Previous</a>
+                </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 bg-gray-200 text-sm font-medium text-gray-700">Page {{ page_obj.number }} of {{ page_obj.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-r-md">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <p class="text-gray-600">No doctors found. <a href="{% url 'doctor_create' %}" class="text-blue-600 hover:underline">Add a new doctor</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}
