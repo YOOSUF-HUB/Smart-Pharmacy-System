@@ -66,9 +66,11 @@ def view_medicine_cards(request):
         if low_stock == 'low' and not med.low_stock:
             continue
         filtered.append(med)
+        recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
     return render(request, 'Medicine_inventory/view_medicine.html', {
         'medicine': filtered,
         'categories': categories,
+        'recent_actions' : recent_actions,
     })
 
 def view_medicine_table(request):
