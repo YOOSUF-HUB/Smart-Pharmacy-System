@@ -75,37 +75,45 @@ def view_medicine_cards(request):
     })
 
 def view_medicine_table(request):
-    medicines = Medicine.objects.all()
+    medicines = Medicine.objects.all().order_by('name')
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
 
     # Filtering
     category = request.GET.get('category')
     expiry = request.GET.get('expiry')
     low_stock = request.GET.get('low_stock')
+    search_query = request.GET.get('search')
+
+    if search_query:
+        medicines = medicines.filter(name__icontains=search_query)
 
     if category:
         medicines = medicines.filter(category=category)
+
     filtered = []
     for med in medicines:
         med.low_stock = med.quantity_in_stock < med.reorder_level
         med.near_expiry = med.is_near_expiry()
         med.is_expired = med.is_expired()
+        
         # Expiry filter
         if expiry == 'near' and not med.near_expiry:
             continue
         if expiry == 'expired' and not med.is_expired:
             continue
+        
         # Low stock filter
         if low_stock == 'low' and not med.low_stock:
             continue
+            
         filtered.append(med)
 
     recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
-        
+
     return render(request, 'Medicine_inventory/medicine_table.html', {
         'medicine': filtered,
         'categories': categories,
-        'recent_actions' : recent_actions,
+        'recent_actions': recent_actions,
     })
 
 # Create a new medicine entry

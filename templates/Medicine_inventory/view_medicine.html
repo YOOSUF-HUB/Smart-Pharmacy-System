@@ -34,7 +34,7 @@
 
   <div class="text-left my-5">
     <div class="relative inline-block group">
-      <button type="button" class="border border-slate-400 text-slate-700 hover:bg-slate-100 font-semibold py-2 px-4 rounded-md transition-colors duration-200 text-sm">
+      <button type="button" class="border border-yellow-500 text-yellow-700 hover:bg-yellow-50 font-semibold py-2 px-4 rounded-md transition-colors duration-200 text-sm">
         View Activity Log
       </button>
       <div class="absolute z-20 hidden group-hover:block bg-white rounded-md shadow-xl border w-96 max-w-md mt-2">
@@ -64,36 +64,51 @@
     </div>
   </div>
 
-  <div class="bg-white shadow-md rounded-md p-6 mb-8 border border-slate-200">
-    <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+  <!-- Restructured Filter Section -->
+  <div class="bg-white shadow-md rounded-lg p-6 mb-8 border border-slate-200">
+    <form method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-4 items-end">
+      
+      <!-- Search Bar -->
+      <div class="sm:col-span-2 lg:col-span-2">
+        <label for="search" class="block text-sm font-medium text-slate-700">Search by Name</label>
+        <input type="text" name="search" id="search" value="{{ request.GET.search }}" placeholder="e.g., Paracetamol" class="mt-1 w-full py-3 px-4 border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+      </div>
+
+      <!-- Category Filter -->
       <div>
-        <label for="category" class="block text-sm font-medium text-slate-700 mb-1">Filter by Category</label>
-        <select name="category" id="category" class="w-full border-slate-300 rounded-md shadow-sm focus:border-blue-700 focus:ring-blue-700">
-          <option value="">All Categories</option>
+        <label for="category" class="block text-sm font-medium text-slate-700">Category</label>
+        <select name="category" id="category" class="mt-1 w-full border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">All</option>
           {% for cat in categories %}
             <option value="{{ cat }}" {% if request.GET.category == cat %}selected{% endif %}>{{ cat }}</option>
           {% endfor %}
         </select>
       </div>
+
+      <!-- Expiry Filter -->
       <div>
-        <label for="expiry" class="block text-sm font-medium text-slate-700 mb-1">Filter by Expiry Status</label>
-        <select name="expiry" id="expiry" class="w-full border-slate-300 rounded-md shadow-sm focus:border-blue-700 focus:ring-blue-700">
-          <option value="">All Statuses</option>
+        <label for="expiry" class="block text-sm font-medium text-slate-700">Expiry Status</label>
+        <select name="expiry" id="expiry" class="mt-1 w-full border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">All</option>
           <option value="near" {% if request.GET.expiry == 'near' %}selected{% endif %}>Near Expiry</option>
           <option value="expired" {% if request.GET.expiry == 'expired' %}selected{% endif %}>Expired</option>
         </select>
       </div>
+
+      <!-- Stock Filter -->
       <div>
-        <label for="low_stock" class="block text-sm font-medium text-slate-700 mb-1">Filter by Stock Level</label>
-        <select name="low_stock" id="low_stock" class="w-full border-slate-300 rounded-md shadow-sm focus:border-blue-700 focus:ring-blue-700">
-          <option value="">All Levels</option>
+        <label for="low_stock" class="block text-sm font-medium text-slate-700">Stock Level</label>
+        <select name="low_stock" id="low_stock" class="mt-1 w-full border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">All</option>
           <option value="low" {% if request.GET.low_stock == 'low' %}selected{% endif %}>Low Stock</option>
         </select>
       </div>
-      <div class="flex gap-2 col-span-1 md:col-span-2 lg:col-span-2">
-        <button type="submit" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors">Apply Filters</button>
-        {% if request.GET.category or request.GET.expiry or request.GET.low_stock %}
-          <a href="{% url 'medicine_cards' %}" class="w-full text-center border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium py-2 px-4 rounded-md shadow-sm transition-colors">Clear Filters</a>
+
+      <!-- Action Buttons -->
+      <div class="sm:col-span-2 lg:col-span-5 flex flex-col sm:flex-row gap-3 mt-2">
+        <button type="submit" class="py-3 px-6 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-md shadow-sm transition-colors">Apply Filters</button>
+        {% if request.GET.category or request.GET.expiry or request.GET.low_stock or request.GET.search %}
+          <a href="{% url 'medicine_cards' %}" class="py-3 px-6 text-center bg-white hover:bg-slate-100 text-slate-700 font-semibold border border-slate-300 rounded-md shadow-sm transition-colors">Reset Filters</a>
         {% endif %}
       </div>
     </form>
