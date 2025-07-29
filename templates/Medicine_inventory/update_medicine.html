@@ -31,6 +31,23 @@
     <form method="POST" novalidate>
       {% csrf_token %}
 
+      <!-- General Error Summary -->
+      {% if form.errors %}
+        <div class="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded-lg mb-6" role="alert">
+          <strong class="font-bold">Please correct the errors below.</strong>
+          <ul class="list-disc list-inside mt-2 text-sm">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
       <!-- Batch Number Information Section -->
       <fieldset class="mb-8">
         <legend class="text-lg font-semibold text-gray-800 mb-4">Batch Identification</legend>
@@ -63,7 +80,7 @@
         <legend class="text-lg font-semibold text-gray-800 mb-4">Medication Details</legend>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
           {% for field in form %}
-            {% if field.name not in 'med_code batch_date supplier_code seq' %}
+            {% if field.name not in 'med_code batch_date supplier_code seq supplier' %}
               <div class="mb-4 {% if field.name == 'description' %}md:col-span-2{% endif %}">
                 <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
                 {{ field }}
@@ -76,6 +93,18 @@
               </div>
             {% endif %}
           {% endfor %}
+
+          <!-- Supplier Field -->
+          <div class="mb-4 md:col-span-2">
+            <label for="{{ form.supplier.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ form.supplier.label }}</label>
+            {{ form.supplier }}
+            {% if form.supplier.help_text %}
+              <p class="text-gray-500 text-xs mt-1">{{ form.supplier.help_text }}</p>
+            {% endif %}
+            {% for error in form.supplier.errors %}
+              <p class="text-red-600 text-xs mt-1">{{ error }}</p>
+            {% endfor %}
+          </div>
         </div>
       </fieldset>
 
@@ -84,17 +113,6 @@
         <a href="{% url 'medicine_table' %}" class="text-sm font-semibold text-gray-600 hover:text-gray-800 transition">Cancel</a>
         <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-6 rounded-md text-sm transition shadow-sm">Update Medicine</button>
       </div>
-
-      {% if form.non_field_errors %}
-        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md mt-6" role="alert">
-          <strong class="font-bold">Error:</strong>
-          <ul class="list-disc list-inside mt-2 text-sm">
-            {% for error in form.non_field_errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-      {% endif %}
     </form>
   </div>
 </div>
