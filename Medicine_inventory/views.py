@@ -166,7 +166,7 @@ def update_medicine(request, id):
         if len(parts) == 4:
             initial = {
                 'med_code': parts[0],
-                'batch_date': str(parts[1]),  # This will be an integer string like '20250723'
+                'batch_date': str(parts[1]),
                 'supplier_code': parts[2],
                 'seq': parts[3],
             }
@@ -181,7 +181,7 @@ def update_medicine(request, id):
             medicine = form.save(commit=False)
             medicine.batch_number = batch_number
             medicine.save()
-            # Log the update action
+            
             MedicineAction.objects.create(
                 medicine=medicine,
                 medicine_name=medicine.name,
