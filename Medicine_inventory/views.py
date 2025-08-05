@@ -1,8 +1,7 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
-from Medicine_inventory.models import Medicine
-from Medicine_inventory.forms import MedicineForm
 from django.shortcuts import render, redirect, get_object_or_404
+from .models import Medicine, MedicineAction
+from .forms import MedicineForm
 import csv
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -10,7 +9,7 @@ from django.http import HttpResponse
 from weasyprint import HTML
 from datetime import datetime
 from django.db import IntegrityError
-from .models import MedicineAction
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
@@ -75,14 +74,24 @@ def view_medicine_cards(request):
     })
 
 def view_medicine_table(request):
-    medicines = Medicine.objects.all().order_by('name')
+    medicines = Medicine.objects.all()
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
 
-    # Filtering
+    # Sorting
+    sort_by = request.GET.get('sort', 'name') # Default sort by name
+    direction = request.GET.get('dir', 'asc') # Default direction ascending
+
+    if sort_by not in ['name', 'quantity_in_stock']: # Whitelist sortable fields
+        sort_by = 'name'
+
+    order = sort_by if direction == 'asc' else f'-{sort_by}'
+    medicines = medicines.order_by(order)
+
+    # Filtering (applied after sorting)
+    search_query = request.GET.get('search')
     category = request.GET.get('category')
     expiry = request.GET.get('expiry')
     low_stock = request.GET.get('low_stock')
-    search_query = request.GET.get('search')
 
     if search_query:
         medicines = medicines.filter(name__icontains=search_query)
@@ -105,16 +114,19 @@ def view_medicine_table(request):
         # Low stock filter
         if low_stock == 'low' and not med.low_stock:
             continue
-            
         filtered.append(med)
 
     recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
-
-    return render(request, 'Medicine_inventory/medicine_table.html', {
+    
+    # Pass sorting info to the template
+    context = {
         'medicine': filtered,
         'categories': categories,
         'recent_actions': recent_actions,
-    })
+        'current_sort': sort_by,
+        'current_dir': direction,
+    }
+    return render(request, 'Medicine_inventory/medicine_table.html', context)
 
 # Create a new medicine entry
 def create_medicine(request):
@@ -138,6 +150,7 @@ def create_medicine(request):
                     batch_number=medicine.batch_number,
                     action='created'
                 )
+                messages.success(request, f"Successfully registered new medication: '{medicine.name}'.")
                 return redirect('medicine_table')
             except IntegrityError:
                 form.add_error(None, "A medicine with this batch number already exists. Please change the batch details.")
@@ -147,7 +160,9 @@ def create_medicine(request):
 
 # Delete a medicine
 def delete_medicine(request, id):
-    medicine = Medicine.objects.get(id=id)
+    medicine = get_object_or_404(Medicine, pk=id)
+    medicine_name = medicine.name
+    
     MedicineAction.objects.create(
         medicine=medicine,
         medicine_name=medicine.name,
@@ -155,6 +170,9 @@ def delete_medicine(request, id):
         action='deleted'
     )
     medicine.delete()
+    
+    messages.success(request, f"The record for '{medicine_name}' has been deleted successfully.")
+    
     return redirect('medicine_table')
 
 # Update a medicine
@@ -188,6 +206,9 @@ def update_medicine(request, id):
                 batch_number=medicine.batch_number,
                 action='updated'
             )
+            
+            messages.success(request, f"The record for '{medicine.name}' has been updated successfully.")
+            
             return redirect('medicine_table')
     else:
         form = MedicineForm(instance=medicine, initial=initial)
@@ -241,7 +262,21 @@ def med_inventory_dashboard(request):
     category_labels = list(category_counts_dict.keys())
     category_counts = list(category_counts_dict.values())
 
-    recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
+    # Fetch ALL actions, ordered by the most recent
+    action_list = MedicineAction.objects.select_related('medicine').order_by('-timestamp')
+    
+    # Set up the Paginator
+    paginator = Paginator(action_list, 10) # Show 10 actions per page
+    page_number = request.GET.get('page')
+    
+    try:
+        actions_page = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver the first page.
+        actions_page = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver the last page of results.
+        actions_page = paginator.page(paginator.num_pages)
 
     context = {
         'total_medicines': total_medicines,
@@ -251,7 +286,7 @@ def med_inventory_dashboard(request):
         'recent_medicines': recent_medicines,
         'category_labels': category_labels,
         'category_counts': category_counts,
+        'recent_actions': actions_page, # Use the paginated object
     }
-    context.update({'recent_actions': recent_actions})
     return render(request, 'Medicine_inventory/med_inventory_dash.html', context)
 

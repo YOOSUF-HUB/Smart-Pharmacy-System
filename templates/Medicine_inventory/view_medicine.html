@@ -135,6 +135,7 @@
           <p><strong class="font-medium text-slate-700">Brand:</strong> {{ med.brand }}</p>
           <p><strong class="font-medium text-slate-700">Category:</strong> {{ med.category }}</p>
           <p><strong class="font-medium text-slate-700">Dosage:</strong> {{ med.dosage }}</p>
+          <p class="font-medium text-base text-slate-800 mt-1"><strong>Type:</strong> {{ med.get_medicine_type_display }}</p>
           <p class="font-medium text-base text-slate-800 mt-1"><strong>Quantity in Stock:</strong> {{ med.quantity_in_stock }}</p>
         </div>
         <div class="p-3 mt-auto bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-3">

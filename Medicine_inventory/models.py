@@ -33,9 +33,19 @@ class Medicine(models.Model):
     ('Local Anesthetic', 'Local Anesthetic'), # Numbing agents
     ]
 
+    MEDICINE_TYPE_CHOICES = [
+        ('RX', 'RX'),
+        ('OTC', 'OTC'),
+    ]
+
     name = models.CharField(max_length=100)
     brand = models.CharField(max_length=100)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    medicine_type = models.CharField(
+        max_length=3,
+        choices=MEDICINE_TYPE_CHOICES,
+        default='RX'
+    )
     description = models.TextField(blank=True)
     dosage = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=10, decimal_places=2)
