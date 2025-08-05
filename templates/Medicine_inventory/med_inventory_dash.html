@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <style>
-  /* Base styles using Tailwind's recommended 'font-sans' and a custom 'font-serif' */
+
   body {
     font-family: "Montserrat", sans-serif;
     background-color: #f8fafc; /* slate-50 */
@@ -16,8 +16,8 @@
 <div class="flex justify-between items-center mb-8 mt-8">
     <div class="flex items-center gap-4">
         <!-- ** LOGO PLACEHOLDER ** -->
-        <img src="{% static 'MediSyn_Logo/3.png' %}" alt="Your Company Logo" class="h-12 w-auto">
-        <h2 class="text-4xl font-bold text-slate-800">
+        <img src="{% static 'MediSyn_Logo/1.png' %}" alt="Your Company Logo" class="h-20 w-auto">
+        <h2 class="text-4xl font-bold text-[#8D36EF]">
             Inventory Dashboard
         </h2>
     </div>
@@ -52,7 +52,10 @@
 
   <div class="max-w-full mx-auto mb-12">
     <div class="bg-white shadow-lg rounded-xl p-8">
-      <h5 class="text-xl font-semibold text-slate-800 text-center mb-6">Medicines by Category</h5>
+    <h2 class="text-3xl font-bold text-slate-800">
+      Medicines by Category
+    </h2>
+    <br>
       <div class="relative h-72">
         <canvas id="categoryChart"></canvas>
       </div>
@@ -173,10 +176,10 @@
       datasets: [{
         label: 'Medicine Count',
         data: {{ category_counts|safe }},
-        backgroundColor: 'rgba(0, 179, 179, 1)',
-        borderColor: 'rgba(0, 179, 179, 1)',
+        backgroundColor: 'rgba(54, 239, 202, 1)',
+        borderColor: 'rgba(54, 239, 202, 1)',
         borderWidth: 1,
-        borderRadius: 6
+        borderRadius: 10
       }]
     },
     options: {
