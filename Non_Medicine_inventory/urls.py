@@ -5,6 +5,7 @@ app_name = 'non_medicine'
 
 urlpatterns = [
     path('', views.product_list, name='product_list'),
+    path('table/', views.product_table, name='product_table'),
     path('create/', views.product_create, name='product_create'),
     path('<slug:slug>/', views.product_detail, name='product_detail'),
     path('<slug:slug>/update/', views.product_update, name='product_update'),

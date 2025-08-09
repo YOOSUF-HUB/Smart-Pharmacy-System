@@ -4,9 +4,10 @@ from .models import NonMedicalProduct
 class NonMedicalProductForm(forms.ModelForm):
     class Meta:
         model = NonMedicalProduct
-        fields = ['name', 'category', 'description', 'cost_price', 
+        fields = ['brand','name', 'category', 'description', 'cost_price',
                   'selling_price', 'stock', 'image', 'is_active', 'reorder_level']
         widgets = {
+            'brand': forms.TextInput(attrs={'class': 'w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'}),
             'name': forms.TextInput(attrs={'class': 'w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'}),
             'category': forms.Select(attrs={'class': 'w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'}),
             'description': forms.Textarea(attrs={'class': 'w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50', 'rows': 3}),

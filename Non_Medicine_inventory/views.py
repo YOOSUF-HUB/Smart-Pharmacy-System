@@ -1,31 +1,34 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.db.models import F
 from .models import NonMedicalProduct
 from .forms import NonMedicalProductForm
 
+
 def product_list(request):
     """Display all non-medical products"""
+    # Start with all products
     products = NonMedicalProduct.objects.all()
     
-    # Filter by category if provided
+    # Get filter parameters from request
     category = request.GET.get('category')
+    search_query = request.GET.get('search')
+    
+    # Apply filters
     if category:
         products = products.filter(category=category)
     
-    # Filter by search query if provided
-    search_query = request.GET.get('search')
     if search_query:
         products = products.filter(name__icontains=search_query)
-        
-    # Get unique categories for filter dropdown
-    categories = NonMedicalProduct.CATEGORY_CHOICES
     
+    # Prepare context
     context = {
         'products': products,
-        'categories': categories,
+        'categories': NonMedicalProduct.CATEGORY_CHOICES,
         'current_category': category,
         'search_query': search_query,
     }
+    
     return render(request, 'Non_Medicine_inventory/product_list.html', context)
 
 def product_detail(request, slug):
@@ -76,3 +79,28 @@ def product_delete(request, slug):
     
     context = {'product': product}
     return render(request, 'Non_Medicine_inventory/product_confirm_delete.html', context)
+
+def product_table(request):
+    """Display all non-medical products in a table format"""
+    products = NonMedicalProduct.objects.all()
+    
+    # Filter by category if provided
+    category = request.GET.get('category')
+    if category:
+        products = products.filter(category=category)
+    
+    # Filter by search query if provided
+    search_query = request.GET.get('search')
+    if search_query:
+        products = products.filter(name__icontains=search_query)
+        
+    # Get unique categories for filter dropdown
+    categories = NonMedicalProduct.CATEGORY_CHOICES
+    
+    context = {
+        'products': products,
+        'categories': categories,
+        'current_category': category,
+        'search_query': search_query,
+    }
+    return render(request, 'Non_Medicine_inventory/product_list_table.html', context)

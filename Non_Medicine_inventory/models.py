@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.db.models import F
 
 class NonMedicalProduct(models.Model):
     CATEGORY_CHOICES = [
@@ -11,6 +12,7 @@ class NonMedicalProduct(models.Model):
         ('other', 'Other'),
     ]
 
+    brand = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='other')
