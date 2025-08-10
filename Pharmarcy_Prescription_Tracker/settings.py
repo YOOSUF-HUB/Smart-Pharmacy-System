@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'Medicine_inventory',
     'prescriptions',
     'Non_Medicine_inventory',
+    'payments',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -139,3 +140,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Media files settings
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51RuS6kLxYGksYlO5cOHxyasQv42vYzERNmGu7gGnrd4T5uhHNtYZxDiLQIqYRAen1aMX0mp34VzuAmFPzv5mYgmq00kovaF8kT'
+STRIPE_SECRET_KEY = 'sk_test_51RuS6kLxYGksYlO5mMYeMxHMNY1d0C9gwaxTURULb7K6xtfYe49N1fakp7h2gQLOMMyUxkKytEzOGCfUKAQ2d9mY003oUw3FVb'
