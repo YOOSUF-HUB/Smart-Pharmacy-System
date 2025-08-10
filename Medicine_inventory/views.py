@@ -10,6 +10,8 @@ from weasyprint import HTML
 from datetime import datetime
 from django.db import IntegrityError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from Non_Medicine_inventory.models import NonMedicalProduct
+from django.db.models import Count, F
 
 
 
@@ -278,6 +280,14 @@ def med_inventory_dashboard(request):
         # If page is out of range, deliver the last page of results.
         actions_page = paginator.page(paginator.num_pages)
 
+    # Add non-medical product statistics
+    total_nonmedical = NonMedicalProduct.objects.count()
+    nonmedical_low_stock_count = NonMedicalProduct.objects.filter(
+        stock__lte=F('reorder_level')
+    ).count()
+    nonmedical_active_count = NonMedicalProduct.objects.filter(is_active=True).count()
+    nonmedical_categories_count = NonMedicalProduct.objects.values('category').distinct().count()
+    
     context = {
         'total_medicines': total_medicines,
         'low_stock_count': low_stock_count,
@@ -287,6 +297,10 @@ def med_inventory_dashboard(request):
         'category_labels': category_labels,
         'category_counts': category_counts,
         'recent_actions': actions_page, # Use the paginated object
+        'total_nonmedical': total_nonmedical,
+        'nonmedical_low_stock_count': nonmedical_low_stock_count,
+        'nonmedical_active_count': nonmedical_active_count,
+        'nonmedical_categories_count': nonmedical_categories_count,
     }
     return render(request, 'Medicine_inventory/med_inventory_dash.html', context)
 

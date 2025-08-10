@@ -32,7 +32,9 @@
 <hr class="border-slate-300 mb-8 sm:mb-10">
 
 <div class="container mx-auto font-sans px-4 sm:px-6 lg:px-8">
-
+        <a href="{% url 'medicine_table' %}" class="px-4 py-2 text-l sm:px-5 sm:py-2.5 border border-cyan-600 text-cyan-600 font-medium rounded-md hover:bg-cyan-500 hover:text-white transition duration-300 ease-in-out text-center">
+            Medicinal Products
+        </a>
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
     <div class="bg-white border border-cyan-100 rounded-xl shadow p-4 sm:p-6 text-center hover:shadow-md transition">
       <h5 class="text-sm sm:text-md font-medium text-cyan-600 mb-2">Total Medicines</h5>
@@ -49,6 +51,27 @@
     <div class="bg-white border border-slate-200 rounded-xl shadow p-4 sm:p-6 text-center hover:shadow-md transition">
       <h5 class="text-sm sm:text-md font-medium text-slate-600 mb-2">Expired</h5>
       <h3 class="text-2xl sm:text-3xl text-slate-600 font-bold">{{ expired_count }}</h3>
+    </div>
+  </div>
+        <a href="{% url 'non_medicine:product_list' %}" class="px-4 py-2 text-l sm:px-5 sm:py-2.5 border border-purple-600 text-purple-700 font-medium rounded-md hover:bg-purple-600 hover:text-white transition duration-300 ease-in-out text-center">
+            Non-Medical Products
+        </a>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+    <div class="bg-white border border-purple-100 rounded-xl shadow p-4 sm:p-6 text-center hover:shadow-md transition">
+      <h5 class="text-sm sm:text-md font-medium text-purple-600 mb-2">Total Products</h5>
+      <h3 class="text-2xl sm:text-3xl text-purple-700 font-bold">{{ total_nonmedical }}</h3>
+    </div>
+    <div class="bg-white border border-red-100 rounded-xl shadow p-4 sm:p-6 text-center hover:shadow-md transition">
+      <h5 class="text-sm sm:text-md font-medium text-slate-600 mb-2">Low Stock</h5>
+      <h3 class="text-2xl sm:text-3xl text-red-600 font-bold">{{ nonmedical_low_stock_count }}</h3>
+    </div>
+    <div class="bg-white border border-green-100 rounded-xl shadow p-4 sm:p-6 text-center hover:shadow-md transition">
+      <h5 class="text-sm sm:text-md font-medium text-slate-600 mb-2">Active Products</h5>
+      <h3 class="text-2xl sm:text-3xl text-green-600 font-bold">{{ nonmedical_active_count }}</h3>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl shadow p-4 sm:p-6 text-center hover:shadow-md transition">
+      <h5 class="text-sm sm:text-md font-medium text-slate-600 mb-2">Categories</h5>
+      <h3 class="text-2xl sm:text-3xl text-slate-600 font-bold">{{ nonmedical_categories_count }}</h3>
     </div>
   </div>
 
