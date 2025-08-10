@@ -23,12 +23,29 @@ body {
                     <a href="{% url 'med_inventory_dash' %}" class="bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-center">
                         Return to Dashboard
                     </a>
-                    <a href="{% url 'non_medicine:product_table' %}" class="bg-slate-600 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-center">
+                    <a href="{% url 'non_medicine:product_table' %}" class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-center">
                         <span class="flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z" clip-rule="evenodd"></path>
                             </svg>
                             Table View
+                        </span>
+                    </a>
+                    <!-- New Export Buttons -->
+                    <a href="{% url 'non_medicine:export_pdf' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-center">
+                        <span class="flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            Export PDF
+                        </span>
+                    </a>
+                    <a href="{% url 'non_medicine:export_csv' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-center">
+                        <span class="flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Export CSV
                         </span>
                     </a>
                 </div>
@@ -86,7 +103,7 @@ body {
     </form>
 </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {% for product in products %}
         <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-200">
             {% if product.image %}
@@ -103,8 +120,8 @@ body {
             {% endif %}
             <div class="p-6">
                 <div class="flex justify-between items-start mb-2">
-                    <h2 class="text-xl font-bold text-gray-800">{{ product.brand }}</h2>
-                    <h2 class="text-xl font-bold text-gray-800">{{ product.name }}</h2>
+                    <h2 class="text-m font-bold text-gray-800">{{ product.brand }}</h2>
+                    <h2 class="text-m font-bold text-gray-800">{{ product.name }}</h2>
                     {% if not product.is_active %}
                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
                     {% endif %}
