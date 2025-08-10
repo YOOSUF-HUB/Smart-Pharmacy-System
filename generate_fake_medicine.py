@@ -85,11 +85,10 @@ def create_fake_medicine(n=10):
         manufacture_date = fake.date_between(start_date='-2y', end_date='today')
         batch_number = generate_batch_number(category, manufacture_date, supplier, i+1)
         
-        # First generate cost price
         cost_price = round(random.uniform(10, 300), 2)
         
-        # Then generate selling price with a markup (20-50% higher)
-        markup = random.uniform(1.2, 1.5)  # 20-50% markup
+
+        markup = random.uniform(1.2, 1.5)
         selling_price = round(cost_price * markup, 2)
         
         Medicine.objects.create(
@@ -98,8 +97,8 @@ def create_fake_medicine(n=10):
             category=category,
             description=fake.text(max_nb_chars=100),
             dosage=random.choice(dosages),
-            selling_price=selling_price,  # Use the calculated selling price
-            cost_price=cost_price,        # Use the base cost price
+            selling_price=selling_price,
+            cost_price=cost_price,
             quantity_in_stock=random.randint(1, 100),
             reorder_level=random.randint(5, 20),
             manufacture_date=manufacture_date,
