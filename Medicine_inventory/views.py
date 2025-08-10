@@ -12,6 +12,8 @@ from django.db import IntegrityError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from Non_Medicine_inventory.models import NonMedicalProduct
 from django.db.models import Count, F
+import os
+from django.conf import settings
 
 
 
@@ -233,7 +235,7 @@ def export_medicine_csv(request):
     ])
     for med in medicines:
         writer.writerow([
-            med.name, med.brand, med.category, med.description, med.dosage, med.price,
+            med.name, med.brand, med.category, med.description, med.dosage, med.selling_price, med.cost_price,
             med.quantity_in_stock, med.reorder_level, med.manufacture_date, med.expiry_date,
             med.batch_number, med.supplier
         ])
@@ -241,10 +243,14 @@ def export_medicine_csv(request):
 
 def export_medicine_pdf(request):
     medicines = Medicine.objects.all()
-    html_string = render_to_string('Medicine_inventory/medicine_pdf.html', {
+    
+    # Use STATICFILES_DIRS instead of STATIC_ROOT
+    context = {
         'medicines': medicines,
-        'now': datetime.now()
-    })
+        'logo_path': os.path.join(settings.STATICFILES_DIRS[0], 'MediSyn_Logo', '3.png')
+    }
+    
+    html_string = render_to_string('Medicine_inventory/medicine_pdf.html', context)
     pdf_file = HTML(string=html_string).write_pdf()
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="medicine_inventory.pdf"'
