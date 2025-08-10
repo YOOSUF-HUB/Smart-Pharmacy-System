@@ -42,7 +42,7 @@ class Medicine(models.Model):
     brand = models.CharField(max_length=100)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     medicine_type = models.CharField(
-        max_length=3,
+        max_length=10,
         choices=MEDICINE_TYPE_CHOICES,
         default='RX'
     )

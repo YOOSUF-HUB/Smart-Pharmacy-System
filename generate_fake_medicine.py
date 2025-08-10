@@ -71,6 +71,8 @@ suppliers = [
     "Medline Industries", "Henry Schein", "Cipla Distributors", "Sun Pharma Supply Co."
 ]
 
+medicine_type=["RX", "OTC"]
+
 def generate_batch_number(category, manufacture_date, supplier, seq):
     med_code = category[:5].upper()
     batch_date = manufacture_date.strftime("%Y%m%d")
@@ -95,6 +97,7 @@ def create_fake_medicine(n=10):
             name=med_name,
             brand=random.choice(real_brands),
             category=category,
+            medicine_type=random.choices(medicine_type, k=1)[0],
             description=fake.text(max_nb_chars=100),
             dosage=random.choice(dosages),
             selling_price=selling_price,
