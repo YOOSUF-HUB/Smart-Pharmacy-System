@@ -26,8 +26,9 @@ class Payment(models.Model):
     payment_date = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        """String representation of the Payment object."""
-        return f"Invoice #{self.id} for {self.patient.full_name} ({self.status})"
+        # Change this line
+        return f"Invoice #{self.id} for {self.patient.first_name} {self.patient.last_name} ({self.status})"
+        # It's better to use first_name and last_name directly
         
     def calculate_total(self):
         total = self.payment_items.aggregate(total=Sum('total_price'))['total']

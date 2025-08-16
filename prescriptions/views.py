@@ -6,7 +6,7 @@ from django.urls import reverse_lazy, reverse
 from django.db import transaction # Used for atomic operations (e.g., stock management)
 from django.contrib import messages # For displaying user feedback messages
 from django.http import HttpResponse
-
+from django.db.models.deletion import ProtectedError
 # Import models and forms from your prescriptions app
 from .models import Patient, Doctor, Prescription, PrescriptionItem, DrugInteraction
 from .forms import PatientForm, DoctorForm, PrescriptionForm, PrescriptionItemForm
@@ -89,11 +89,13 @@ class PatientDeleteView(DeleteView):
     # URL to redirect to after successful patient deletion.
     success_url = reverse_lazy('patient_list')
 
-    def form_valid(self, form):
-        # Called if the form is valid. Deletes the patient and displays a success message.
-        messages.success(self.request, "Patient deleted successfully!")
-        return super().form_valid(form)
-
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().post(request, *args, **kwargs)
+        except ProtectedError:
+            messages.error(request, "This patient cannot be deleted because they are associated with an existing prescription.")
+            return redirect('patient_list')
+    
 
 # --- Doctor CRUD Views ---
 # These views handle the creation, listing, updating, and deleting of Doctor records.
@@ -145,9 +147,12 @@ class DoctorDeleteView(DeleteView):
     template_name = 'prescriptions/doctor_confirm_delete.html'
     success_url = reverse_lazy('doctor_list')
 
-    def form_valid(self, form):
-        messages.success(self.request, "Doctor deleted successfully!")
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().post(request, *args, **kwargs)
+        except ProtectedError:
+            messages.error(request, "This doctor cannot be deleted because they are associated with an existing prescription.")
+            return redirect('doctor_list')
 
 
 # --- Prescription CRUD Views ---
@@ -452,18 +457,13 @@ class PrescriptionDeleteView(DeleteView):
     success_url = reverse_lazy('prescription_list')
 
     def form_valid(self, form):
-        with transaction.atomic():
-            # Before deleting the prescription, return all dispensed quantities to stock.
-            for item in self.object.items.all():
-                medicine_in_stock = Medicine.objects.select_for_update().get(pk=item.medicine.pk)
-                medicine_in_stock.quantity_in_stock += item.dispensed_quantity
-                medicine_in_stock.save()
-                messages.info(self.request, f"Returned {item.dispensed_quantity} units of {item.medicine.name} (batch {item.medicine.batch_number}) to stock.")
-
-            # Now delete the prescription (this will cascade delete PrescriptionItems).
-            response = super().form_valid(form)
-            messages.success(self.request, "Prescription deleted successfully and all stock returned.")
-            return response
+        try:
+            self.object.delete()
+            messages.success(self.request, "Prescription was successfully deleted.")
+            return redirect(self.success_url)
+        except ProtectedError:
+            messages.error(self.request, "This prescription cannot be deleted because it has a related payment. Please cancel the prescription instead.")
+            return redirect('prescription_detail', pk=self.object.pk)
 
 
 # ADDED: A new function-based view to mark a prescription as paid.
