@@ -3,7 +3,14 @@ from django.contrib import messages
 from django.db.models import F
 from .models import NonMedicalProduct
 from .forms import NonMedicalProductForm
-
+import csv
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from django.conf import settings
+import tempfile
+import os
+from datetime import datetime
 
 def product_list(request):
     """Display all non-medical products"""
@@ -104,3 +111,67 @@ def product_table(request):
         'search_query': search_query,
     }
     return render(request, 'Non_Medicine_inventory/product_list_table.html', context)
+
+def export_pdf(request):
+    # Get filtered products (same logic as in product_list view)
+    products = NonMedicalProduct.objects.all()
+    category = request.GET.get('category')
+    search_query = request.GET.get('search')
+    
+    if category:
+        products = products.filter(category=category)
+    if search_query:
+        products = products.filter(name__icontains=search_query)
+    
+    # Prepare context for the template
+    context = {
+        'products': products,
+        'title': 'Non-Medical Products Report',
+        'date': datetime.now().strftime('%Y-%m-%d %H:%M'),
+        'request': request,
+    }
+    
+    # Render HTML content
+    html_string = render_to_string('Non_Medicine_inventory/pdf_template.html', context)
+    
+    # Create HTTP response with PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="non_medical_products.pdf"'
+    
+    # Generate PDF from HTML
+    HTML(string=html_string).write_pdf(response)
+    
+    return response
+
+def export_csv(request):
+    # Get filtered products (same logic as in product_list view)
+    products = NonMedicalProduct.objects.all()
+    category = request.GET.get('category')
+    search_query = request.GET.get('search')
+    
+    if category:
+        products = products.filter(category=category)
+    if search_query:
+        products = products.filter(name__icontains=search_query)
+    
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="non_medical_products.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Name', 'Brand', 'Category', 'Description', 'Cost Price', 'Selling Price', 'Stock', 'Reorder Level', 'Status'])
+    
+    for product in products:
+        writer.writerow([
+            product.name,
+            product.brand,
+            product.get_category_display(),
+            product.description,
+            product.cost_price,
+            product.selling_price,
+            product.stock,
+            product.reorder_level,
+            'Active' if product.is_active else 'Inactive'
+        ])
+    
+    return response

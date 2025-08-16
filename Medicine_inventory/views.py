@@ -10,6 +10,10 @@ from weasyprint import HTML
 from datetime import datetime
 from django.db import IntegrityError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from Non_Medicine_inventory.models import NonMedicalProduct
+from django.db.models import Count, F
+import os
+from django.conf import settings
 
 
 
@@ -231,7 +235,7 @@ def export_medicine_csv(request):
     ])
     for med in medicines:
         writer.writerow([
-            med.name, med.brand, med.category, med.description, med.dosage, med.price,
+            med.name, med.brand, med.category, med.description, med.dosage, med.selling_price, med.cost_price,
             med.quantity_in_stock, med.reorder_level, med.manufacture_date, med.expiry_date,
             med.batch_number, med.supplier
         ])
@@ -239,10 +243,14 @@ def export_medicine_csv(request):
 
 def export_medicine_pdf(request):
     medicines = Medicine.objects.all()
-    html_string = render_to_string('Medicine_inventory/medicine_pdf.html', {
+    
+    # Use STATICFILES_DIRS instead of STATIC_ROOT
+    context = {
         'medicines': medicines,
-        'now': datetime.now()
-    })
+        'logo_path': os.path.join(settings.STATICFILES_DIRS[0], 'MediSyn_Logo', '3.png')
+    }
+    
+    html_string = render_to_string('Medicine_inventory/medicine_pdf.html', context)
     pdf_file = HTML(string=html_string).write_pdf()
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="medicine_inventory.pdf"'
@@ -278,6 +286,14 @@ def med_inventory_dashboard(request):
         # If page is out of range, deliver the last page of results.
         actions_page = paginator.page(paginator.num_pages)
 
+    # Add non-medical product statistics
+    total_nonmedical = NonMedicalProduct.objects.count()
+    nonmedical_low_stock_count = NonMedicalProduct.objects.filter(
+        stock__lte=F('reorder_level')
+    ).count()
+    nonmedical_active_count = NonMedicalProduct.objects.filter(is_active=True).count()
+    nonmedical_categories_count = NonMedicalProduct.objects.values('category').distinct().count()
+    
     context = {
         'total_medicines': total_medicines,
         'low_stock_count': low_stock_count,
@@ -287,6 +303,10 @@ def med_inventory_dashboard(request):
         'category_labels': category_labels,
         'category_counts': category_counts,
         'recent_actions': actions_page, # Use the paginated object
+        'total_nonmedical': total_nonmedical,
+        'nonmedical_low_stock_count': nonmedical_low_stock_count,
+        'nonmedical_active_count': nonmedical_active_count,
+        'nonmedical_categories_count': nonmedical_categories_count,
     }
     return render(request, 'Medicine_inventory/med_inventory_dash.html', context)
 

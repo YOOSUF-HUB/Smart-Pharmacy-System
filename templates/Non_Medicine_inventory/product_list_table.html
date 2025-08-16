@@ -32,6 +32,28 @@
                     Add New Product
                 </span>
             </a>
+            
+            <!-- Export Buttons -->
+            <div class="hidden md:flex gap-2">
+                <a href="{% url 'non_medicine:export_pdf' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-center w-full sm:w-auto">
+                    <span class="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        PDF
+                    </span>
+                </a>
+                <a href="{% url 'non_medicine:export_csv' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-center w-full sm:w-auto">
+                    <span class="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        CSV
+                    </span>
+                </a>
+            </div>
+            
+            <!-- Dashboard Button -->
             <a href="{% url 'med_inventory_dash' %}" class="bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-center w-full sm:w-auto">
                 <span class="flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -40,6 +62,36 @@
                     Dashboard
                 </span>
             </a>
+            
+            <!-- Export Dropdown for Mobile -->
+            <div class="md:hidden relative group w-full">
+                <button type="button" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors text-center flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export
+                </button>
+                <div class="hidden group-hover:block absolute z-10 left-0 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                    <div class="py-1">
+                        <a href="{% url 'non_medicine:export_pdf' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <span class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Export as PDF
+                            </span>
+                        </a>
+                        <a href="{% url 'non_medicine:export_csv' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <span class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Export as CSV
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -130,7 +182,7 @@
                             <div class="text-sm text-gray-500">{{ product.get_category_display }}</div>
                         </td>
                         <td class="hidden sm:table-cell px-3 sm:px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ product.selling_price }}</div>
+                            <div class="text-sm font-medium text-gray-900">Sell: {{ product.selling_price }}</div>
                             <div class="text-xs text-gray-500">Cost: {{ product.cost_price }}</div>
                         </td>
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap">

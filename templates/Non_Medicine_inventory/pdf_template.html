@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 2.5cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.5;
+        }
+        h1 {
+            color: #2563eb;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .date {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th {
+            background-color: #2563eb;
+            color: white;
+            font-weight: bold;
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .low-stock {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <div class="date">Generated on {{ date }}</div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th>Price (Rs)</th>
+                <th>Stock</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.brand }}</td>
+                <td>{{ product.get_category_display }}</td>
+                <td>{{ product.selling_price }}</td>
+                <td {% if product.stock <= product.reorder_level %}class="low-stock"{% endif %}>
+                    {{ product.stock }}
+                    {% if product.stock <= product.reorder_level %}(Low){% endif %}
+                </td>
+                <td>{% if product.is_active %}Active{% else %}Inactive{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>This is an automatically generated report. For official use only.</p>
+    </div>
+</body>
+</html>

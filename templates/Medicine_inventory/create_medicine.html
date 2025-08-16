@@ -132,6 +132,51 @@
       }
     }
 
+    // New price validation logic
+    const costPriceField = document.getElementById("id_cost_price");
+    const sellingPriceField = document.getElementById("id_selling_price");
+    
+    // Function to create or update error message
+    function validatePrices() {
+      // Remove any existing error message
+      const existingError = document.getElementById("price-error");
+      if (existingError) {
+        existingError.remove();
+      }
+      
+      // Get the values as numbers
+      const costPrice = parseFloat(costPriceField.value) || 0;
+      const sellingPrice = parseFloat(sellingPriceField.value) || 0;
+      
+      // Check if cost price is greater than selling price
+      if (costPrice > sellingPrice && sellingPrice > 0) {
+        // Create error message
+        const errorElement = document.createElement("p");
+        errorElement.id = "price-error";
+        errorElement.className = "text-red-600 text-xs mt-1";
+        errorElement.textContent = "Warning: Cost price is greater than selling price. This will result in a loss.";
+        
+        // Add error after the selling price field
+        sellingPriceField.parentNode.appendChild(errorElement);
+        
+        // Add red border to both fields
+        costPriceField.classList.add("border-red-500");
+        sellingPriceField.classList.add("border-red-500");
+      } else {
+        // Remove red border if validation passes
+        costPriceField.classList.remove("border-red-500");
+        sellingPriceField.classList.remove("border-red-500");
+      }
+    }
+
+    // Add event listeners for price fields
+    if (costPriceField && sellingPriceField) {
+      costPriceField.addEventListener('input', validatePrices);
+      sellingPriceField.addEventListener('input', validatePrices);
+      validatePrices(); // Run on load
+    }
+
+    // Existing event listeners
     if (categoryField && medCodeField) {
       categoryField.addEventListener('change', updateMedCode);
       updateMedCode(); // Run on load
