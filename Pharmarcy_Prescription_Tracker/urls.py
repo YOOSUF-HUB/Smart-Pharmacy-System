@@ -11,7 +11,8 @@ urlpatterns = [
     path('', include('Medicine_inventory.urls')),  # now root goes to medicine app
     path('prescriptions/', include('prescriptions.prescription_urls')),
     path('non-medical/', include('Non_Medicine_inventory.urls', namespace='non_medicine')),
-    path('payments/' , include('payments.payments_urls'))
+    path('payments/' , include('payments.payments_urls')),
+    path('online-store/', include('onlineStore.urls')),
 ]
 
 # For serving media files during development
