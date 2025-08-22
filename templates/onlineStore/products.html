@@ -12,8 +12,7 @@
     <li class="list-group-item">
         <h5>{{ product.name }}</h5>
         <p>{{ product.description }}</p>
-        <p>Price: ${{ product.price }}</p>
-        <a href="{% url 'view_product_detail' product.id %}" class="btn btn-primary">View Details</a>
+        <p>Price: LKR {{ product.medTypes }}</p>
     </li>
     {% endfor %}
 </ul>
