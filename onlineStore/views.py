@@ -35,3 +35,17 @@ def products(request):
         filtered.append(med)
     return render(request, 'onlineStore/products.html', {'products': filtered})
 
+def view_product_detail(request, id):
+    try:
+        product = Medicine.objects.get(id=id)
+    except Medicine.DoesNotExist:
+        product = None
+    return render(request, 'onlineStore/productDetail.html', {'product': product})
+
+def checkout(request):
+    return render(request, 'onlineStore/checkout.html')
+
+
+
+def order_history(request):
+    return render(request, 'onlineStore/orderHistory.html')
