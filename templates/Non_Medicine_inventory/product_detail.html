@@ -9,7 +9,7 @@
     <!-- Back Link -->
     <div class="mb-6 sm:mb-8 border-b border-purple-100 pb-3">
       <a
-        href="{% url 'non_medicine:product_list' %}"
+        href="{% url 'non_medicine:product_list' %}?view={{ request.GET.view|default:'table' }}"
         class="group inline-flex items-center text-purple-700 hover:text-purple-900 transition-colors duration-200 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 rounded"
       >
         <svg
