@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'prescriptions',
     'Non_Medicine_inventory',
     'payments',
+    'onlineStore',
+    'widget_tweaks',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
