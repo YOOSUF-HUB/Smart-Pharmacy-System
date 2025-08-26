@@ -462,7 +462,7 @@ class PrescriptionDeleteView(DeleteView):
             messages.success(self.request, "Prescription was successfully deleted.")
             return redirect(self.success_url)
         except ProtectedError:
-            messages.error(self.request, "This prescription cannot be deleted because it has a related payment. Please cancel the prescription instead.")
+            messages.error(self.request, "This prescription cannot be deleted because it has a related payment. Please cancel the payment instead.")
             return redirect('prescription_detail', pk=self.object.pk)
 
 

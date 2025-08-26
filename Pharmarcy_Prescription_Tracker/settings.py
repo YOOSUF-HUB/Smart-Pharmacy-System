@@ -146,3 +146,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 STRIPE_PUBLISHABLE_KEY = 'pk_test_51RuS6kLxYGksYlO5cOHxyasQv42vYzERNmGu7gGnrd4T5uhHNtYZxDiLQIqYRAen1aMX0mp34VzuAmFPzv5mYgmq00kovaF8kT'
 STRIPE_SECRET_KEY = 'sk_test_51RuS6kLxYGksYlO5mMYeMxHMNY1d0C9gwaxTURULb7K6xtfYe49N1fakp7h2gQLOMMyUxkKytEzOGCfUKAQ2d9mY003oUw3FVb'
+
+
+# Email Backend Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com' 
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'medisync30@gmail.com' # Your email address
+EMAIL_HOST_PASSWORD = "sgjc lmry uhbm tjiq"
+DEFAULT_FROM_EMAIL = 'medisync30@gmail.com'
