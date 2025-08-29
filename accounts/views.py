@@ -108,3 +108,9 @@ def delete_staff(request, staff_id):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+
+@admin_required
+def customer_list(request):
+    customers = User.objects.filter(role="customer")
+    return render(request, "accounts/customer_list.html", {"customers": customers})

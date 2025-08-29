@@ -16,10 +16,14 @@ import os
 from django.conf import settings
 from django.utils import timezone
 import base64
+from django.contrib.auth.decorators import login_required
+from django.db.models import F
+
 
 
 
 # View all medicines
+@login_required
 def view_medicine(request):
     medicines = Medicine.objects.all()
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
@@ -48,6 +52,7 @@ def view_medicine(request):
         'categories': categories,
     })
 
+@login_required
 def view_medicine_cards(request):
     medicines = Medicine.objects.all()
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
@@ -79,6 +84,7 @@ def view_medicine_cards(request):
         'recent_actions' : recent_actions,
     })
 
+@login_required
 def view_medicine_table(request):
     medicines = Medicine.objects.all()
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
@@ -135,6 +141,7 @@ def view_medicine_table(request):
     return render(request, 'Medicine_inventory/medicine_table.html', context)
 
 # Create a new medicine entry
+@login_required
 def create_medicine(request):
     if request.method == 'POST':
         form = MedicineForm(request.POST)
@@ -165,6 +172,7 @@ def create_medicine(request):
     return render(request, 'Medicine_inventory/create_medicine.html', {'form': form})
 
 # Delete a medicine
+@login_required
 def delete_medicine(request, id):
     medicine = get_object_or_404(Medicine, pk=id)
     medicine_name = medicine.name
@@ -182,6 +190,7 @@ def delete_medicine(request, id):
     return redirect('medicine_table')
 
 # Update a medicine
+@login_required
 def update_medicine(request, id):
     medicine = get_object_or_404(Medicine, pk=id)
     initial = {}
@@ -224,6 +233,7 @@ def update_medicine(request, id):
 def home(request):
     return render(request, 'crudApp/home.html')
 
+@login_required
 def export_medicine_csv(request):
     medicines = Medicine.objects.all()
     response = HttpResponse(content_type='text/csv')
@@ -243,6 +253,7 @@ def export_medicine_csv(request):
         ])
     return response
 
+@login_required
 def export_medicine_pdf(request):
     medicines = Medicine.objects.all()
 
@@ -262,57 +273,140 @@ def export_medicine_pdf(request):
     response['Content-Disposition'] = 'attachment; filename="medicine_inventory.pdf"'
     return response
 
-def med_inventory_dashboard(request):
-    medicines = Medicine.objects.all()
-    total_medicines = medicines.count()
-    low_stock_count = sum(1 for m in medicines if m.quantity_in_stock < m.reorder_level)
-    near_expiry_count = sum(1 for m in medicines if hasattr(m, 'is_near_expiry') and m.is_near_expiry())
-    expired_count = sum(1 for m in medicines if hasattr(m, 'is_expired') and m.is_expired())
-    recent_medicines = medicines.order_by('-id')[:8]
 
-    # For chart
-    from collections import Counter
-    category_counts_dict = Counter(m.category for m in medicines)
-    category_labels = list(category_counts_dict.keys())
-    category_counts = list(category_counts_dict.values())
 
-    # Fetch ALL actions, ordered by the most recent
-    action_list = MedicineAction.objects.select_related('medicine').order_by('-timestamp')
+
+
+
+@login_required
+def med_inventory_dash(request):
+    # Get medicine statistics
+    total_medicines = Medicine.objects.count()
     
-    # Set up the Paginator
-    paginator = Paginator(action_list, 10) # Show 10 actions per page
-    page_number = request.GET.get('page')
+    # Use quantity_in_stock and reorder_level instead of low_stock
+    low_stock_count = Medicine.objects.filter(quantity_in_stock__lt=F('reorder_level')).count()
     
-    try:
-        actions_page = paginator.page(page_number)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver the first page.
-        actions_page = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range, deliver the last page of results.
-        actions_page = paginator.page(paginator.num_pages)
-
-    # Add non-medical product statistics
-    total_nonmedical = NonMedicalProduct.objects.count()
-    nonmedical_low_stock_count = NonMedicalProduct.objects.filter(
-        stock__lte=F('reorder_level')
+    # Calculate near_expiry based on expiry_date
+    today = timezone.now().date()
+    expiry_threshold = today + timezone.timedelta(days=30)  # 30 days until expiry
+    near_expiry_count = Medicine.objects.filter(
+        expiry_date__gt=today,
+        expiry_date__lte=expiry_threshold
     ).count()
+    
+    # Calculate expired based on expiry_date
+    expired_count = Medicine.objects.filter(expiry_date__lt=today).count()
+    
+    # Get non-medical statistics
+    total_nonmedical = NonMedicalProduct.objects.count()
+    nonmedical_low_stock_count = NonMedicalProduct.objects.filter(stock__lt=F('reorder_level')).count()
     nonmedical_active_count = NonMedicalProduct.objects.filter(is_active=True).count()
     nonmedical_categories_count = NonMedicalProduct.objects.values('category').distinct().count()
+    
+    # Get chart data
+    category_data = Medicine.objects.values('category').annotate(count=Count('id')).order_by('-count')
+    category_labels = [item['category'] for item in category_data]
+    category_counts = [item['count'] for item in category_data]
+    
+    # Get recent medicines
+    recent_medicines = Medicine.objects.all().order_by('-manufacture_date')[:5]
+    
+    # Get recent actions
+    all_actions = MedicineAction.objects.all().order_by('-timestamp')
+    paginator = Paginator(all_actions, 10)
+    page = request.GET.get('page', 1)
+    
+    try:
+        recent_actions = paginator.page(page)
+    except PageNotAnInteger:
+        recent_actions = paginator.page(1)
+    except EmptyPage:
+        recent_actions = paginator.page(paginator.num_pages)
     
     context = {
         'total_medicines': total_medicines,
         'low_stock_count': low_stock_count,
         'near_expiry_count': near_expiry_count,
         'expired_count': expired_count,
-        'recent_medicines': recent_medicines,
-        'category_labels': category_labels,
-        'category_counts': category_counts,
-        'recent_actions': actions_page, # Use the paginated object
         'total_nonmedical': total_nonmedical,
         'nonmedical_low_stock_count': nonmedical_low_stock_count,
         'nonmedical_active_count': nonmedical_active_count,
         'nonmedical_categories_count': nonmedical_categories_count,
+        'category_labels': category_labels,
+        'category_counts': category_counts,
+        'recent_medicines': recent_medicines,
+        'recent_actions': recent_actions,
     }
     return render(request, 'Medicine_inventory/med_inventory_dash.html', context)
+
+
+
+# Track recently viewed medicines
+@login_required
+def medicine_detail(request, pk):
+    medicine = get_object_or_404(Medicine, pk=pk)
+    
+    # Get recently viewed list from session (or empty list if not exists)
+    recent_medicines = request.session.get('recent_medicines', [])
+    
+    # Remove this medicine if already in the list to avoid duplicates
+    if pk in recent_medicines:
+        recent_medicines.remove(pk)
+    
+    # Add current medicine to start of list and limit to 5 items
+    recent_medicines.insert(0, pk)
+    recent_medicines = recent_medicines[:5]
+    
+    # Save back to session
+    request.session['recent_medicines'] = recent_medicines
+    
+    return render(request, 'Medicine_inventory/medicine_detail.html', {'medicine': medicine})
+
+# Remember user's filter preferences
+@login_required
+def medicine_list(request):
+    # Get filter parameters
+    category = request.GET.get('category')
+    sort_by = request.GET.get('sort')
+    
+    # If parameters provided, save to session
+    if category:
+        request.session['medicine_category_filter'] = category
+    if sort_by:
+        request.session['medicine_sort_by'] = sort_by
+    
+    # Use parameters from session if not provided in request
+    if not category and 'medicine_category_filter' in request.session:
+        category = request.session['medicine_category_filter']
+    if not sort_by and 'medicine_sort_by' in request.session:
+        sort_by = request.session['medicine_sort_by']
+    
+    # Apply filters to queryset
+    medicines = Medicine.objects.all()
+    if category and category != 'all':
+        medicines = medicines.filter(category=category)
+    
+    if sort_by == 'name':
+        medicines = medicines.order_by('name')
+    elif sort_by == 'price_low':
+        medicines = medicines.order_by('price')
+    # Add other sorting options
+    
+    context = {
+        'medicines': medicines,
+        'current_category': category,
+        'current_sort': sort_by,
+    }
+    
+    return render(request, 'Medicine_inventory/medicine_list.html', context)
+
+# Clear session filters
+@login_required
+def clear_filters(request):
+    if 'medicine_category_filter' in request.session:
+        del request.session['medicine_category_filter']
+    if 'medicine_sort_by' in request.session:
+        del request.session['medicine_sort_by']
+    
+    return redirect('medicine_list')
 

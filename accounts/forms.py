@@ -21,6 +21,7 @@ class CustomerSignUpForm(UserCreationForm):
 
 class StaffCreationForm(UserCreationForm):
     ROLE_CHOICES = (
+        ('admin', 'Admin'),
         ('pharmacist', 'Pharmacist'),
         ('cashier', 'Cashier'),
     )
