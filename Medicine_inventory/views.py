@@ -14,6 +14,8 @@ from Non_Medicine_inventory.models import NonMedicalProduct
 from django.db.models import Count, F
 import os
 from django.conf import settings
+from django.utils import timezone
+import base64
 
 
 
@@ -243,11 +245,15 @@ def export_medicine_csv(request):
 
 def export_medicine_pdf(request):
     medicines = Medicine.objects.all()
-    
-    # Use STATICFILES_DIRS instead of STATIC_ROOT
+
+    logo_file = os.path.join(settings.BASE_DIR, 'static/MediSyn_Logo/1.png')
+    with open(logo_file, 'rb') as f:
+        logo_data = base64.b64encode(f.read()).decode('utf-8')
+
     context = {
         'medicines': medicines,
-        'logo_path': os.path.join(settings.STATICFILES_DIRS[0], 'MediSyn_Logo', '3.png')
+        'now': timezone.now(),
+        'logo_data': logo_data,  # Pass the encoded data instead
     }
     
     html_string = render_to_string('Medicine_inventory/medicine_pdf.html', context)

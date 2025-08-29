@@ -5,91 +5,119 @@
     <title>Medicine Inventory Report</title>
     <style>
         body {
-            font-family: "Segoe UI", "Arial", sans-serif;
+            font-family: "Segoe UI", Arial, sans-serif;
             margin: 40px 32px;
-            background: #fefefe;
-            color: #222;
+            background: #f4f6f8;
+            color: #333;
         }
 
+        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 3px solid #00796b;
+            margin-bottom: 30px;
+            padding: 16px 20px;
+            background: linear-gradient(90deg, #009688, #00796b);
+            border-radius: 8px;
+            color: #fff;
         }
 
         .logo {
-            width: 120px;
+            width: 110px;
             height: auto;
         }
 
         .report-title {
-            text-align: right;
             font-size: 26px;
-            color: #00796b;
-            text-transform: uppercase;
             font-weight: 700;
+            text-transform: uppercase;
             letter-spacing: 1px;
         }
 
+        /* Summary Section */
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            font-size: 14px;
+        }
+
+        .summary div {
+            text-align: center;
+            flex: 1;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .summary div:last-child {
+            border-right: none;
+        }
+
+        .summary .value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #009688;
+        }
+
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 11px;
-            margin-top: 32px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-size: 13px;
+            margin-top: 20px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
         thead th {
-            background-color: #00796b;
+            background-color: #009688;
             color: #fff;
-            padding: 10px 8px;
-            border: 1px solid #00695c;
+            padding: 12px 10px;
             text-align: left;
             font-weight: 600;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
         }
 
         tbody td {
-            padding: 10px 8px;
-            border: 1px solid #e0e0e0;
-            background-color: #fafafa;
+            padding: 12px 10px;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         tbody tr:nth-child(even) td {
-            background-color: #f3fdfc;
+            background-color: #f9fdfd;
         }
 
-        tfoot td {
-            border: none;
-            padding-top: 16px;
-            font-size: 12px;
-            color: #555;
-            text-align: right;
+        tbody tr:hover td {
+            background-color: #e0f7fa;
+            transition: background 0.3s ease;
         }
 
+        /* Footer */
         .footer {
             margin-top: 40px;
             font-size: 12px;
             text-align: center;
-            color: #777;
-            border-top: 1px solid #00796b;
+            color: #666;
+            border-top: 2px solid #009688;
             padding-top: 12px;
             letter-spacing: 0.4px;
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <div class="header">
-        <!-- 🔽 Place your logo image here -->
-        <img src="{{ logo_path }}" alt="Pharmacy Logo" class="logo">
-        <div class="report-title">
-            Medicine Inventory Report
-        </div>
+        <img src="data:image/png;base64,{{ logo_data }}" alt="Pharmacy Logo" class="logo">
+        <div class="report-title">Medicine Inventory Report</div>
     </div>
 
+    <!-- Table -->
     <table>
         <thead>
             <tr>
@@ -115,8 +143,9 @@
         </tbody>
     </table>
 
+    <!-- Footer -->
     <div class="footer">
-        Report generated on {{ now|date:"F d, Y" }} &bull; Confidential &bull; For internal use only
+        Report generated on {{ now|date:"F d, Y" }} • Confidential • For internal use only
     </div>
 </body>
 </html>

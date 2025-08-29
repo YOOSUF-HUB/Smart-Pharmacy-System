@@ -10,7 +10,8 @@ from weasyprint import HTML
 from django.conf import settings
 import tempfile
 import os
-from datetime import datetime
+from django.utils import timezone
+import base64
 
 def product_list(request):
     """Display all non-medical products"""
@@ -117,6 +118,10 @@ def export_pdf(request):
     products = NonMedicalProduct.objects.all()
     category = request.GET.get('category')
     search_query = request.GET.get('search')
+
+    logo_file = os.path.join(settings.BASE_DIR, 'static/MediSyn_Logo/1.png')
+    with open(logo_file, 'rb') as f:
+        logo_data = base64.b64encode(f.read()).decode('utf-8')
     
     if category:
         products = products.filter(category=category)
@@ -127,7 +132,8 @@ def export_pdf(request):
     context = {
         'products': products,
         'title': 'Non-Medical Products Report',
-        'date': datetime.now().strftime('%Y-%m-%d %H:%M'),
+        'now': timezone.now(),
+        'logo_data': logo_data,
         'request': request,
     }
     
