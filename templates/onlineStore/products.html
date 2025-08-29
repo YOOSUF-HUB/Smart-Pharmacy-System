@@ -4,20 +4,158 @@
 {% block content %}
 
 {% block products %}
+
+<!-- <div class="card bg-base-100 w-96 shadow-sm">
+  <figure>
+    <img
+      src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+      alt="Shoes" />
+  </figure>
+  <div class="card-body">
+    <h2 class="card-title">
+      Card Title
+      <div class="badge badge-secondary">NEW</div>
+    </h2>
+    <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
+    <div class="card-actions justify-end">
+      <div class="badge badge-outline">Fashion</div>
+      <div class="badge badge-outline">Products</div>
+    </div>
+  </div>
+</div> -->
+
+
+  
+<!-- 
 <div class="bg-white">
-  <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-    <h2 class="text-2xl font-bold tracking-tight text-gray-900 mb-10">Products</h2>
-    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-        {% for product in products %}
-      <a href="{% url 'productDetail' product.id %}" class="group">
-        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
-        <h3 class="mt-4 text-sm text-gray-700">{{ product.name }}</h3>
-        <p class="mt-1 text-lg font-medium text-gray-900">${{ product.selling_price }}</p>
-      </a>
-        {% endfor %}
+  <div class="flex justify-center px-4 ">
+    <div class="py-16 sm:py-24">
+    <form id="sidebarForm" class="w-full max-w-4xl bg-white shadow-md rounded-lg p-6  space-y-6">
+      <div>
+        <label class="block text-lg font-semibold mb-1">Sidebar</label>
+        <p class="text-sm text-gray-600 mb-4">
+          Select the
+        </p>
+
+        <div class="space-y-2">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="items" value="rx" checked class="form-checkbox rounded text-blue-600">
+            Rx
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="items" value="otc" checked class="form-checkbox rounded text-blue-600">
+            OTC
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="items" value="applications" class="form-checkbox rounded text-blue-600">
+            Applications
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="items" value="desktop" class="form-checkbox rounded text-blue-600">
+            Desktop
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="items" value="downloads" class="form-checkbox rounded text-blue-600">
+            Downloads
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" name="items" value="documents" class="form-checkbox rounded text-blue-600">
+            Documents
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+        Submit
+      </button>
+
+      <div id="errorMessage" class="text-red-600 text-sm"></div>
+      <div id="result" class="mt-4"></div>
+    </form>
+    </div>
+    
+    <div class="max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+      <h2 class="text-2xl font-bold tracking-tight text-gray-900 mb-10">Products</h2>
+      <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+          {% for product in products %}
+          {% if }
+        <a href="{% url 'productDetail' product.id %}" class="group">
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+          <h3 class="mt-4 text-sm text-gray-700">{{ product.name }}</h3>
+          <p class="mt-1 text-lg font-medium text-gray-900">${{ product.selling_price }}</p>
+        </a>
+          {% endfor %}
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<div class="bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      
+      <!-- Sidebar Form (1 column on large screens) -->
+      <div class="lg:col-span-1">
+        <form id="sidebarForm" class="w-full bg-white shadow-md rounded-lg p-6 space-y-6">
+          <div>
+            <label class="block text-lg font-semibold mb-1">Sidebar</label>
+            <p class="text-sm text-gray-600 mb-4">Select the:</p>
+
+            <div class="space-y-2">
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="items" value="rx" checked class="form-checkbox rounded text-blue-600">
+                Rx
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="items" value="otc" checked class="form-checkbox rounded text-blue-600">
+                OTC
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="items" value="applications" class="form-checkbox rounded text-blue-600">
+                Applications
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="items" value="desktop" class="form-checkbox rounded text-blue-600">
+                Desktop
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="items" value="downloads" class="form-checkbox rounded text-blue-600">
+                Downloads
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="items" value="documents" class="form-checkbox rounded text-blue-600">
+                Documents
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+            Submit
+          </button>
+
+          <div id="errorMessage" class="text-red-600 text-sm"></div>
+          <div id="result" class="mt-4"></div>
+        </form>
+      </div>
+
+      <!-- Product Grid (3 columns on large screens) -->
+      <div class="lg:col-span-3">
+      <h2 class="text-2xl font-bold tracking-tight text-gray-900 mb-10">Products</h2>
+      <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+          {% for product in products %}
+        <a href="{% url 'productDetail' product.id %}" class="group product-item" data-medicine-type="{{ product.medicine_type }}">
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" class="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8" />
+          <h3 class="mt-4 text-sm text-gray-700">{{ product.name }}</h3>
+          <p class="mt-1 text-lg font-medium text-gray-900">${{ product.selling_price }}</p>
+        </a>
+          {% endfor %}
+      </div>
+    </div>
+
     </div>
   </div>
 </div>
+
 
 <!-- <div class="container mx-auto">
     <h2 class="text-2xl font-bold mb-4">Our Products</h2>
@@ -31,6 +169,53 @@
         {% endfor %}
     </ul>
 </div> -->
+
+<!-- <script>
+    document.getElementById("sidebarForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const checkboxes = document.querySelectorAll('input[name="items"]:checked');
+      const errorMessage = document.getElementById("errorMessage");
+      const result = document.getElementById("result");
+
+      if (checkboxes.length === 0) {
+        errorMessage.textContent = "You have to select at least one item.";
+        result.innerHTML = "";
+        return;
+      }
+
+      errorMessage.textContent = "";
+
+      const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+      result.innerHTML = `
+        <pre class="bg-gray-800 text-white p-4 rounded overflow-auto whitespace-pre-wrap text-sm">
+${JSON.stringify({ items: selectedValues }, null, 2)}
+        </pre>
+      `;
+    });
+</script> -->
+
+<script>
+  document.getElementById('sidebarForm').addEventListener('submit', function (e) {
+    e.preventDefault(); // Prevent page reload
+
+    const selectedCheckboxes = Array.from(document.querySelectorAll('input[name="items"]:checked'))
+      .map(checkbox => checkbox.value.toLowerCase()); // Get selected types (rx, otc)
+
+    const productItems = document.querySelectorAll('.product-item');
+
+    productItems.forEach(item => {
+      const type = item.dataset.medicineType?.toLowerCase(); // e.g. 'rx' or 'otc'
+
+      if (selectedCheckboxes.length === 0 || selectedCheckboxes.includes(type)) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+  });
+</script>
+
 {% endblock %}
 
 {% endblock %}
