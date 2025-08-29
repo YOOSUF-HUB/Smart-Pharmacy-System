@@ -1,7 +1,6 @@
 {% extends 'registration/base.html' %}
 
 {% block content %}
-
 <style>
   *, *::before, *::after {
     font-family: "Montserrat", sans-serif !important;
@@ -11,113 +10,90 @@
     background-color: #f8fafc;
   }
 </style>
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-2xl w-full bg-white p-10 rounded-2xl shadow-2xl border border-gray-200">
-        <h2 class="text-3xl font-extrabold text-blue-700 mb-8 text-center">Create Staff Account</h2>
 
-        <form method="post" class="space-y-8">
-            {% csrf_token %}
-
-            <!-- Username -->
-            <div class="relative">
-                <input type="text" name="username" id="id_username"
-                       value="{{ form.username.value|default:'' }}"
-                       placeholder=" "
-                       class="peer block w-full rounded-lg border border-gray-300 bg-transparent px-4 pt-5 pb-2 text-gray-900 placeholder-transparent focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                <label for="id_username" class="absolute left-4 top-2 text-gray-500 text-sm transition-all 
-                    peer-placeholder-shown:top-5 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base 
-                    peer-focus:top-2 peer-focus:text-blue-600 peer-focus:text-sm">
-                    Username
-                </label>
-                {% if form.username.errors %}
-                <p class="text-red-600 text-xs mt-1">{{ form.username.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- Email -->
-            <div class="relative">
-                <input type="email" name="email" id="id_email"
-                       value="{{ form.email.value|default:'' }}"
-                       placeholder=" "
-                       class="peer block w-full rounded-lg border border-gray-300 bg-transparent px-4 pt-5 pb-2 text-gray-900 placeholder-transparent focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                <label for="id_email" class="absolute left-4 top-2 text-gray-500 text-sm transition-all 
-                    peer-placeholder-shown:top-5 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base 
-                    peer-focus:top-2 peer-focus:text-blue-600 peer-focus:text-sm">
-                    Email
-                </label>
-                {% if form.email.errors %}
-                <p class="text-red-600 text-xs mt-1">{{ form.email.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- Password -->
-            <div class="relative">
-                <input type="password" name="password1" id="id_password1"
-                       placeholder=" "
-                       class="peer block w-full rounded-lg border border-gray-300 bg-transparent px-4 pt-5 pb-2 text-gray-900 placeholder-transparent focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                <label for="id_password1" class="absolute left-4 top-2 text-gray-500 text-sm transition-all 
-                    peer-placeholder-shown:top-5 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base 
-                    peer-focus:top-2 peer-focus:text-blue-600 peer-focus:text-sm">
-                    Password
-                </label>
-                {% if form.password1.errors %}
-                <p class="text-red-600 text-xs mt-1">{{ form.password1.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="relative">
-                <input type="password" name="password2" id="id_password2"
-                       placeholder=" "
-                       class="peer block w-full rounded-lg border border-gray-300 bg-transparent px-4 pt-5 pb-2 text-gray-900 placeholder-transparent focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"/>
-                <label for="id_password2" class="absolute left-4 top-2 text-gray-500 text-sm transition-all 
-                    peer-placeholder-shown:top-5 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base 
-                    peer-focus:top-2 peer-focus:text-blue-600 peer-focus:text-sm">
-                    Confirm Password
-                </label>
-                {% if form.password2.errors %}
-                <p class="text-red-600 text-xs mt-1">{{ form.password2.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <!-- Role Dropdown (exclude only 'customer') -->
-            <div class="relative">
-                <select name="role" id="id_role"
-                        class="peer block w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 pt-5 pb-2 text-gray-900 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                    <option value="" disabled {% if not form.role.value %}selected{% endif %}>-- Select Role --</option>
-                    {% for value, label in form.fields.role.choices %}
-                        {% if value != "customer" %}
-                        <option value="{{ value }}" {% if form.role.value == value %}selected{% endif %}>
-                            {{ label }}
-                        </option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-                <label for="id_role" class="absolute left-4 top-2 text-gray-500 text-sm transition-all 
-                    peer-focus:top-2 peer-focus:text-blue-600 peer-focus:text-sm 
-                    peer-placeholder-shown:top-5 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base">
-                    Role
-                </label>
-                {% if form.role.errors %}
-                <p class="text-red-600 text-xs mt-1">{{ form.role.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-
-            <!-- Submit Button -->
-            <button type="submit"
-                class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 
-                       text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition duration-300 transform hover:scale-105">
-                Create Account
-            </button>
-        </form>
-
-        <div class="mt-8 text-center">
-            <a href="{% url 'admin_dashboard' %}" 
-               class="inline-block text-blue-600 hover:text-blue-800 font-medium transition duration-200">
-                ← Back to Dashboard
-            </a>
-        </div>
+<div class="flex min-h-screen items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl w-full space-y-12 bg-white p-8 rounded-lg shadow-md">
+    
+    <div class="text-center">
+      <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" alt="User Icon" class="mx-auto h-12 w-auto" />
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Create Staff Account</h2>
+      <p class="mt-2 text-gray-600">Fill in the details below to create a new staff account.</p>
     </div>
+
+    <form method="POST" class="space-y-12">
+      {% csrf_token %}
+
+      <!-- Profile Section -->
+      <div class="border-b border-gray-300 pb-6">
+        <h3 class="text-lg font-semibold text-gray-900">Profile</h3>
+        <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          
+          <div class="sm:col-span-3">
+            <label for="username" class="block text-sm font-medium text-gray-900">Username</label>
+            <input type="text" name="username" id="username" required placeholder="johndoe"
+                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-cyan-600 focus:ring focus:ring-cyan-200 sm:text-sm" />
+          </div>
+
+          <div class="sm:col-span-3">
+            <label for="role" class="block text-sm font-medium text-gray-900">Role</label>
+            <select name="role" id="role" required
+                    class="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-cyan-600 focus:ring focus:ring-cyan-200 sm:text-sm">
+              {% for value, label in form.fields.role.choices %}
+                {% if value != 'customer' %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-span-full">
+            <label for="photo" class="block text-sm font-medium text-gray-900">Profile Photo</label>
+            <div class="mt-2 flex items-center gap-x-3">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="h-10 w-10 text-gray-300">
+                <path d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/>
+              </svg>
+              <button type="button" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow hover:bg-gray-50">Change</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Info Section -->
+      <div class="border-b border-gray-300 pb-6">
+        <h3 class="text-lg font-semibold text-gray-900">Personal Information</h3>
+        <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+          <div class="sm:col-span-3">
+            <label for="first_name" class="block text-sm font-medium text-gray-900">First name</label>
+            <input type="text" name="first_name" id="first_name" required placeholder="John"
+                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-cyan-600 focus:ring focus:ring-cyan-200 sm:text-sm" />
+          </div>
+
+          <div class="sm:col-span-3">
+            <label for="last_name" class="block text-sm font-medium text-gray-900">Last name</label>
+            <input type="text" name="last_name" id="last_name" required placeholder="Doe"
+                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-cyan-600 focus:ring focus:ring-cyan-200 sm:text-sm" />
+          </div>
+
+          <div class="sm:col-span-4">
+            <label for="email" class="block text-sm font-medium text-gray-900">Email</label>
+            <input type="email" name="email" id="email" required placeholder="john@example.com"
+                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-cyan-600 focus:ring focus:ring-cyan-200 sm:text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex justify-end gap-x-4">
+        <a href="{% url 'admin_dashboard' %}">
+        <button type="button" class="text-gray-900 font-semibold px-4 py-2 rounded-md hover:bg-gray-100">
+            Cancel
+        </button>
+        </a>
+        <button type="submit" class="bg-cyan-600 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-md shadow focus:ring-2 focus:ring-offset-1 focus:ring-cyan-600 transition duration-300">Create Account</button>
+      </div>
+
+    </form>
+  </div>
 </div>
 {% endblock %}
