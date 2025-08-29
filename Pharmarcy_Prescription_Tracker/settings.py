@@ -28,6 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Custom user model
+AUTH_USER_MODEL = "accounts.User"
+LOGIN_REDIRECT_URL = "redirect_dashboard"
+LOGOUT_REDIRECT_URL = "login"
+
 
 # Application definition
 
@@ -47,6 +52,7 @@ INSTALLED_APPS = [
     'payments',
     'onlineStore',
     'widget_tweaks',
+    'accounts',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

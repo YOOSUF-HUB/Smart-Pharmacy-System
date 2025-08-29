@@ -1,0 +1,10 @@
+<h2>Create Staff Account</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Create</button>
+</form>
+<a href="{% url 'admin_dashboard' %}">⬅ Back to Dashboard</a>
+{% if form.errors %}
+  <p style="color: red;">Please correct the errors below.</p>
+{% endif %}

@@ -1,0 +1,23 @@
+<h2>Staff Members</h2>
+<table border="1">
+    <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+    </tr>
+    {% for staff in staff_users %}
+    <tr>
+        <td>{{ staff.username }}</td>
+        <td>{{ staff.email }}</td>
+        <td>{{ staff.get_role_display }}</td>
+        <td>
+            <a href="{% url 'edit_staff' staff.id %}">✏ Edit</a> |
+            <a href="{% url 'delete_staff' staff.id %}">❌ Delete</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No staff members found.</td></tr>
+    {% endfor %}
+</table>
+<a href="{% url 'admin_dashboard' %}">⬅ Back</a>

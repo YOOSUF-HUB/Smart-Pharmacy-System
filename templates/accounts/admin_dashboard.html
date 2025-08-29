@@ -1,0 +1,7 @@
+<h1>Admin Dashboard</h1>
+<p>Welcome, {{ user.username }}</p>
+
+<a href="{% url 'create_staff' %}">➕ Create New Staff</a><br>
+<a href="{% url 'staff_list' %}">👥 Manage Staff</a><br>
+<a href="{% url 'logout' %}">Logout</a>
+<p>This is your admin dashboard where you can manage staff accounts and oversee system operations.</p>
