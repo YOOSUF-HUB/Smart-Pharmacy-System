@@ -14,7 +14,11 @@ urlpatterns = [
     path("dashboard/", views.redirect_dashboard, name="redirect_dashboard"),
     path("dashboard/customer/", views.customer_dashboard, name="customer_dashboard"),
     path("dashboard/admin/", views.admin_dashboard, name="admin_dashboard"),
-    path("dashboard/pharmacist/", views.pharmacist_dashboard, name="pharmacist_dashboard"),
+
+    #Pharmacist
+    path("dashboard/pharmacist/", views.med_inventory_dash, name="med_inventory_dash"),
+
+    #Cashier
     path("dashboard/cashier/", views.cashier_dashboard, name="cashier_dashboard"),
 
     # staff management

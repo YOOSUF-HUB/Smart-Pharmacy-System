@@ -27,8 +27,8 @@ def customer_dashboard(request):
 def admin_dashboard(request):
     return render(request, "accounts/admin_dashboard.html")
 
-def pharmacist_dashboard(request):
-    return render(request, "accounts/pharmacist_dashboard.html")
+def med_inventory_dash(request):
+    return render(request, "Medicine_inventory/med_inventory_dash.html")
 
 def cashier_dashboard(request):
     return render(request, "accounts/cashier_dashboard.html")
@@ -45,7 +45,7 @@ def redirect_dashboard(request):
     elif user.role == "admin":
         return redirect("admin_dashboard")
     elif user.role == "pharmacist":
-        return redirect("pharmacist_dashboard")
+        return redirect("med_inventory_dash")
     elif user.role == "cashier":
         return redirect("cashier_dashboard")
 
