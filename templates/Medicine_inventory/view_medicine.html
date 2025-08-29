@@ -121,39 +121,59 @@
     </form>
   </div>
 
-  <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-    {% for med in medicine %}
-      <div class="bg-white rounded-lg shadow-md border border-slate-200 flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-        <div class="p-4 border-b border-slate-200 flex justify-between items-center">
-          <h2 class="font-serif text-lg font-semibold text-slate-800">{{ med.name }}</h2>
-          <div class="flex items-center gap-2">
-            {% if med.is_expired %}
-              <span class="text-s font-semibold text-red-800 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full">Expired</span>
-            {% elif med.near_expiry %}
-              <span class="text-s font-semibold text-yellow-800 bg-yellow-100 border border-yellow-200 px-2 py-0.5 rounded-full">Near Expiry</span>
+<div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+  {% for med in medicine %}
+    <div class="bg-white rounded-lg shadow-md border border-slate-200 flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      
+            {% if med.image %}
+            <div class="relative w-full" style="padding-bottom: 100%;">
+                <img src="{{ med.image.url }}" alt="{{ med.name }}" 
+                    class="absolute top-0 left-0 w-full h-full object-cover">
+            </div>
+            {% else %}
+            <div class="relative w-full" style="padding-bottom: 100%;">
+                <div class="absolute top-0 left-0 w-full h-full bg-gray-200 flex items-center justify-center">
+                    <span class="text-gray-500 font-medium">No Image</span>
+                </div>
+            </div>
             {% endif %}
-            {% if med.low_stock %}
-              <span class="text-s font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">Low Stock</span>
-            {% endif %}
-          </div>
-        </div>
-        <div class="p-4 text-sm text-slate-600 space-y-2 flex-grow">
-          <p><strong class="font-medium text-slate-700">Batch Number:</strong> {{ med.batch_number }}</p>
-          <p><strong class="font-medium text-slate-700">Brand:</strong> {{ med.brand }}</p>
-          <p><strong class="font-medium text-slate-700">Category:</strong> {{ med.category }}</p>
-          <p><strong class="font-medium text-slate-700">Dosage:</strong> {{ med.dosage }}</p>
-          <p><strong class="font-medium text-slate-700">Cost:</strong> Rs. {{ med.cost_price }}</p>
-          <p class="font-medium text-base text-slate-800 mt-1"><strong>Selling:</strong> Rs. {{ med.selling_price }}</p>
-          <p class="font-medium text-base text-slate-800 mt-1"><strong>Type:</strong> {{ med.get_medicine_type_display }}</p>
-          <p class="font-medium text-base text-slate-800 mt-1"><strong>Quantity in Stock:</strong> {{ med.quantity_in_stock }}</p>
-        </div>
-        <div class="p-3 mt-auto bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-3">
-          <a href="{% url 'medicine_update' med.id %}" class="text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-2 rounded-md transition-colors">Modify Record</a>
-          <button type="button" class="open-modal-button text-sm font-medium bg-red-100 text-red-800 hover:bg-red-200 px-4 py-2 rounded-md transition-colors" data-modal-target="#deleteModal{{ med.id }}">
-            Remove
-          </button>
+      
+      <!-- Card Header -->
+      <div class="p-4 border-b border-slate-200 flex justify-between items-center">
+        <h2 class="font-serif text-lg font-semibold text-slate-800">{{ med.name }}</h2>
+        <div class="flex items-center gap-2">
+          {% if med.is_expired %}
+            <span class="text-xs font-semibold text-red-800 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full">Expired</span>
+          {% elif med.near_expiry %}
+            <span class="text-xs font-semibold text-yellow-800 bg-yellow-100 border border-yellow-200 px-2 py-0.5 rounded-full">Near Expiry</span>
+          {% endif %}
+          {% if med.low_stock %}
+            <span class="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">Low Stock</span>
+          {% endif %}
         </div>
       </div>
+
+      <!-- Card Body -->
+      <div class="p-4 text-sm text-slate-600 space-y-2 flex-grow">
+        <p><strong class="font-medium text-slate-700">Batch Number:</strong> {{ med.batch_number }}</p>
+        <p><strong class="font-medium text-slate-700">Brand:</strong> {{ med.brand }}</p>
+        <p><strong class="font-medium text-slate-700">Category:</strong> {{ med.category }}</p>
+        <p><strong class="font-medium text-slate-700">Dosage:</strong> {{ med.dosage }}</p>
+        <p><strong class="font-medium text-slate-700">Cost:</strong> Rs. {{ med.cost_price }}</p>
+        <p class="font-medium text-base text-slate-800 mt-1"><strong>Selling:</strong> Rs. {{ med.selling_price }}</p>
+        <p class="font-medium text-base text-slate-800 mt-1"><strong>Type:</strong> {{ med.get_medicine_type_display }}</p>
+        <p class="font-medium text-base text-slate-800 mt-1"><strong>Quantity in Stock:</strong> {{ med.quantity_in_stock }}</p>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="p-3 mt-auto bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-3">
+        <a href="{% url 'medicine_update' med.id %}" class="text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-2 rounded-md transition-colors">Modify Record</a>
+        <button type="button" class="open-modal-button text-sm font-medium bg-red-100 text-red-800 hover:bg-red-200 px-4 py-2 rounded-md transition-colors" data-modal-target="#deleteModal{{ med.id }}">
+          Remove
+        </button>
+      </div>
+    </div>
+
 
       <div id="deleteModal{{ med.id }}" class="modal fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
         <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">

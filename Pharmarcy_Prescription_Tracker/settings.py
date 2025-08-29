@@ -34,6 +34,8 @@ LOGIN_REDIRECT_URL = "redirect_dashboard"
 LOGOUT_REDIRECT_URL = "login"
 
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Application definition
 
 INSTALLED_APPS = [

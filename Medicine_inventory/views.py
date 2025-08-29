@@ -144,14 +144,14 @@ def view_medicine_table(request):
 @login_required
 def create_medicine(request):
     if request.method == 'POST':
-        form = MedicineForm(request.POST)
+        form = MedicineForm(request.POST, request.FILES)  # Include request.FILES
         if form.is_valid():
             med_code = form.cleaned_data['med_code']
             batch_date_int = int(form.cleaned_data['batch_date'])
             supplier_code = form.cleaned_data['supplier_code']
             seq = form.cleaned_data['seq']
             batch_number = f"{med_code}-{batch_date_int}-{supplier_code}-{seq}"
-
+            
             medicine = form.save(commit=False)
             medicine.batch_number = batch_number
             
@@ -204,7 +204,7 @@ def update_medicine(request, id):
                 'seq': parts[3],
             }
     if request.method == 'POST':
-        form = MedicineForm(request.POST, instance=medicine)
+        form = MedicineForm(request.POST, request.FILES, instance=medicine)  # Include request.FILES
         if form.is_valid():
             med_code = form.cleaned_data['med_code']
             batch_date_int = int(form.cleaned_data['batch_date'])
