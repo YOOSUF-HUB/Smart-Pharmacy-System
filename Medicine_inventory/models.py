@@ -1,5 +1,7 @@
 from django.db import models
 from datetime import date, timedelta
+from django.conf import settings
+
 
 class Medicine(models.Model):
     CATEGORY_CHOICES = [
@@ -82,6 +84,7 @@ class MedicineAction(models.Model):
     batch_number = models.CharField(max_length=255, blank=True, null=True)
     action = models.CharField(max_length=10, choices=ACTION_CHOICES)
     timestamp = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f"{self.medicine.name} {self.get_action_display()} at {self.timestamp}"

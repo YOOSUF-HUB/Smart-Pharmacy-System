@@ -18,6 +18,7 @@ from django.utils import timezone
 import base64
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from Non_Medicine_inventory.models import NonMedicalProduct
 
 
 
@@ -146,27 +147,17 @@ def create_medicine(request):
     if request.method == 'POST':
         form = MedicineForm(request.POST, request.FILES)  # Include request.FILES
         if form.is_valid():
-            med_code = form.cleaned_data['med_code']
-            batch_date_int = int(form.cleaned_data['batch_date'])
-            supplier_code = form.cleaned_data['supplier_code']
-            seq = form.cleaned_data['seq']
-            batch_number = f"{med_code}-{batch_date_int}-{supplier_code}-{seq}"
-            
-            medicine = form.save(commit=False)
-            medicine.batch_number = batch_number
-            
-            try:
-                medicine.save()
-                MedicineAction.objects.create(
-                    medicine=medicine,
-                    medicine_name=medicine.name,
-                    batch_number=medicine.batch_number,
-                    action='created'
-                )
-                messages.success(request, f"Successfully registered new medication: '{medicine.name}'.")
-                return redirect('medicine_table')
-            except IntegrityError:
-                form.add_error(None, "A medicine with this batch number already exists. Please change the batch details.")
+            medicine = form.save()
+            # Add the user to the action record
+            MedicineAction.objects.create(
+                medicine=medicine,
+                action='add',
+                user=request.user  # Add this line
+            )
+            messages.success(request, f"Successfully registered new medication: '{medicine.name}'.")
+            return redirect('medicine_table')
+        else:
+            form.add_error(None, "A medicine with this batch number already exists. Please change the batch details.")
     else:
         form = MedicineForm()
     return render(request, 'Medicine_inventory/create_medicine.html', {'form': form})
@@ -178,10 +169,10 @@ def delete_medicine(request, id):
     medicine_name = medicine.name
     
     MedicineAction.objects.create(
-        medicine=medicine,
         medicine_name=medicine.name,
         batch_number=medicine.batch_number,
-        action='deleted'
+        action='delete',
+        user=request.user  # Add this line
     )
     medicine.delete()
     
@@ -206,20 +197,11 @@ def update_medicine(request, id):
     if request.method == 'POST':
         form = MedicineForm(request.POST, request.FILES, instance=medicine)  # Include request.FILES
         if form.is_valid():
-            med_code = form.cleaned_data['med_code']
-            batch_date_int = int(form.cleaned_data['batch_date'])
-            supplier_code = form.cleaned_data['supplier_code']
-            seq = form.cleaned_data['seq']
-            batch_number = f"{med_code}-{batch_date_int}-{supplier_code}-{seq}"
-            medicine = form.save(commit=False)
-            medicine.batch_number = batch_number
-            medicine.save()
-            
+            medicine = form.save()
             MedicineAction.objects.create(
                 medicine=medicine,
-                medicine_name=medicine.name,
-                batch_number=medicine.batch_number,
-                action='updated'
+                action='update',
+                user=request.user  # Add this line
             )
             
             messages.success(request, f"The record for '{medicine.name}' has been updated successfully.")
@@ -308,6 +290,11 @@ def med_inventory_dash(request):
     category_labels = [item['category'] for item in category_data]
     category_counts = [item['count'] for item in category_data]
     
+    # Get non-medical product category data
+    nonmed_category_data = NonMedicalProduct.objects.values('category').annotate(count=Count('id')).order_by('-count')
+    nonmed_category_labels = [item['category'] for item in nonmed_category_data]
+    nonmed_category_counts = [item['count'] for item in nonmed_category_data]
+    
     # Get recent medicines
     recent_medicines = Medicine.objects.all().order_by('-manufacture_date')[:5]
     
@@ -334,6 +321,8 @@ def med_inventory_dash(request):
         'nonmedical_categories_count': nonmedical_categories_count,
         'category_labels': category_labels,
         'category_counts': category_counts,
+        'nonmed_category_labels': nonmed_category_labels,
+        'nonmed_category_counts': nonmed_category_counts,
         'recent_medicines': recent_medicines,
         'recent_actions': recent_actions,
     }

@@ -200,7 +200,7 @@
           <span class="block text-xs text-slate-500">Batch: {% if action.medicine %}{{ action.medicine.batch_number }}{% else %}{{ action.batch_number }}{% endif %}</span>
         </div>
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-2 sm:mt-0">
-          <span class="text-[10px] sm:text-xs font-semibold text-blue-900 bg-blue-100 border border-blue-200 px-3 sm:px-2 py-1 rounded-full w-full sm:w-auto text-center">{{ user.username }}</span>
+          <span class="text-[10px] sm:text-xs font-semibold text-blue-900 bg-blue-100 border border-blue-200 px-3 sm:px-2 py-1 rounded-full w-full sm:w-auto text-center">By: {{ action.user.username }}</span>
           <span class="text-[10px] sm:text-xs font-semibold text-cyan-900 bg-cyan-100 border border-cyan-200 px-3 sm:px-3 py-1 rounded-full w-full sm:w-auto text-center">{{ action.get_action_display }}</span>
           <small class="text-gray-500 text-xs sm:text-sm whitespace-nowrap">{{ action.timestamp|date:"F j, Y, h:i A" }}</small>
         </div>
@@ -250,6 +250,39 @@
         data: {{ category_counts|safe }},
         backgroundColor: 'rgba(45, 199, 198, 1)',
         borderColor: 'rgba(45, 199, 198, 1)',
+        borderWidth: 1,
+        borderRadius: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+
+  const ctx2 = document.getElementById('categoryChart2').getContext('2d');
+  const nonmedCategoryChart = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: {{ nonmed_category_labels|safe }},
+      datasets: [{
+        label: 'Non-Medicine Count',
+        data: {{ nonmed_category_counts|safe }},
+        backgroundColor: 'rgba(139, 92, 246, 1)', // Purple for non-medicine
+        borderColor: 'rgba(139, 92, 246, 1)',
         borderWidth: 1,
         borderRadius: 10
       }]

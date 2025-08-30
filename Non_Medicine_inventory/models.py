@@ -4,12 +4,12 @@ from django.db.models import F
 
 class NonMedicalProduct(models.Model):
     CATEGORY_CHOICES = [
-        ('cosmetics', 'Cosmetics'),
-        ('personal_care', 'Personal Care'),
-        ('baby_products', 'Baby Products'),
-        ('supplements', 'Supplements'),
-        ('medical_devices', 'Medical Devices'),
-        ('other', 'Other'),
+        ('Cosmetics', 'Cosmetics'),
+        ('Personal care', 'Personal Care'),
+        ('Baby Products', 'Baby Products'),
+        ('Supplements', 'Supplements'),
+        ('Medical Devices', 'Medical Devices'),
+        ('Other', 'Other'),
     ]
 
     brand = models.CharField(max_length=255)
