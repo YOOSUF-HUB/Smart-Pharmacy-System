@@ -22,35 +22,42 @@ class CustomerSignUpForm(UserCreationForm):
 
 
 class StaffCreationForm(forms.ModelForm):
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+    # Make passwords optional for editing staff
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput, required=False)
+    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput, required=False)
     
     ROLE_CHOICES = (
-        ('admin', 'Admin'),
         ('pharmacist', 'Pharmacist'),
         ('cashier', 'Cashier'),
     )
     role = forms.ChoiceField(choices=ROLE_CHOICES)
+    email = forms.EmailField(required=True)
 
     class Meta:
         model = User
         fields = ['username', 'email', 'role']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If instance exists (editing mode), make passwords optional
+        if self.instance and self.instance.pk:
+            self.fields['password1'].required = False
+            self.fields['password2'].required = False
+            # Make sure initial values are set
+            self.initial['email'] = self.instance.email
+            self.initial['role'] = self.instance.role
+
     def clean_username(self):
         username = self.cleaned_data['username']
-        # Check if this instance exists (editing an existing user)
         if self.instance and self.instance.pk:
-            # Exclude the current user from the uniqueness check
             if User.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
                 raise forms.ValidationError("This username is already taken.")
         else:
-            # For new users, check if username exists
             if User.objects.filter(username=username).exists():
                 raise forms.ValidationError("This username is already taken.")
         return username
         
     def clean_password2(self):
-        # Check that the two password entries match
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
@@ -59,8 +66,15 @@ class StaffCreationForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
+        
+        # Always update these fields
         user.role = self.cleaned_data["role"]
-        user.set_password(self.cleaned_data["password1"])  # This properly hashes the password
+        user.email = self.cleaned_data["email"]
+        
+        # Only set password if both password fields are provided
+        if self.cleaned_data.get("password1"):
+            user.set_password(self.cleaned_data["password1"])
+            
         if commit:
             user.save()
         return user

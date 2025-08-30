@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_URL = '/accounts/login/'
 # Custom user model
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_REDIRECT_URL = "redirect_dashboard"
