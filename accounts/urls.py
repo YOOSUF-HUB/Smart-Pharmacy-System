@@ -1,10 +1,11 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .views import CustomLoginView
 
 urlpatterns = [
     # auth
-    path("login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
+    path('login/', CustomLoginView.as_view(), name='login'),
     path("logout/", views.logout_view, name="logout"),
 
     # customer registration
@@ -13,6 +14,7 @@ urlpatterns = [
     # dashboards
     path("dashboard/", views.redirect_dashboard, name="redirect_dashboard"),
     path("dashboard/customer/", views.customer_dashboard, name="customer_dashboard"),
+    path("dashboard/customer/edit-profile/", views.edit_customer_profile, name="edit_customer_profile"),
     path("dashboard/admin/", views.admin_dashboard, name="admin_dashboard"),
 
     #Pharmacist

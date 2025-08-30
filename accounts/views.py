@@ -7,6 +7,17 @@ from django.contrib.auth.decorators import user_passes_test
 from .forms import StaffCreationForm
 from django.contrib.auth import logout
 from django.shortcuts import redirect
+from django.contrib import messages
+from .forms import CustomerProfileForm  # Create this form
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from .forms import StaffCreationForm
+from .models import User
+from .models import Customer  # Use your actual model name
+from django.contrib.auth.views import LoginView
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
 
 # customer self registration
 def customer_register(request):
@@ -21,15 +32,23 @@ def customer_register(request):
     return render(request, "accounts/register.html", {"form": form})
 
 # dashboards
+@never_cache
+@login_required
 def customer_dashboard(request):
     return render(request, "accounts/customer_dashboard.html")
 
+@never_cache
+@login_required
 def admin_dashboard(request):
     return render(request, "accounts/admin_dashboard.html")
 
+@never_cache
+@login_required
 def med_inventory_dash(request):
     return render(request, "Medicine_inventory/med_inventory_dash.html")
 
+@never_cache
+@login_required
 def cashier_dashboard(request):
     return render(request, "accounts/cashier_dashboard.html")
 
@@ -68,13 +87,6 @@ def create_staff(request):
 
 
 
-from django.shortcuts import get_object_or_404
-from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
-from .forms import StaffCreationForm
-from .models import User
-
-
 @admin_required
 def staff_list(request):
     staff_users = User.objects.filter(role__in=["pharmacist", "cashier"])
@@ -84,14 +96,16 @@ def staff_list(request):
 @admin_required
 def edit_staff(request, staff_id):
     staff_user = get_object_or_404(User, id=staff_id, role__in=["pharmacist", "cashier"])
+    
     if request.method == "POST":
         form = StaffCreationForm(request.POST, instance=staff_user)
         if form.is_valid():
             form.save()
-            messages.success(request, "Staff updated successfully.")
-            return redirect("staff_list")
+            messages.success(request, f"Staff member {staff_user.username} has been updated.")
+            return redirect('staff_list')
     else:
         form = StaffCreationForm(instance=staff_user)
+    
     return render(request, "accounts/edit_staff.html", {"form": form})
 
 
@@ -105,12 +119,47 @@ def delete_staff(request, staff_id):
     return render(request, "accounts/delete_staff.html", {"staff_user": staff_user})
 
 
+@never_cache
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    response = redirect('login')
+    # Set cache control headers
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
 
 
 @admin_required
 def customer_list(request):
     customers = User.objects.filter(role="customer")
     return render(request, "accounts/customer_list.html", {"customers": customers})
+
+
+def edit_customer_profile(request):
+    # Get or create the customer profile
+    customer, created = Customer.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        form = CustomerProfileForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('customer_dashboard')
+        else:
+            # If form is invalid, show error message
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CustomerProfileForm(instance=customer)
+    
+    return render(request, 'accounts/edit_customer_profile.html', {'form': form})
+
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'  # Your existing login template
+    
+    def dispatch(self, request, *args, **kwargs):
+        # If user is already authenticated, redirect to appropriate dashboard
+        if request.user.is_authenticated:
+            return redirect('redirect_dashboard')
+        return super().dispatch(request, *args, **kwargs)

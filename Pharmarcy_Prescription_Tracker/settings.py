@@ -68,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Pharmarcy_Prescription_Tracker.middleware.NoCacheMiddleware'
 ]
 
 ROOT_URLCONF = 'Pharmarcy_Prescription_Tracker.urls'
