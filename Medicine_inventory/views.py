@@ -20,11 +20,20 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from Non_Medicine_inventory.models import NonMedicalProduct
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout
+from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.views import LoginView
 
+
+def pharmacist_required(view_func):
+    return user_passes_test(lambda u: u.is_authenticated and u.role == "pharmacist")(view_func)
 
 
 # View all medicines
-@login_required
+@pharmacist_required
 def view_medicine(request):
     medicines = Medicine.objects.all()
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
@@ -53,7 +62,7 @@ def view_medicine(request):
         'categories': categories,
     })
 
-@login_required
+@pharmacist_required
 def view_medicine_cards(request):
     medicines = Medicine.objects.all()
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
@@ -85,7 +94,7 @@ def view_medicine_cards(request):
         'recent_actions' : recent_actions,
     })
 
-@login_required
+@pharmacist_required
 def view_medicine_table(request):
     medicines = Medicine.objects.all()
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
@@ -142,7 +151,7 @@ def view_medicine_table(request):
     return render(request, 'Medicine_inventory/medicine_table.html', context)
 
 # Create a new medicine entry
-@login_required
+@pharmacist_required
 def create_medicine(request):
     if request.method == 'POST':
         form = MedicineForm(request.POST, request.FILES)  # Include request.FILES
@@ -163,7 +172,7 @@ def create_medicine(request):
     return render(request, 'Medicine_inventory/create_medicine.html', {'form': form})
 
 # Delete a medicine
-@login_required
+@pharmacist_required
 def delete_medicine(request, id):
     medicine = get_object_or_404(Medicine, pk=id)
     medicine_name = medicine.name
@@ -181,7 +190,7 @@ def delete_medicine(request, id):
     return redirect('medicine_table')
 
 # Update a medicine
-@login_required
+@pharmacist_required
 def update_medicine(request, id):
     medicine = get_object_or_404(Medicine, pk=id)
     initial = {}
@@ -215,7 +224,7 @@ def update_medicine(request, id):
 def home(request):
     return render(request, 'crudApp/home.html')
 
-@login_required
+@pharmacist_required
 def export_medicine_csv(request):
     medicines = Medicine.objects.all()
     response = HttpResponse(content_type='text/csv')
@@ -235,7 +244,7 @@ def export_medicine_csv(request):
         ])
     return response
 
-@login_required
+@pharmacist_required
 def export_medicine_pdf(request):
     medicines = Medicine.objects.all()
 
@@ -260,7 +269,7 @@ def export_medicine_pdf(request):
 
 
 
-@login_required
+@pharmacist_required
 def med_inventory_dash(request):
     # Get medicine statistics
     total_medicines = Medicine.objects.count()
@@ -331,7 +340,7 @@ def med_inventory_dash(request):
 
 
 # Track recently viewed medicines
-@login_required
+@pharmacist_required
 def medicine_detail(request, pk):
     medicine = get_object_or_404(Medicine, pk=pk)
     
@@ -352,7 +361,7 @@ def medicine_detail(request, pk):
     return render(request, 'Medicine_inventory/medicine_detail.html', {'medicine': medicine})
 
 # Remember user's filter preferences
-@login_required
+@pharmacist_required
 def medicine_list(request):
     # Get filter parameters
     category = request.GET.get('category')
@@ -390,7 +399,7 @@ def medicine_list(request):
     return render(request, 'Medicine_inventory/medicine_list.html', context)
 
 # Clear session filters
-@login_required
+@pharmacist_required
 def clear_filters(request):
     if 'medicine_category_filter' in request.session:
         del request.session['medicine_category_filter']
