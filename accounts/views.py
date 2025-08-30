@@ -20,24 +20,39 @@ def customer_register(request):
         form = CustomerSignUpForm()
     return render(request, "accounts/register.html", {"form": form})
 
+
+# Add these near your admin_required decorator
+
+def pharmacist_required(view_func):
+    return user_passes_test(lambda u: u.is_authenticated and u.role == "pharmacist")(view_func)
+
+def cashier_required(view_func):
+    return user_passes_test(lambda u: u.is_authenticated and u.role == "cashier")(view_func)
+
+def customer_required(view_func):
+    return user_passes_test(lambda u: u.is_authenticated and u.role == "customer")(view_func)
+
+def admin_required(view_func):
+    return user_passes_test(lambda u: u.is_authenticated and u.role == "admin")(view_func)
+
 # dashboards
 @never_cache
-@login_required
+@customer_required
 def customer_dashboard(request):
     return render(request, "accounts/customer_dashboard.html")
 
 @never_cache
-@login_required
+@admin_required
 def admin_dashboard(request):
     return render(request, "accounts/admin_dashboard.html")
 
 @never_cache
-@login_required
+@pharmacist_required
 def med_inventory_dash(request):
     return render(request, "Medicine_inventory/med_inventory_dash.html")
 
 @never_cache
-@login_required
+@cashier_required
 def cashier_dashboard(request):
     return render(request, "accounts/cashier_dashboard.html")
 
@@ -53,8 +68,7 @@ def redirect_dashboard(request):
     elif user.role == "cashier":
         return redirect("cashier_dashboard")
 
-def admin_required(view_func):
-    return user_passes_test(lambda u: u.is_authenticated and u.role == "admin")(view_func)
+
 
 @admin_required
 def create_staff(request):

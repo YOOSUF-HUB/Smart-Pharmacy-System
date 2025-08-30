@@ -21,8 +21,10 @@ class CustomerSignUpForm(UserCreationForm):
         return user
 
 
-
 class StaffCreationForm(forms.ModelForm):
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+    
     ROLE_CHOICES = (
         ('admin', 'Admin'),
         ('pharmacist', 'Pharmacist'),
@@ -32,7 +34,7 @@ class StaffCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'role']
+        fields = ['username', 'email', 'role']
 
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -46,10 +48,19 @@ class StaffCreationForm(forms.ModelForm):
             if User.objects.filter(username=username).exists():
                 raise forms.ValidationError("This username is already taken.")
         return username
+        
+    def clean_password2(self):
+        # Check that the two password entries match
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        return password2
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.role = self.cleaned_data["role"]
+        user.set_password(self.cleaned_data["password1"])  # This properly hashes the password
         if commit:
             user.save()
         return user
@@ -57,8 +68,6 @@ class StaffCreationForm(forms.ModelForm):
 
 class CustomerProfileForm(forms.ModelForm):
     username = forms.CharField(max_length=150, required=True)
-    first_name = forms.CharField(max_length=30, required=False)
-    last_name = forms.CharField(max_length=30, required=False)
     email = forms.EmailField(required=True)
     
     class Meta:
@@ -70,8 +79,6 @@ class CustomerProfileForm(forms.ModelForm):
         if self.instance and self.instance.user:
             # Initialize all fields with current user data
             self.fields['username'].initial = self.instance.user.username
-            self.fields['first_name'].initial = self.instance.user.first_name
-            self.fields['last_name'].initial = self.instance.user.last_name
             self.fields['email'].initial = self.instance.user.email
             
     def clean_username(self):
@@ -85,10 +92,8 @@ class CustomerProfileForm(forms.ModelForm):
         profile = super().save(commit=False)
         user = profile.user
         
-        # Update all user fields
+        # Update user fields
         user.username = self.cleaned_data['username']
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
         user.email = self.cleaned_data['email']
         
         if commit:
