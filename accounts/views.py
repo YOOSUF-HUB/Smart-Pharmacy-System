@@ -1,23 +1,12 @@
-# accounts/views.py
-from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from .forms import CustomerSignUpForm
-from .models import User
-from django.contrib.auth.decorators import user_passes_test
-from .forms import StaffCreationForm
-from django.contrib.auth import logout
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout
 from django.contrib import messages
-from .forms import CustomerProfileForm  # Create this form
-from django.shortcuts import get_object_or_404
-from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash
-from .forms import StaffCreationForm
-from .models import User
-from .models import Customer  # Use your actual model name
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.views.decorators.cache import never_cache
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
+
+from .forms import CustomerSignUpForm, StaffCreationForm, CustomerProfileForm
+from .models import User, Customer
 
 # customer self registration
 def customer_register(request):
@@ -52,10 +41,6 @@ def med_inventory_dash(request):
 def cashier_dashboard(request):
     return render(request, "accounts/cashier_dashboard.html")
 
-
-# accounts/views.py
-from django.contrib.auth.decorators import login_required
-
 @login_required
 def redirect_dashboard(request):
     user = request.user
@@ -67,7 +52,6 @@ def redirect_dashboard(request):
         return redirect("med_inventory_dash")
     elif user.role == "cashier":
         return redirect("cashier_dashboard")
-
 
 def admin_required(view_func):
     return user_passes_test(lambda u: u.is_authenticated and u.role == "admin")(view_func)
@@ -83,15 +67,10 @@ def create_staff(request):
         form = StaffCreationForm()
     return render(request, "accounts/create_staff.html", {"form": form})
 
-
-
-
-
 @admin_required
 def staff_list(request):
     staff_users = User.objects.filter(role__in=["pharmacist", "cashier"])
     return render(request, "accounts/staff_list.html", {"staff_users": staff_users})
-
 
 @admin_required
 def edit_staff(request, staff_id):
@@ -108,7 +87,6 @@ def edit_staff(request, staff_id):
     
     return render(request, "accounts/edit_staff.html", {"form": form})
 
-
 @admin_required
 def delete_staff(request, staff_id):
     staff_user = get_object_or_404(User, id=staff_id, role__in=["pharmacist", "cashier"])
@@ -117,7 +95,6 @@ def delete_staff(request, staff_id):
         messages.success(request, "Staff deleted successfully.")
         return redirect("staff_list")
     return render(request, "accounts/delete_staff.html", {"staff_user": staff_user})
-
 
 @never_cache
 def logout_view(request):
@@ -129,12 +106,10 @@ def logout_view(request):
     response['Expires'] = '0'
     return response
 
-
 @admin_required
 def customer_list(request):
     customers = User.objects.filter(role="customer")
     return render(request, "accounts/customer_list.html", {"customers": customers})
-
 
 def edit_customer_profile(request):
     # Get or create the customer profile
@@ -154,9 +129,8 @@ def edit_customer_profile(request):
     
     return render(request, 'accounts/edit_customer_profile.html', {'form': form})
 
-
 class CustomLoginView(LoginView):
-    template_name = 'registration/login.html'  # Your existing login template
+    template_name = 'registration/login.html'
     
     def dispatch(self, request, *args, **kwargs):
         # If user is already authenticated, redirect to appropriate dashboard
