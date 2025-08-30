@@ -64,6 +64,7 @@
             <th class="py-4 px-6">Username</th>
             <th class="py-4 px-6">Email</th>
             <th class="py-4 px-6">Role</th>
+            <th class="py-4 px-6">Last Login</th>
             <th class="py-4 px-6 text-center">Actions</th>
           </tr>
         </thead>
@@ -87,6 +88,15 @@
               </span>
             </td>
 
+            <!-- Last Login -->
+            <td class="py-4 px-6 text-gray-600">
+              {% if staff.last_login %}
+                {{ staff.last_login|date:"M d, Y, h:i A" }}
+              {% else %}
+                <span class="text-gray-400">Never</span>
+              {% endif %}
+            </td>
+
             <!-- Actions -->
             <td class="py-4 px-6 text-center space-x-4">
               <a href="{% url 'edit_staff' staff.id %}"
@@ -102,7 +112,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="4" class="py-10 text-center text-gray-500">
+            <td colspan="5" class="py-10 text-center text-gray-500">
               <div class="flex flex-col items-center justify-center space-y-3">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-cyan-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
