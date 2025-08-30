@@ -4,6 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.views import LoginView
+from django.core.exceptions import PermissionDenied
+from django.conf import settings
+from functools import wraps
 
 from .forms import CustomerSignUpForm, StaffCreationForm, CustomerProfileForm
 from .models import User, Customer
@@ -21,19 +24,46 @@ def customer_register(request):
     return render(request, "accounts/register.html", {"form": form})
 
 
-# Add these near your admin_required decorator
+# Decorators
+def admin_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(settings.LOGIN_URL)
+        if request.user.role != "admin":
+            raise PermissionDenied("You must be an admin to access this page.")
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def pharmacist_required(view_func):
-    return user_passes_test(lambda u: u.is_authenticated and u.role == "pharmacist")(view_func)
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(settings.LOGIN_URL)
+        if request.user.role != "pharmacist":
+            raise PermissionDenied("You must be a pharmacist to access this page.")
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def cashier_required(view_func):
-    return user_passes_test(lambda u: u.is_authenticated and u.role == "cashier")(view_func)
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(settings.LOGIN_URL)
+        if request.user.role != "cashier":
+            raise PermissionDenied("You must be a cashier to access this page.")
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def customer_required(view_func):
-    return user_passes_test(lambda u: u.is_authenticated and u.role == "customer")(view_func)
-
-def admin_required(view_func):
-    return user_passes_test(lambda u: u.is_authenticated and u.role == "admin")(view_func)
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(settings.LOGIN_URL)
+        if request.user.role != "customer":
+            raise PermissionDenied("You must be a customer to access this page.")
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 # dashboards
 @never_cache
@@ -125,6 +155,7 @@ def customer_list(request):
     customers = User.objects.filter(role="customer")
     return render(request, "accounts/customer_list.html", {"customers": customers})
 
+@customer_required
 def edit_customer_profile(request):
     # Get or create the customer profile
     customer, created = Customer.objects.get_or_create(user=request.user)
