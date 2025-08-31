@@ -4,9 +4,11 @@
 {% block content %}
 <div class="bg-white">
   
+  {% if user.is_authenticated %}
   <span class="text-sm/6 font-semibold text-gray-900 mr-4">
                                     Hello, {{ user.username }}
                                 </span>
+                                {%endif%}
 
   <div class="relative isolate px-6 pt-14 lg:px-8">
     <div aria-hidden="true" class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
