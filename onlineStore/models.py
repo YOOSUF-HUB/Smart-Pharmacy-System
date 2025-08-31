@@ -3,11 +3,8 @@ from django.db import models
 from Medicine_inventory.models import Medicine
 from Non_Medicine_inventory.models import NonMedicalProduct
 
-
-
-# Create your models here.
-
-class Products(models.Model):
+# Unified Products model to represent both Medicine and Non-Medical Products
+class Product(models.Model):
     PRODUCT_TYPE_CHOICES = [
         ('Medicine', 'Medicine'),
         ('NonMedicalProduct', 'NonMedicalProduct'),
@@ -23,6 +20,8 @@ class Products(models.Model):
 
     featured = models.BooleanField(default=False)
     available_online = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         if self.product_type == 'Medicine' and self.medicine:
@@ -30,53 +29,91 @@ class Products(models.Model):
         elif self.product_type == 'NonMedicalProduct' and self.non_medical_product:
             return f"{self.non_medical_product.name}"
         return "Unknown Product"
-    
 
-    
-# class Cart(models.Model):
-#     cart_id = models.AutoField(primary_key=True)
-#     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  
-#     product = models.ForeignKey('Products', on_delete=models.CASCADE) 
-#     quantity = models.PositiveIntegerField(default=1)
-#     created_at = models.DateTimeField(auto_now_add=True)
+    # Unified display fields for templates and views
+    @property
+    def name(self):
+        if self.product_type == 'Medicine' and self.medicine:
+            return self.medicine.name
+        elif self.product_type == 'NonMedicalProduct' and self.non_medical_product:
+            return self.non_medical_product.name
+        return "Unknown Product"
 
+    @property
+    def price(self):
+        if self.product_type == 'Medicine' and self.medicine:
+            return self.medicine.selling_price
+        elif self.product_type == 'NonMedicalProduct' and self.non_medical_product:
+            return self.non_medical_product.selling_price
+        return 0
 
-#     def __str__(self):
-#         return f"Cart({self.user}, {self.product}, {self.quantity})"
+    @property
+    def stock(self):
+        if self.product_type == 'Medicine' and self.medicine:
+            return self.medicine.quantity_in_stock
+        elif self.product_type == 'NonMedicalProduct' and self.non_medical_product:
+            return self.non_medical_product.quantity_in_stock
+        return 0
 
+    @property
+    def image_url(self):
+        if self.product_type == 'Medicine' and self.medicine:
+            return self.medicine.image.url if self.medicine.image else ""
+        elif self.product_type == 'NonMedicalProduct' and self.non_medical_product:
+            return self.non_medical_product.image.url if self.non_medical_product.image else ""
+        return ""
 
-# class CartItem(models.Model):
-#     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-#     product = models.ForeignKey('Products', on_delete=models.CASCADE)
-#     quantity = models.PositiveIntegerField(default=1)
+    @property
+    def description(self):
+        if self.product_type == 'Medicine' and self.medicine:
+            return getattr(self.medicine, 'description', 'No description available')
+        elif self.product_type == 'NonMedicalProduct' and self.non_medical_product:
+            return getattr(self.non_medical_product, 'description', 'No description available')
+        return ""
 
-#     def __str__(self):
-#         return f"CartItem({self.cart}, {self.product}, {self.quantity})"
+# Cart model to hold multiple items
+class Cart(models.Model):
+    cart_id = models.AutoField(primary_key=True)
+    customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-# class Order(models.Model):
-#     ORDER_STATUS = [
-#         ('Pending', 'Pending'),
-#         ('Shipped', 'Shipped'),
-#         ('Delivered', 'Delivered'),
-#         ('Cancelled', 'Cancelled'),
-#     ]
+    def __str__(self):
+        return f"Cart({self.customer_user.username}, {self.created_at})"
 
-#     order_id = models.AutoField(primary_key=True)
-#     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-#     cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     status = models.CharField(max_length=20, choices=ORDER_STATUS, default='Pending')
-#     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+# CartItem links products to cart with quantity
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
 
-#     def __str__(self):
-#         return f"Order({self.user}, {self.cart}, {self.created_at})"
-    
+    def __str__(self):
+        return f"CartItem({self.product.name}, Qty: {self.quantity})"
 
-# class OrderItem(models.Model):
-#     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-#     product = models.ForeignKey('Products', on_delete=models.CASCADE)
-#     quantity = models.PositiveIntegerField(default=1)
-#     price = models.DecimalField(max_digits=10, decimal_places=2)
+# Order model for checkout
+class Order(models.Model):
+    ORDER_STATUS = [
+        ('Pending', 'Pending'),
+        ('Shipped', 'Shipped'),
+        ('Delivered', 'Delivered'),
+        ('Cancelled', 'Cancelled'),
+    ]
 
-#     def __str__(self):
-#         return f"OrderItem({self.order}, {self.product}, {self.quantity})"
+    order_id = models.AutoField(primary_key=True)
+    customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=ORDER_STATUS, default='Pending')
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"Order({self.customer_user.username}, {self.created_at})"
+
+# Individual order items
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # snapshot of price at order time
+
+    def __str__(self):
+        return f"OrderItem({self.product.name}, Qty: {self.quantity})"
