@@ -11,17 +11,7 @@ from functools import wraps
 from .forms import CustomerSignUpForm, StaffCreationForm, CustomerProfileForm
 from .models import User, Customer
 
-# customer self registration
-def customer_register(request):
-    if request.method == "POST":
-        form = CustomerSignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # auto login after registration
-            return redirect("customer_dashboard")
-    else:
-        form = CustomerSignUpForm()
-    return render(request, "accounts/register.html", {"form": form})
+
 
 
 # Decorators
@@ -113,7 +103,7 @@ def create_staff(request):
 
 @admin_required
 def staff_list(request):
-    staff_users = User.objects.filter(role__in=["pharmacist", "cashier"])
+    staff_users = User.objects.filter(role__in=["pharmacist", "cashier","admin"])
     return render(request, "accounts/staff_list.html", {"staff_users": staff_users})
 
 @admin_required
@@ -155,6 +145,14 @@ def customer_list(request):
     customers = User.objects.filter(role="customer")
     return render(request, "accounts/customer_list.html", {"customers": customers})
 
+
+
+
+
+
+
+#Customer View Sections
+
 @customer_required
 def edit_customer_profile(request):
     # Get or create the customer profile
@@ -173,6 +171,21 @@ def edit_customer_profile(request):
         form = CustomerProfileForm(instance=customer)
     
     return render(request, 'accounts/edit_customer_profile.html', {'form': form})
+
+
+# customer self registration
+def customer_register(request):
+    if request.method == "POST":
+        form = CustomerSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # auto login after registration
+            return redirect("customer_dashboard")
+    else:
+        form = CustomerSignUpForm()
+    return render(request, "accounts/register.html", {"form": form})
+
+
 
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
