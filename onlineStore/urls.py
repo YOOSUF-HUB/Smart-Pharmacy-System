@@ -1,7 +1,6 @@
 from django.urls import include, path
 from . import views
 
-app_name = 'onlineStore'  
 
 urlpatterns = [
     path('', views.online_store_homepage, name='homepage'),  # Root now goes to homepage
@@ -22,7 +21,6 @@ urlpatterns = [
 
 
     # path('create-account/', views.create_account, name='create_account'),
-    # path('login/', views.login, name='login'),
-   path('customer/', include(('onlineCustomer_accounts.urls', 'onlineCustomer_accounts'), namespace='onlineCustomer_accounts')),  # Include customer account URLs
+    # path('login/', views.login, name='login'),  # Include customer account URLs
 
 ]
