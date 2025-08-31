@@ -31,9 +31,17 @@
     box-shadow: 0 15px 25px rgba(0,0,0,0.2);
     background: linear-gradient(135deg, #0891b2, #2563eb);
   }
+
+    @media (min-width: 1280px) {
+    .table-container-wide {
+      max-width: 95vw;
+      margin-left: calc(50% - 47.5vw);
+      margin-right: calc(50% - 47.5vw);
+    }
+  }
 </style>
 
-<div class="max-w-7xl mx-auto px-6 py-10 space-y-8">
+<div class="max-w-7xl mx-auto px-6 py-10 space-y-8 table-container-wide">
   <!-- Header -->
   <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
     <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Customer Accounts</h2>
@@ -59,20 +67,32 @@
   </div>
 
   <!-- Table -->
-  <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
+  <div class="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200">
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead class="bg-gray-100 text-gray-700 text-sm uppercase sticky top-0 shadow-sm">
           <tr>
+            <th class="py-4 px-6">ID</th>
             <th class="py-4 px-6">User</th>
             <th class="py-4 px-6">Email</th>
+            <th class="py-4 px-6">Phone</th>
+            <th class="py-4 px-6">Address</th>
             <th class="py-4 px-6">Date Joined</th>
+            <th class="py-4 px-6">View</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 text-sm">
           {% for customer in customers %}
           <tr class="hover:bg-cyan-50 hover:shadow-sm transition-all cursor-pointer">
-            <!-- User column with avatar + username -->
+
+            <td class="py-4 px-6">
+              <div class="flex items-center justify-center">
+                <span class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-medium text-xs">
+                  {{ customer.id }}
+                </span>
+              </div>
+            </td>
+
             <td class="py-4 px-6">
               <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
@@ -89,11 +109,34 @@
               </span>
             </td>
 
+            <td class="py-4 px-6">
+              <span class="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700">
+                {{ customer.customer.phone|default:"N/A" }}
+              </span>
+            </td>
+
+            <td class="py-4 px-6">
+              <span class="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700">
+                {{ customer.customer.address|default:"N/A" }}
+              </span>
+            </td>
+
             <!-- Date -->
             <td class="py-4 px-6">
               <span class="px-3 py-1 rounded-lg text-xs font-medium bg-cyan-100 text-cyan-800">
                 {{ customer.date_joined|date:"Y-m-d H:i" }}
               </span>
+            </td>
+
+            <td class="py-4 px-6 text-center">
+              <a href="{% url 'customer_detail' customer_id=customer.id %}" 
+                class="inline-flex items-center px-3 py-1 bg-cyan-100 text-cyan-800 rounded-lg hover:bg-cyan-200 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                View
+              </a>
             </td>
           </tr>
           {% empty %}

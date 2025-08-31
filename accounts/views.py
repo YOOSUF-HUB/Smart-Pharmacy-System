@@ -146,6 +146,18 @@ def customer_list(request):
     return render(request, "accounts/customer_list.html", {"customers": customers})
 
 
+@admin_required
+@never_cache
+def customer_detail(request, customer_id):
+    customer_user = get_object_or_404(User, id=customer_id, role='customer')
+    customer = get_object_or_404(Customer, user=customer_user)
+    
+    context = {
+        'customer_user': customer_user,
+        'customer': customer,
+    }
+    
+    return render(request, 'accounts/customer_detail.html', context)
 
 
 
@@ -155,18 +167,22 @@ def customer_list(request):
 
 @customer_required
 def edit_customer_profile(request):
-    # Get or create the customer profile
-    customer, created = Customer.objects.get_or_create(user=request.user)
+    try:
+        customer = request.user.customer
+    except Customer.DoesNotExist:
+        # Create customer profile if it doesn't exist
+        customer = Customer.objects.create(user=request.user)
     
     if request.method == 'POST':
         form = CustomerProfileForm(request.POST, instance=customer)
+        print("Form data:", request.POST)
         if form.is_valid():
+            print("Form is valid")
             form.save()
-            messages.success(request, 'Your profile has been updated successfully.')
+            messages.success(request, 'Your profile has been updated successfully!')
             return redirect('customer_dashboard')
         else:
-            # If form is invalid, show error message
-            messages.error(request, 'Please correct the errors below.')
+            print("Form errors:", form.errors)
     else:
         form = CustomerProfileForm(instance=customer)
     
@@ -184,6 +200,8 @@ def customer_register(request):
     else:
         form = CustomerSignUpForm()
     return render(request, "accounts/register.html", {"form": form})
+
+
 
 
 
