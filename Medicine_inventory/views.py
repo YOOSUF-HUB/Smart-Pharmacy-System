@@ -247,6 +247,9 @@ def export_medicine_csv(request):
 @pharmacist_required
 def export_medicine_pdf(request):
     medicines = Medicine.objects.all()
+    total_medicines = medicines.count()
+    low_stock_count = Medicine.objects.filter(quantity_in_stock__lt=F('reorder_level')).count()
+    expired = medicines.filter(expiry_date__lt=timezone.now().date()).count()
 
     logo_file = os.path.join(settings.BASE_DIR, 'static/MediSyn_Logo/1.png')
     with open(logo_file, 'rb') as f:
@@ -255,7 +258,10 @@ def export_medicine_pdf(request):
     context = {
         'medicines': medicines,
         'now': timezone.now(),
-        'logo_data': logo_data,  # Pass the encoded data instead
+        'logo_data': logo_data,
+        'total_medicines': total_medicines,
+        'low_stock_count': low_stock_count,
+        'expired': expired,
     }
     
     html_string = render_to_string('Medicine_inventory/medicine_pdf.html', context)
