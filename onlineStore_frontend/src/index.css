@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+.container{
+  /* this is tailwind css code for center: true; */
+  margin: 0 auto;
+  padding: 4px;
+
+}
+
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

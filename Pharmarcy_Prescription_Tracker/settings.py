@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'Non_Medicine_inventory',
     'payments',
     'onlineStore',
+    'onlineCustomer_accounts',
     'widget_tweaks',
     'accounts',
 ]

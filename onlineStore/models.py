@@ -33,50 +33,50 @@ class Products(models.Model):
     
 
     
-class Cart(models.Model):
-    cart_id = models.AutoField(primary_key=True)
-    customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  
-    product = models.ForeignKey('Products', on_delete=models.CASCADE) 
-    quantity = models.PositiveIntegerField(default=1)
-    created_at = models.DateTimeField(auto_now_add=True)
+# class Cart(models.Model):
+#     cart_id = models.AutoField(primary_key=True)
+#     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  
+#     product = models.ForeignKey('Products', on_delete=models.CASCADE) 
+#     quantity = models.PositiveIntegerField(default=1)
+#     created_at = models.DateTimeField(auto_now_add=True)
 
 
-    def __str__(self):
-        return f"Cart({self.user}, {self.product}, {self.quantity})"
+#     def __str__(self):
+#         return f"Cart({self.user}, {self.product}, {self.quantity})"
 
 
-class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    product = models.ForeignKey('Products', on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+# class CartItem(models.Model):
+#     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+#     product = models.ForeignKey('Products', on_delete=models.CASCADE)
+#     quantity = models.PositiveIntegerField(default=1)
 
-    def __str__(self):
-        return f"CartItem({self.cart}, {self.product}, {self.quantity})"
+#     def __str__(self):
+#         return f"CartItem({self.cart}, {self.product}, {self.quantity})"
 
-class Order(models.Model):
-    ORDER_STATUS = [
-        ('Pending', 'Pending'),
-        ('Shipped', 'Shipped'),
-        ('Delivered', 'Delivered'),
-        ('Cancelled', 'Cancelled'),
-    ]
+# class Order(models.Model):
+#     ORDER_STATUS = [
+#         ('Pending', 'Pending'),
+#         ('Shipped', 'Shipped'),
+#         ('Delivered', 'Delivered'),
+#         ('Cancelled', 'Cancelled'),
+#     ]
 
-    order_id = models.AutoField(primary_key=True)
-    customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=ORDER_STATUS, default='Pending')
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+#     order_id = models.AutoField(primary_key=True)
+#     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     status = models.CharField(max_length=20, choices=ORDER_STATUS, default='Pending')
+#     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
 
-    def __str__(self):
-        return f"Order({self.user}, {self.cart}, {self.created_at})"
+#     def __str__(self):
+#         return f"Order({self.user}, {self.cart}, {self.created_at})"
     
 
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    product = models.ForeignKey('Products', on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+# class OrderItem(models.Model):
+#     order = models.ForeignKey(Order, on_delete=models.CASCADE)
+#     product = models.ForeignKey('Products', on_delete=models.CASCADE)
+#     quantity = models.PositiveIntegerField(default=1)
+#     price = models.DecimalField(max_digits=10, decimal_places=2)
 
-    def __str__(self):
-        return f"OrderItem({self.order}, {self.product}, {self.quantity})"
+#     def __str__(self):
+#         return f"OrderItem({self.order}, {self.product}, {self.quantity})"

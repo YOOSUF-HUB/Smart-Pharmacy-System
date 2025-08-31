@@ -10,6 +10,7 @@
 
 </head>
 <body>
+ 
         <!-- <h1 class="text-3xl font-bold text-blue-600">Hello from base!</h1>
             <button class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded" 
                     onclick="alert('Button clicked!')">
@@ -20,13 +21,13 @@
             
             <div class="container mx-auto">
                 <div class="flex justify-between items-center">
-                    <a href="{% url 'homepage' %}" >
+                    <a href="{% url 'onlineStore:homepage' %}" >
                         <img src="../media/non_medical_products/5.png" alt="MedsiSync logo" class="h-20 w-60">
                     </a>
                     <div class="container mx-auto ml-10">
                         <ul class="flex space-x-4">
-                            <li><a href="{% url 'homepage' %}" class="text-white hover:text-gray-300">Home</a></li>
-                            <li><a href="{% url 'products' %}" class="text-white hover:text-gray-300">Products</a></li>
+                            <li><a href="{% url 'onlineStore:homepage' %}" class="text-white hover:text-gray-300">Home</a></li>
+                            <li><a href="{% url 'onlineStore:products' %}" class="text-white hover:text-gray-300">Products</a></li>
                             <li><a href="" class="text-white hover:text-gray-300">About Us</a></li>
                         </ul>
                     </div>
@@ -64,7 +65,7 @@
             </div>
             <div class="hidden lg:flex lg:gap-x-12">
                 <a href="/online-store/" class="text-sm/6 font-semibold text-gray-900">Home</a>
-                <a href="{% url 'products' %}" class="text-sm/6 font-semibold text-gray-900">Product</a>
+                <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-gray-900">Product</a>
                 <a href="#" class="text-sm/6 font-semibold text-gray-900">Contact us</a>
                 <a href="#" class="text-sm/6 font-semibold text-gray-900">About us</a>
             </div>
@@ -97,8 +98,28 @@
                         <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Company</a>
                         </div>
                         <div class="py-6">
-                        <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Log in</a>
+                            {% if user.is_authenticated %}
+                                <!-- Show greeting and logout link if user is logged in -->
+                                <span class="text-sm/6 font-semibold text-gray-900 mr-4">
+                                    Hello, {{ user.username }}
+                                </span>
+                                <a href="/online-store/customer/logout/" 
+                                class="text-sm/6 font-semibold text-gray-900 hover:text-gray-500">
+                                    Logout
+                                </a>
+                            {% else %}
+                                <span class="text-sm/6 font-semibold text-gray-900 mr-4">
+                                    Hello, Guest
+                                </span>
+                                <p>sss</p>
+                                <!-- Show login link if user is not logged in -->
+                                <a href="/online-store/customer/login/" 
+                                class="text-sm/6 font-semibold text-gray-900 hover:text-gray-500">
+                                    Log in <span aria-hidden="true">&rarr;</span>
+                                </a>
+                            {% endif %}
                         </div>
+
                     </div>
                     </div>
                 </el-dialog-panel>

@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, redirect, render, HttpResponse
 import Medicine_inventory
 from Medicine_inventory.models import Medicine
 from accounts.models import Customer
-from .models import Cart, Order, Products
+from .models import  Products
 
 # Create your views here.
 def online_store_homepage(request):
@@ -12,7 +12,6 @@ def online_store_homepage(request):
 #     # This is a placeholder for the products view
 #     # You would typically fetch products from the database and pass them to the template
 #     return render(request, 'onlineStore/products.html', {'products': []})  # Replace with actual product data
-
 
 
 # View all medicines
@@ -45,73 +44,48 @@ def view_product_detail(request, id):
         product = None
     return render(request, 'onlineStore/productDetail.html', {'product': product})
 
-def checkout(request):
-    return render(request, 'onlineStore/checkout.html')
+# def checkout(request):
+#     return render(request, 'onlineStore/checkout.html')
 
 
 
-def order_history(request):
-    return render(request, 'onlineStore/orderHistory.html')
+# def order_history(request):
+#     return render(request, 'onlineStore/orderHistory.html')
 
 
 
-# Add to Cart
-def add_to_cart(request, product_id):
-    product = get_object_or_404(Products, id=product_id)  # ✅ use Products (model), not product (variable)
-    cart_item, created = Cart.objects.get_or_create(
-        product=product,
-        customer=request.user.customer  # make sure Customer has OneToOne with User
-    )
-    if not created:  # if already exists, increase qty
-        cart_item.quantity += 1
-        cart_item.save()
-    return redirect("view_cart")
+# # Add to Cart
+# def add_to_cart(request, product_id):
+#     product = get_object_or_404(Products, id=product_id)  # ✅ use Products (model), not product (variable)
+#     cart_item, created = Cart.objects.get_or_create(
+#         product=product,
+#         customer=request.user.customer  # make sure Customer has OneToOne with User
+#     )
+#     if not created:  # if already exists, increase qty
+#         cart_item.quantity += 1
+#         cart_item.save()
+#     return redirect("view_cart")
 
-def add_to_cart(request, product_id):
-    # Get the product
-    product = get_object_or_404(Products, id=product_id)
+# # View Cart
+# def view_cart(request):
+#     cart_items = Cart.objects.filter(customer=request.user.customer)
+#     return render(request, "onlineStore/cart.html", {"cart_items": cart_items})
 
-    # ---- Use dummy customer for now ----
-    dummy_user, _ = User.objects.get_or_create(username='dummy_user')
-    if _:
-        dummy_user.set_password('password123')  # optional
-        dummy_user.save()
-    dummy_customer, _ = Customer.objects.get_or_create(user=dummy_user)
+# # Checkout
+# def checkout(request):
+#     if request.method == "POST":
+#         customer = request.user.customer
+#         cart_items = Cart.objects.filter(customer=customer)
 
-    # Create or get cart item
-    cart_item, created = Cart.objects.get_or_create(
-        product=product,
-        customer_user=dummy_customer  # use dummy customer
-    )
+#         if not cart_items.exists():
+#             return HttpResponse("Your cart is empty.")
 
-    # Increment quantity if already exists
-    if not created:
-        cart_item.quantity += 1
-        cart_item.save()
+#         order = Order.objects.create(customer=customer, status="In-Progress")
 
-    # Redirect to cart page (replace 'cart' with your url name)
-    return redirect('cart')
+#         for item in cart_items:
+#             order.Medicine.add(item.product)
+#             item.delete()  # clear cart after order
 
-# View Cart
-def view_cart(request):
-    cart_items = Cart.objects.filter(customer=request.user.customer)
-    return render(request, "onlineStore/cart.html", {"cart_items": cart_items})
+#         return redirect("order_tracking", order_id=order.id)
 
-# Checkout
-def checkout(request):
-    if request.method == "POST":
-        customer = request.user.customer
-        cart_items = Cart.objects.filter(customer=customer)
-
-        if not cart_items.exists():
-            return HttpResponse("Your cart is empty.")
-
-        order = Order.objects.create(customer=customer, status="In-Progress")
-
-        for item in cart_items:
-            order.Medicine.add(item.product)
-            item.delete()  # clear cart after order
-
-        return redirect("order_tracking", order_id=order.id)
-
-    return render(request, "onlineStore/checkout.html")
+#     return render(request, "onlineStore/checkout.html")
