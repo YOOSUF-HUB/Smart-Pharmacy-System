@@ -10,6 +10,7 @@ urlpatterns = [
 
     # customer registration
     path("register/", views.customer_register, name="customer_register"),
+    path('customer-login/', views.CustomerLoginView.as_view(), name='customer_login'),
 
     # dashboards
     path("dashboard/", views.redirect_dashboard, name="redirect_dashboard"),

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import PermissionDenied
@@ -10,6 +10,10 @@ from functools import wraps
 from django.core.exceptions import PermissionDenied
 from .forms import CustomerSignUpForm, StaffCreationForm, CustomerProfileForm, StaffEditForm, CustomAuthenticationForm
 from .models import User, Customer
+from django.contrib.auth.views import LoginView
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.urls import reverse_lazy
 
 
 def inactive_account(request):
@@ -64,8 +68,20 @@ def customer_required(view_func):
 # dashboards
 @never_cache
 @customer_required
+@login_required
 def customer_dashboard(request):
-    return render(request, "accounts/customer_dashboard.html")
+    if request.user.role != 'customer':
+        messages.error(request, "You don't have permission to access the customer dashboard.")
+        return redirect('login')
+    
+    # Create a context dictionary
+    context = {
+        'user': request.user,
+        # Add any other data you want to display in the dashboard
+    }
+    
+    # Rest of your customer dashboard code...
+    return render(request, 'accounts/customer_dashboard.html', context)
 
 @never_cache
 @admin_required
@@ -227,6 +243,22 @@ class CustomLoginView(LoginView):
         if any('inactive_account' == err.code for err in form.non_field_errors().data):
             return redirect('inactive_account')
         return super().form_invalid(form)
+
+class CustomerLoginView(LoginView):
+    template_name = 'accounts/customer_login.html'
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('customer_dashboard')
+    
+    def form_valid(self, form):
+        """Check if the user is a customer before logging in"""
+        user = form.get_user()
+        if user.role != 'customer':
+            messages.error(self.request, "This login is for customers only. Please use the staff login page.")
+            return self.form_invalid(form)
+        return super().form_valid(form)
+        
+    def get_success_url(self):
+        return reverse_lazy('customer_dashboard')
 
 @admin_required
 @never_cache
