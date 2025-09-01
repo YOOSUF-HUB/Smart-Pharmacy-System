@@ -1,0 +1,84 @@
+{% extends 'registration/base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 py-10 space-y-8">
+  <!-- Header with back button -->
+  <div class="flex justify-between items-center">
+    <h2 class="text-3xl font-extrabold text-gray-900">Staff Details</h2>
+    <a href="{% url 'staff_list' %}" 
+       class="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-xl shadow-lg transition">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Staff List
+    </a>
+  </div>
+  
+  <!-- Staff Profile Card -->
+  <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+    <!-- Header with role -->
+    <div class="bg-gradient-to-r from-yellow-500 to-amber-600 px-6 py-8 text-white">
+      <div class="flex items-center gap-5">
+        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-2xl font-bold text-amber-600">
+          {{ staff.username|first|upper }}
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold">{{ staff.get_full_name|default:staff.username }}</h3>
+          <p class="text-amber-100">{{ staff.get_role_display }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Details sections -->
+    <div class="p-6 space-y-8">
+      <!-- Account Information -->
+      <div>
+        <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">Account Information</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+          <div>
+            <p class="text-sm text-gray-500">Username</p>
+            <p class="text-gray-900">{{ staff.username }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Email Address</p>
+            <p class="text-gray-900">{{ staff.email }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">First Name</p>
+            <p class="text-gray-900">{{ staff.first_name|default:"Not provided" }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Last Name</p>
+            <p class="text-gray-900">{{ staff.last_name|default:"Not provided" }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Staff Information -->
+      <div>
+        <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">Staff Information</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+          <div>
+            <p class="text-sm text-gray-500">Phone Number</p>
+            <p class="text-gray-900">{{ staff.phone|default:"Not provided" }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Date Hired</p>
+            <p class="text-gray-900">{{ staff.date_hired|date:"F j, Y"|default:"Not provided" }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Account Status</p>
+            <p class="{% if staff.is_active %}text-green-600{% else %}text-red-600{% endif %}">
+              {{ staff.is_active|yesno:"Active,Inactive" }}
+            </p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Date Joined</p>
+            <p class="text-gray-900">{{ staff.date_joined|date:"F j, Y" }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

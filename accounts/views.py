@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from functools import wraps
 
-from .forms import CustomerSignUpForm, StaffCreationForm, CustomerProfileForm
+from .forms import CustomerSignUpForm, StaffCreationForm, CustomerProfileForm, StaffEditForm
 from .models import User, Customer
 
 
@@ -103,23 +103,30 @@ def create_staff(request):
 
 @admin_required
 def staff_list(request):
-    staff_users = User.objects.filter(role__in=["pharmacist", "cashier","admin"])
+    staff_users = User.objects.filter(role__in=["pharmacist", "cashier"])
     return render(request, "accounts/staff_list.html", {"staff_users": staff_users})
 
 @admin_required
 def edit_staff(request, staff_id):
-    staff_user = get_object_or_404(User, id=staff_id, role__in=["pharmacist", "cashier"])
+    staff = get_object_or_404(User, id=staff_id)
     
-    if request.method == "POST":
-        form = StaffCreationForm(request.POST, instance=staff_user)
+    if request.method == 'POST':
+        print("POST data:", request.POST)
+        form = StaffEditForm(request.POST, instance=staff)
         if form.is_valid():
-            form.save()
-            messages.success(request, f"Staff member {staff_user.username} has been updated.")
+            print("Form is valid")
+            staff = form.save(commit=False)
+            # Make sure is_active is properly handled since it's a checkbox
+            staff.is_active = 'is_active' in request.POST
+            staff.save()
+            messages.success(request, 'Staff account updated successfully')
             return redirect('staff_list')
+        else:
+            print("Form errors:", form.errors)
     else:
-        form = StaffCreationForm(instance=staff_user)
+        form = StaffEditForm(instance=staff)
     
-    return render(request, "accounts/edit_staff.html", {"form": form})
+    return render(request, 'accounts/edit_staff.html', {'form': form})
 
 @admin_required
 def delete_staff(request, staff_id):
@@ -213,3 +220,14 @@ class CustomLoginView(LoginView):
         if request.user.is_authenticated:
             return redirect('redirect_dashboard')
         return super().dispatch(request, *args, **kwargs)
+
+@admin_required
+@never_cache
+def staff_detail(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id, role__in=['admin', 'pharmacist', 'cashier'])
+    
+    context = {
+        'staff': staff,
+    }
+    
+    return render(request, 'accounts/staff_detail.html', context)
