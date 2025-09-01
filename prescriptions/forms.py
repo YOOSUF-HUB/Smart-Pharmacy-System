@@ -108,7 +108,8 @@ class PrescriptionForm(forms.ModelForm):
             except Doctor.DoesNotExist:
                 # If no matching doctor is found, raise a validation error.
                 raise ValidationError(
-                    "Invalid Doctor details. No registered doctor found with the provided Medical Code and Last Name. Please check the details or register the doctor.",
+                    "Verification failed: The provided Doctor's Medical Code and Last Name do not match a registered doctor in our system. Please manually verify the doctor's details on the official SLMC public register. "
+                    "You can access the register at: https://renewal.slmc.gov.lk/practitioner/registry",
                     code='invalid_doctor'
                 )
         elif not medical_code:

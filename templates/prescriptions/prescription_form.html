@@ -12,22 +12,21 @@
     <form method="post" class="space-y-4">
         {% csrf_token %}
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-group">
-                <label for="{{ form.patient.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                    {{ form.patient.label }}
-                    {% if form.patient.field.required %}<span class="text-red-500">*</span>{% endif %}
-                </label>
-                {{ form.patient }}
-                {% if form.patient.help_text %}
-                    <p class="text-sm text-gray-500 mt-1">{{ form.patient.help_text }}</p>
-                {% endif %}
-                {% for error in form.patient.errors %}
-                    <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
-                {% endfor %}
-            </div>
+        <div class="form-group">
+            <label for="{{ form.patient.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                {{ form.patient.label }}
+                {% if form.patient.field.required %}<span class="text-red-500">*</span>{% endif %}
+            </label>
+            {{ form.patient }}
+            {% if form.patient.help_text %}
+                <p class="text-sm text-gray-500 mt-1">{{ form.patient.help_text }}</p>
+            {% endif %}
+            {% for error in form.patient.errors %}
+                <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
 
-            {# New fields for Doctor verification #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group">
                 <label for="{{ form.doctor_medical_code.id_for_label }}" class="block text-sm font-medium text-gray-700">
                     {{ form.doctor_medical_code.label }}
@@ -70,19 +69,36 @@
                 <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
             {% endfor %}
         </div>
-
+        
+        {# Display non-field errors, typically used for doctor verification errors #}
         {% if form.non_field_errors %}
             <div class="p-3 rounded-md bg-red-100 text-red-700 border border-red-400">
                 {% for error in form.non_field_errors %}
                     <p>{{ error }}</p>
                 {% endfor %}
             </div>
+            {# SLMC Contact Information - Displayed when there are non-field errors, specifically for doctor verification #}
+            <div class="p-3 rounded-md bg-blue-50 text-blue-700 border border-blue-400 text-sm">
+                <p class="font-semibold mb-2">For Doctor Verification or Registration:</p>
+                <p>If you need to verify a doctor's registration or register a new doctor, please visit the official **Sri Lanka Medical Council (SLMC)** website:</p>
+                <ul class="list-disc list-inside mt-2">
+                    <li><strong>Official Website:</strong> <a href="https://renewal.slmc.gov.lk/practitioner/registry" target="_blank" class="text-blue-800 hover:underline">https://medicalcouncil.lk/renewal/verify/registration</a></li>
+                    <li><strong>Contact:</strong> +94 11 269 9133 or <a href="mailto:slmc@sltnet.lk" class="text-blue-800 hover:underline">slmc@sltnet.lk</a></li>
+                </ul>
+                <p class="mt-2">Ensure the doctor is officially registered before processing prescriptions.</p>
+            </div>
         {% endif %}
 
         <div class="flex justify-end gap-4 mt-6">
             <a href="{% url 'prescription_list' %}" class="btn-secondary px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-150 ease-in-out">Cancel</a>
             <button type="submit" class="btn-primary">
-                {% if form.instance.pk %}Update Prescription{% else %}Create Prescription{% endif %}
+                {% if form.instance.pk %}
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Update Prescription
+                {% else %}
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Create Prescription
+                {% endif %}
             </button>
         </div>
     </form>
