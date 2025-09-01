@@ -1,6 +1,6 @@
 # accounts/forms.py
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model
 from .models import Customer  # Use your actual model name
 
@@ -139,3 +139,22 @@ class CustomerProfileForm(forms.ModelForm):
             user.save()
             profile.save()
         return profile
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        
+        # Check if user exists but is inactive
+        if username:
+            try:
+                user = User.objects.get(username=username)
+                if not user.is_active:
+                    raise forms.ValidationError(
+                        "This account is inactive.",
+                        code='inactive_account'
+                    )
+            except User.DoesNotExist:
+                pass
+                
+        return super().clean()

@@ -16,7 +16,8 @@ urlpatterns = [
     path("dashboard/customer/", views.customer_dashboard, name="customer_dashboard"),
     path("dashboard/customer/edit-profile/", views.edit_customer_profile, name="edit_customer_profile"),
     path("dashboard/admin/", views.admin_dashboard, name="admin_dashboard"),
-
+    path('accounts/inactive-account/', views.inactive_account, name='inactive_account'),
+    
     #Pharmacist
     path("dashboard/pharmacist/", views.med_inventory_dash, name="med_inventory_dash"),
 

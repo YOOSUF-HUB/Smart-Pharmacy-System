@@ -78,7 +78,7 @@ ROOT_URLCONF = 'Pharmarcy_Prescription_Tracker.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATE_DIR],  # Add this line with your template directory
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Add this line with your template directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

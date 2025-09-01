@@ -7,12 +7,18 @@ from django.contrib.auth.views import LoginView
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from functools import wraps
-
-from .forms import CustomerSignUpForm, StaffCreationForm, CustomerProfileForm, StaffEditForm
+from django.core.exceptions import PermissionDenied
+from .forms import CustomerSignUpForm, StaffCreationForm, CustomerProfileForm, StaffEditForm, CustomAuthenticationForm
 from .models import User, Customer
 
 
+def inactive_account(request):
+    return render(request, 'accounts/inactive_account.html')
 
+def protected_view(request):
+    if not some_condition:
+        raise PermissionDenied
+    # Rest of your view
 
 # Decorators
 def admin_required(view_func):
@@ -214,12 +220,13 @@ def customer_register(request):
 
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
+    form_class = CustomAuthenticationForm
     
-    def dispatch(self, request, *args, **kwargs):
-        # If user is already authenticated, redirect to appropriate dashboard
-        if request.user.is_authenticated:
-            return redirect('redirect_dashboard')
-        return super().dispatch(request, *args, **kwargs)
+    def form_invalid(self, form):
+        # Check if the specific inactive error is present
+        if any('inactive_account' == err.code for err in form.non_field_errors().data):
+            return redirect('inactive_account')
+        return super().form_invalid(form)
 
 @admin_required
 @never_cache
