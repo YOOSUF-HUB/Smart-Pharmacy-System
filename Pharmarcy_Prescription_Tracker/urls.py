@@ -19,6 +19,9 @@ urlpatterns = [
     path('non-medical/', include('Non_Medicine_inventory.urls', namespace='non_medicine')),
     path('payments/' , include('payments.payments_urls')),
     path('online-store/', include('onlineStore.urls')),
+
+
+
 ]
 
 # For serving media files during development
