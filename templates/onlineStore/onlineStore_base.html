@@ -10,6 +10,8 @@
 
 </head>
 <body>
+    {% load static %}
+
         <!-- <h1 class="text-3xl font-bold text-blue-600">Hello from base!</h1>
             <button class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded" 
                     onclick="alert('Button clicked!')">
@@ -20,13 +22,13 @@
             
             <div class="container mx-auto">
                 <div class="flex justify-between items-center">
-                    <a href="{% url 'homepage' %}" >
+                    <a href="{% url 'onlineStore:homepage' %}" >
                         <img src="../media/non_medical_products/5.png" alt="MedsiSync logo" class="h-20 w-60">
                     </a>
                     <div class="container mx-auto ml-10">
                         <ul class="flex space-x-4">
-                            <li><a href="{% url 'homepage' %}" class="text-white hover:text-gray-300">Home</a></li>
-                            <li><a href="{% url 'products' %}" class="text-white hover:text-gray-300">Products</a></li>
+                            <li><a href="{% url 'onlineStore:homepage' %}" class="text-white hover:text-gray-300">Home</a></li>
+                            <li><a href="{% url 'onlineStore:products' %}" class="text-white hover:text-gray-300">Products</a></li>
                             <li><a href="" class="text-white hover:text-gray-300">About Us</a></li>
                         </ul>
                     </div>
@@ -51,8 +53,9 @@
             <div class="flex lg:flex-1">
                 <a href="#" class="-m-1.5 p-1.5">
                 <span class="sr-only">MediSync</span>
-                <img src="./5.png" alt="" class="h-8 w-auto" />
+                <img src="{% static 'MediSyn_logo/1.png' %}" alt="" class="h-16 w-auto" />
                 </a>
+                <span class="justify-center items-center  lg:flex lg:text-3xl font-semibold text-indigo-600">MediSync</span>
             </div>
             <div class="flex lg:hidden">
                 <button type="button" command="show-modal" commandfor="mobile-menu" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
@@ -63,10 +66,10 @@
                 </button>
             </div>
             <div class="hidden lg:flex lg:gap-x-12">
-                <a href="{% url 'products' %}" class="text-sm/6 font-semibold text-gray-900">Product</a>
-                <a href="#" class="text-sm/6 font-semibold text-gray-900">Features</a>
-                <a href="#" class="text-sm/6 font-semibold text-gray-900">Marketplace</a>
-                <a href="#" class="text-sm/6 font-semibold text-gray-900">Company</a>
+                <a href="/online-store/" class="text-sm/6 font-semibold text-gray-900">Home</a>
+                <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-gray-900">Product</a>
+                <a href="#" class="text-sm/6 font-semibold text-gray-900">Contact us</a>
+                <a href="#" class="text-sm/6 font-semibold text-gray-900">About us</a>
             </div>
             <div class="hidden lg:flex lg:flex-1 lg:justify-end">
                 <a href="#" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
@@ -97,8 +100,10 @@
                         <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Company</a>
                         </div>
                         <div class="py-6">
-                        <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Log in</a>
+                                <!-- Show greeting and logout link if user is logged in -->
+                            
                         </div>
+
                     </div>
                     </div>
                 </el-dialog-panel>

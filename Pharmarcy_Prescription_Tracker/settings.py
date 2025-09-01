@@ -28,7 +28,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_URL = '/accounts/login/'
+# Custom user model
+AUTH_USER_MODEL = "accounts.User"
+LOGIN_REDIRECT_URL = "redirect_dashboard"
+LOGOUT_REDIRECT_URL = "login"
 
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,6 +55,7 @@ INSTALLED_APPS = [
     'payments',
     'onlineStore',
     'widget_tweaks',
+    'accounts',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -60,6 +69,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Pharmarcy_Prescription_Tracker.middleware.NoCacheMiddleware',
+    'Pharmarcy_Prescription_Tracker.middleware.RoleBasedAccessMiddleware'
 ]
 
 ROOT_URLCONF = 'Pharmarcy_Prescription_Tracker.urls'
@@ -67,16 +78,18 @@ ROOT_URLCONF = 'Pharmarcy_Prescription_Tracker.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATE_DIR],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Add this line with your template directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
+                'django.template.context_processors.csrf'
+            ]
+        }
+    }
 ]
 
 WSGI_APPLICATION = 'Pharmarcy_Prescription_Tracker.wsgi.application'
@@ -117,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Colombo'
 
 USE_I18N = True
 

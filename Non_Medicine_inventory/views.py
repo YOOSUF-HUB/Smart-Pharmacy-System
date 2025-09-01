@@ -10,8 +10,23 @@ from weasyprint import HTML
 from django.conf import settings
 import tempfile
 import os
-from datetime import datetime
+from django.utils import timezone
+import base64
+from django.contrib.auth.decorators import login_required
 
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout
+from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.views import LoginView
+
+
+def pharmacist_required(view_func):
+    return user_passes_test(lambda u: u.is_authenticated and u.role == "pharmacist")(view_func)
+
+@pharmacist_required
 def product_list(request):
     """Display all non-medical products"""
     # Start with all products
@@ -38,12 +53,14 @@ def product_list(request):
     
     return render(request, 'Non_Medicine_inventory/product_list.html', context)
 
+@pharmacist_required
 def product_detail(request, slug):
     """Display details of a specific product"""
     product = get_object_or_404(NonMedicalProduct, slug=slug)
     context = {'product': product}
     return render(request, 'Non_Medicine_inventory/product_detail.html', context)
 
+@pharmacist_required
 def product_create(request):
     """Create a new non-medical product"""
     if request.method == 'POST':
@@ -58,6 +75,7 @@ def product_create(request):
     context = {'form': form, 'title': 'Add New Product'}
     return render(request, 'Non_Medicine_inventory/product_form.html', context)
 
+@pharmacist_required
 def product_update(request, slug):
     """Update an existing non-medical product"""
     product = get_object_or_404(NonMedicalProduct, slug=slug)
@@ -74,6 +92,7 @@ def product_update(request, slug):
     context = {'form': form, 'product': product, 'title': 'Update Product'}
     return render(request, 'Non_Medicine_inventory/product_form.html', context)
 
+@pharmacist_required
 def product_delete(request, slug):
     """Delete a non-medical product"""
     product = get_object_or_404(NonMedicalProduct, slug=slug)
@@ -87,6 +106,7 @@ def product_delete(request, slug):
     context = {'product': product}
     return render(request, 'Non_Medicine_inventory/product_confirm_delete.html', context)
 
+@pharmacist_required
 def product_table(request):
     """Display all non-medical products in a table format"""
     products = NonMedicalProduct.objects.all()
@@ -112,11 +132,16 @@ def product_table(request):
     }
     return render(request, 'Non_Medicine_inventory/product_list_table.html', context)
 
+@pharmacist_required
 def export_pdf(request):
     # Get filtered products (same logic as in product_list view)
     products = NonMedicalProduct.objects.all()
     category = request.GET.get('category')
     search_query = request.GET.get('search')
+
+    logo_file = os.path.join(settings.BASE_DIR, 'static/MediSyn_Logo/1.png')
+    with open(logo_file, 'rb') as f:
+        logo_data = base64.b64encode(f.read()).decode('utf-8')
     
     if category:
         products = products.filter(category=category)
@@ -127,7 +152,8 @@ def export_pdf(request):
     context = {
         'products': products,
         'title': 'Non-Medical Products Report',
-        'date': datetime.now().strftime('%Y-%m-%d %H:%M'),
+        'now': timezone.now(),
+        'logo_data': logo_data,
         'request': request,
     }
     
@@ -143,6 +169,7 @@ def export_pdf(request):
     
     return response
 
+@pharmacist_required
 def export_csv(request):
     # Get filtered products (same logic as in product_list view)
     products = NonMedicalProduct.objects.all()
