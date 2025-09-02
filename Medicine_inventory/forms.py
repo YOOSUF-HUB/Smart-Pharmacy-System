@@ -1,5 +1,6 @@
 from django import forms
 from .models import Medicine
+import re
 
 class MedicineForm(forms.ModelForm):
     med_code = forms.CharField(
@@ -20,7 +21,7 @@ class MedicineForm(forms.ModelForm):
         label="Supplier Code",
         widget=forms.TextInput(attrs={'placeholder': 'SUPPLIER', 'class': 'form-control'})
     )
-    seq = forms.CharField(
+    seq_number = forms.CharField(
         max_length=5,
         required=True,
         label="Sequence",
@@ -29,36 +30,60 @@ class MedicineForm(forms.ModelForm):
 
     class Meta:
         model = Medicine
-        exclude = ['batch_number']
+        fields = [
+            'name','brand','category','description','dosage','supplier',
+            'manufacture_date','expiry_date','quantity_in_stock','reorder_level',
+            'cost_price','selling_price','image','batch_number'
+        ]
         widgets = {
-            'manufacture_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'expiry_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'manufacture_date': forms.DateInput(
+                attrs={
+                    'type': 'date',
+                    'class': 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500'
+                }
+            ),
+            'expiry_date': forms.DateInput(
+                attrs={
+                    'type': 'date',
+                    'class': 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500'
+                }
+            ),
+            'batch_number': forms.TextInput(attrs={'readonly': 'readonly'})
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Defensive: only proceed if custom fields exist
+        bn = (self.instance.batch_number or "").strip()
+        if bn and all(f in self.fields for f in ('med_code','batch_date','supplier_code','seq_number')):
+            normalized = re.sub(r'-{2,}', '-', bn.upper())
+            parts = normalized.split('-')
+            # accept exactly 4 non-empty segments
+            if len(parts) == 4 and all(parts):
+                self.fields['med_code'].initial = parts[0]
+                self.fields['batch_date'].initial = parts[1]
+                self.fields['supplier_code'].initial = parts[2]
+                self.fields['seq_number'].initial = parts[3]
+            else:
+                # leave blank so user can repair
+                pass
+
     def clean(self):
-        cleaned_data = super().clean()
-        cost_price = cleaned_data.get('cost_price')
-        selling_price = cleaned_data.get('selling_price')
-
-        if cost_price and selling_price and cost_price > selling_price:
-            raise forms.ValidationError(
-                "Cost price (Rs. %(cost)s) is greater than selling price (Rs. %(selling)s). This will result in a loss.",
-                params={'cost': cost_price, 'selling': selling_price},
-                code='negative_margin'
-            )
-
-        # Combine the batch fields into batch_number
-        med_code = cleaned_data.get('med_code', '').strip()
-        batch_date = cleaned_data.get('batch_date', '').strip()
-        supplier_code = cleaned_data.get('supplier_code', '').strip()
-        seq = cleaned_data.get('seq', '').strip()
-        if med_code and batch_date and supplier_code and seq:
-            cleaned_data['batch_number'] = f"{med_code}-{batch_date}-{supplier_code}-{seq}"
-        else:
-            raise forms.ValidationError("All batch number components are required.")
-
-        return cleaned_data
+        cleaned = super().clean()
+        mc = (cleaned.get('med_code') or '').strip().upper()
+        bd = (cleaned.get('batch_date') or '').strip()
+        sc = (cleaned.get('supplier_code') or '').strip().upper()
+        sq = (cleaned.get('seq_number') or '').strip()
+        # If any provided but not all, do not overwrite existing batch_number
+        if mc and bd and sc and sq:
+            # normalize
+            mc = re.sub(r'-+','-', mc)
+            sc = re.sub(r'-+','-', sc)
+            # zero-pad sequence to 3
+            if sq.isdigit():
+                sq = sq.zfill(3)
+            cleaned['batch_number'] = f"{mc}-{bd}-{sc}-{sq}"
+        return cleaned
 
     def save(self, commit=True):
         instance = super().save(commit=False)

@@ -1,191 +1,300 @@
 {% extends 'Medicine_inventory/base.html' %}
-{% load static %}
+{% load static widget_tweaks %}
 
 {% block title %}Register New Medication{% endblock title %}
 
 {% block content %}
-<style>
-  /* Using a more formal, serif font for headings */
-  .font-formal-heading {
-    font-family: "Montserrat", sans-serif;
-  }
-  /* Ensure date inputs show the placeholder text */
-  input[type="date"]:not(:valid):before {
-    content: attr(placeholder);
-    color: #9ca3af; /* gray-400 */
-  }
+<div class="max-w-6xl mx-auto px-6 py-10">
+  <!-- Page Header -->
+  <div class="mb-10">
+    <h1 class="text-3xl font-semibold text-slate-900 tracking-tight">Register New Medication</h1>
+    <p class="mt-2 text-sm text-slate-500">Add a new medicine to the inventory. Fields marked * are required.</p>
+  </div>
 
-  .max-w-5xl.mx-auto.my-12 {
-    font-family: "Montserrat", sans-serif;
-  }
-</style>
+  <form method="post" enctype="multipart/form-data" class="space-y-10">
+    {% csrf_token %}
 
-<div class="max-w-5xl mx-auto my-12">
-  <div class="bg-white p-8 md:p-12 rounded-lg shadow-md border border-gray-200">
-    
-    <div class="mb-8">
-      <h2 class="font-formal-heading text-3xl font-bold text-gray-900">Register New Medication</h2>
-      <p class="text-gray-500 mt-2">Please fill out the form below to add a new item to the inventory.</p>
-    </div>
-    <hr class="mb-8">
+    <!-- 1. Batch Identification -->
+    <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <header class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Batch Identification</h2>
+        <span id="batch-preview-pill" class="hidden text-xs font-medium px-3 py-1 rounded-full bg-indigo-50 text-indigo-600"></span>
+      </header>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Med Code *</label>
+            {% render_field form.med_code class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="ANTI" %}
+            {% for e in form.med_code.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Batch Date (YYYYMMDD) *</label>
+            {% render_field form.batch_date class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="20250918" %}
+            {% for e in form.batch_date.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+            <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Supplier Code *</label>
+            {% render_field form.supplier_code class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="HENRY" %}
+            {% for e in form.supplier_code.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Sequence *</label>
+            {% render_field form.seq_number class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="001" %}
+            {% for e in form.seq_number.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+          <div class="md:col-span-1 flex flex-col">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Full Batch (auto)</label>
+            {% render_field form.batch_number readonly="readonly" class+="w-full rounded-lg bg-slate-100 border border-slate-300 px-3 py-2 text-sm text-slate-700" %}
+            <p class="text-[11px] text-slate-500 mt-1">Auto-composed</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
+    <!-- 2. Core Information -->
+    <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <header class="px-6 py-4 border-b border-slate-100">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Core Information</h2>
+      </header>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Name *</label>
+            {% render_field form.name class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.name.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Brand</label>
+            {% render_field form.brand class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.brand.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Category *</label>
+            {% render_field form.category class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.category.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Dosage</label>
+            {% render_field form.dosage class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g. 500mg" %}
+            {% for e in form.dosage.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Supplier</label>
+            {% render_field form.supplier class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.supplier.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+          <div class="md:col-span-3">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Description</label>
+            {% render_field form.description rows="4" class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500 leading-relaxed" %}
+            {% for e in form.description.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <!-- Batch Number Information Section -->
-      <fieldset class="mb-8">
-        <legend class="text-lg font-semibold text-gray-800 mb-4">Batch Identification</legend>
+    <!-- 3. Inventory & Pricing -->
+    <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <header class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Inventory & Pricing</h2>
+        <span id="profit-pill" class="hidden text-xs font-medium px-3 py-1 rounded-full bg-emerald-50 text-emerald-600"></span>
+      </header>
+      <div class="p-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
-            <label for="{{ form.med_code.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Med Code</label>
-            {{ form.med_code }}
-            {% for error in form.med_code.errors %}<p class="text-red-600 text-xs mt-1">{{ error }}</p>{% endfor %}
+            <label class="block text-xs font-medium text-slate-600 mb-1">Qty In Stock *</label>
+            {% render_field form.quantity_in_stock class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.quantity_in_stock.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
           </div>
           <div>
-            <label for="{{ form.batch_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Batch Date</label>
-            {{ form.batch_date }}
-            {% for error in form.batch_date.errors %}<p class="text-red-600 text-xs mt-1">{{ error }}</p>{% endfor %}
+            <label class="block text-xs font-medium text-slate-600 mb-1">Reorder Level *</label>
+            {% render_field form.reorder_level class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.reorder_level.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
           </div>
           <div>
-            <label for="{{ form.supplier_code.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Supplier Code</label>
-            {{ form.supplier_code }}
-            {% for error in form.supplier_code.errors %}<p class="text-red-600 text-xs mt-1">{{ error }}</p>{% endfor %}
+            <label class="block text-xs font-medium text-slate-600 mb-1">Cost Price *</label>
+            {% render_field form.cost_price step="0.01" class+="price-field w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.cost_price.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
           </div>
           <div>
-            <label for="{{ form.seq.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Sequence</label>
-            {{ form.seq }}
-            {% for error in form.seq.errors %}<p class="text-red-600 text-xs mt-1">{{ error }}</p>{% endfor %}
+            <label class="block text-xs font-medium text-slate-600 mb-1">Selling Price *</label>
+            {% render_field form.selling_price step="0.01" class+="price-field w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.selling_price.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+            <p id="price-warning" class="hidden text-[11px] mt-1"></p>
           </div>
         </div>
-      </fieldset>
-
-      <!-- General Medicine Details Section -->
-      <fieldset>
-        <legend class="text-lg font-semibold text-gray-800 mb-4">Medication Details</legend>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-          {% for field in form %}
-            {% if field.name != 'med_code' and field.name != 'batch_date' and field.name != 'supplier_code' and field.name != 'seq' %}
-              <div class="mb-4 {% if field.name == 'description' %}md:col-span-2{% endif %}">
-                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
-                {{ field }}
-                {% if field.help_text %}
-                  <p class="text-gray-500 text-xs mt-1">{{ field.help_text }}</p>
-                {% endif %}
-                {% for error in field.errors %}
-                  <p class="text-red-600 text-xs mt-1">{{ error }}</p>
-                {% endfor %}
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      </fieldset>
-
-      <!-- Form Actions -->
-      <div class="mt-10 pt-6 border-t border-gray-200 flex items-center justify-end gap-4">
-        <a href="{% url 'medicine_table' %}" class="text-sm font-semibold text-gray-600 hover:text-gray-800 transition">Cancel</a>
-        <button type="submit" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-6 rounded-md text-sm transition shadow-sm">Save Medicine</button>
       </div>
+    </section>
 
-      {% if form.non_field_errors %}
-        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md mt-6" role="alert">
-          <strong class="font-bold">Error:</strong>
-          <ul class="list-disc list-inside mt-2 text-sm">
-            {% for error in form.non_field_errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
+    <!-- 4. Lifecycle -->
+    <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <header class="px-6 py-4 border-b border-slate-100">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Lifecycle</h2>
+      </header>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Manufacture Date *</label>
+            {% render_field form.manufacture_date type="date" class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.manufacture_date.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Expiry Date *</label>
+            {% render_field form.expiry_date type="date" class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.expiry_date.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+          </div>
         </div>
-      {% endif %}
-    </form>
-  </div>
+      </div>
+    </section>
+
+    <!-- 5. Media -->
+    <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <header class="px-6 py-4 border-b border-slate-100">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Media</h2>
+      </header>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="md:col-span-1">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Image</label>
+            {% render_field form.image class+="w-full text-sm" %}
+            {% for e in form.image.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+            <p class="text-[11px] text-slate-500 mt-2">Optional. PNG/JPG.</p>
+          </div>
+          <div class="md:col-span-2">
+            <div id="image-preview-wrapper" class="hidden w-56 h-40 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden">
+              <img id="image-preview" alt="Preview" class="max-w-full max-h-full object-contain">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Non-field errors -->
+    {% if form.non_field_errors %}
+      <div class="rounded-lg border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
+        <ul class="list-disc list-inside space-y-1">
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="flex items-center justify-end gap-4 pt-4">
+      <a href="{% url 'medicine_table' %}" class="text-sm font-medium text-slate-600 hover:text-slate-800">Cancel</a>
+      <button type="submit"
+              class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        Save Medicine
+      </button>
+    </div>
+  </form>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Standardize form field styling
-    const fields = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], select, textarea');
-    fields.forEach(field => {
-      field.classList.add(
-        'mt-1', 'block', 'w-full', 'px-3', 'py-2', 'bg-white', 
-        'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 
-        'text-sm', 'placeholder-gray-400',
-        'focus:outline-none', 'focus:ring-1', 'focus:ring-slate-500', 'focus:border-slate-500'
-      );
-    });
+document.addEventListener('DOMContentLoaded', () => {
+  const medCode = document.getElementById('id_med_code');
+  const batchDate = document.getElementById('id_batch_date');
+  const supplierCode = document.getElementById('id_supplier_code');
+  const seqNum = document.getElementById('id_seq_number') || document.getElementById('id_seq'); // fallback
+  const batchFull = document.getElementById('id_batch_number');
+  const manuf = document.getElementById('id_manufacture_date');
+  const cat = document.getElementById('id_category');
+  const profitPill = document.getElementById('profit-pill');
+  const batchPill = document.getElementById('batch-preview-pill');
+  const cost = document.getElementById('id_cost_price');
+  const sell = document.getElementById('id_selling_price');
+  const priceWarn = document.getElementById('price-warning');
+  const imgInput = document.getElementById('id_image');
+  const imgWrapper = document.getElementById('image-preview-wrapper');
+  const imgPrev = document.getElementById('image-preview');
 
-    // Auto-population logic
-    const categoryField = document.getElementById("id_category");
-    const medCodeField = document.getElementById("id_med_code");
-    const manufactureDateField = document.getElementById("id_manufacture_date");
-    const batchDateField = document.getElementById("id_batch_date");
-
-    function updateMedCode() {
-      if (categoryField.value) {
-        const selectedOptionText = categoryField.options[categoryField.selectedIndex].text;
-        medCodeField.value = selectedOptionText.substring(0, 5).toUpperCase();
+  function padSeq(v){
+    if(!v) return '';
+    return v.replace(/\D/g,'').padStart(3,'0');
+  }
+  function buildBatch(){
+    const parts = [medCode.value.trim().toUpperCase(),
+                   batchDate.value.trim(),
+                   supplierCode.value.trim().toUpperCase(),
+                   padSeq(seqNum.value)];
+    if(parts.every(p => p)){
+      const full = parts.join('-');
+      batchFull.value = full;
+      batchPill.textContent = full;
+      batchPill.classList.remove('hidden');
+    } else {
+      batchFull.value = '';
+      batchPill.classList.add('hidden');
+      batchPill.textContent = '';
+    }
+  }
+  function autoFromCategory(){
+    if(cat && medCode && !medCode.value && cat.value){
+      const text = cat.options[cat.selectedIndex].text || '';
+      medCode.value = text.substring(0,5).toUpperCase();
+      buildBatch();
+    }
+  }
+  function syncBatchDate(){
+    if(manuf && manuf.value && (!batchDate.value || batchDate.value.length !== 8)){
+      batchDate.value = manuf.value.replace(/-/g,'');
+      buildBatch();
+    }
+  }
+  function calcProfit(){
+    if(!cost || !sell) return;
+    const c = parseFloat(cost.value)||0;
+    const s = parseFloat(sell.value)||0;
+    const profit = s - c;
+    if(c>0){
+      const marginPct = (profit / c) * 100;
+      if(!isNaN(marginPct) && marginPct !== Infinity){
+        profitPill.textContent = (profit>=0?'+':'') + profit.toFixed(2) + ' (' + marginPct.toFixed(1) + '%)';
+        profitPill.classList.remove('hidden');
+        profitPill.classList.toggle('bg-emerald-50', profit>=0);
+        profitPill.classList.toggle('text-emerald-600', profit>=0);
+        profitPill.classList.toggle('bg-rose-50', profit<0);
+        profitPill.classList.toggle('text-rose-600', profit<0);
       }
+    } else {
+      profitPill.classList.add('hidden');
     }
-
-    function updateBatchDate() {
-      if (manufactureDateField.value) {
-        batchDateField.value = manufactureDateField.value.replace(/-/g, '');
-      }
+    // warning
+    if(s>0 && c>s){
+      priceWarn.textContent = 'Warning: cost is greater than selling price.';
+      priceWarn.className = 'text-[11px] text-rose-600 mt-1';
+      priceWarn.classList.remove('hidden');
+    } else {
+      priceWarn.classList.add('hidden');
     }
-
-    // New price validation logic
-    const costPriceField = document.getElementById("id_cost_price");
-    const sellingPriceField = document.getElementById("id_selling_price");
-    
-    // Function to create or update error message
-    function validatePrices() {
-      // Remove any existing error message
-      const existingError = document.getElementById("price-error");
-      if (existingError) {
-        existingError.remove();
-      }
-      
-      // Get the values as numbers
-      const costPrice = parseFloat(costPriceField.value) || 0;
-      const sellingPrice = parseFloat(sellingPriceField.value) || 0;
-      
-      // Check if cost price is greater than selling price
-      if (costPrice > sellingPrice && sellingPrice > 0) {
-        // Create error message
-        const errorElement = document.createElement("p");
-        errorElement.id = "price-error";
-        errorElement.className = "text-red-600 text-xs mt-1";
-        errorElement.textContent = "Warning: Cost price is greater than selling price. This will result in a loss.";
-        
-        // Add error after the selling price field
-        sellingPriceField.parentNode.appendChild(errorElement);
-        
-        // Add red border to both fields
-        costPriceField.classList.add("border-red-500");
-        sellingPriceField.classList.add("border-red-500");
-      } else {
-        // Remove red border if validation passes
-        costPriceField.classList.remove("border-red-500");
-        sellingPriceField.classList.remove("border-red-500");
-      }
+  }
+  function previewImg(){
+    if(!imgInput || !imgInput.files || !imgInput.files[0]) {
+      imgWrapper.classList.add('hidden');
+      imgPrev.removeAttribute('src');
+      return;
     }
+    const file = imgInput.files[0];
+    const url = URL.createObjectURL(file);
+    imgPrev.src = url;
+    imgWrapper.classList.remove('hidden');
+  }
 
-    // Add event listeners for price fields
-    if (costPriceField && sellingPriceField) {
-      costPriceField.addEventListener('input', validatePrices);
-      sellingPriceField.addEventListener('input', validatePrices);
-      validatePrices(); // Run on load
-    }
-
-    // Existing event listeners
-    if (categoryField && medCodeField) {
-      categoryField.addEventListener('change', updateMedCode);
-      updateMedCode(); // Run on load
-    }
-
-    if (manufactureDateField && batchDateField) {
-      manufactureDateField.addEventListener('change', updateBatchDate);
-      updateBatchDate(); // Run on load
+  [medCode,batchDate,supplierCode,seqNum].forEach(el=>{
+    if(el){
+      el.addEventListener('input', buildBatch);
+      el.addEventListener('blur', buildBatch);
     }
   });
+  if(cat) cat.addEventListener('change', autoFromCategory);
+  if(manuf) manuf.addEventListener('change', () => { syncBatchDate(); buildBatch(); });
+  [cost,sell].forEach(el => el && el.addEventListener('input', calcProfit));
+  if(imgInput) imgInput.addEventListener('change', previewImg);
+
+  autoFromCategory();
+  syncBatchDate();
+  buildBatch();
+  calcProfit();
+});
 </script>
 {% endblock content %}

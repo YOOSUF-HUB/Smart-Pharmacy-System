@@ -380,3 +380,33 @@ def clear_filters(request):
     request.session.pop('medicine_category_filter', None)
     request.session.pop('medicine_sort_by', None)
     return redirect('medicine_list')
+
+
+
+@pharmacist_required
+def medicine_detail(request, id):
+    medicine = get_object_or_404(Medicine, id=id)
+    cost = medicine.cost_price or 0
+    sell = medicine.selling_price or 0
+    profit = sell - cost if cost and sell else None
+    profit_percent = (profit / cost * 100) if profit is not None and cost > 0 else None
+    context = {
+        'medicine': medicine,
+        'profit': profit,
+        'profit_percent': profit_percent
+    }
+    return render(request, 'Medicine_inventory/medicine_detail.html', context)
+
+
+@pharmacist_required
+def medicine_update(request, pk):
+    medicine = get_object_or_404(Medicine, pk=pk)
+    if request.method == 'POST':
+        form = MedicineForm(request.POST, request.FILES, instance=medicine)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Medicine updated.")
+            return redirect('medicine_detail', pk=medicine.pk)
+    else:
+        form = MedicineForm(instance=medicine)
+    return render(request, 'Medicine_inventory/medicine_form.html', {'form': form, 'medicine': medicine})

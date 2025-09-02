@@ -1,186 +1,427 @@
 {% extends 'Medicine_inventory/base.html' %}
-
-{% block title %}Medicine: {{ medicine.name }}{% endblock %}
 {% load split %}
+{% block title %}Medicine: {{ medicine.name }}{% endblock %}
 
 {% block content %}
-<style>
-  body {
-    font-family: "Montserrat", sans-serif;
-    background-color: #f8fafc;
-  }
-</style>
+<div class="max-w-7xl mx-auto px-6 py-10">
 
-<div class="max-w-7xl mx-auto px-6 py-10 opacity-0 transition-opacity duration-700" id="page-wrapper">
-  
   <!-- Header -->
-  <div class="flex items-center justify-between mb-10">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
     <div>
-      <h2 class="text-3xl font-bold text-gray-900 tracking-tight">{{ medicine.name }} - {{ medicine.batch_number }}</h2>
-      <p class="text-gray-500 text-sm mt-1">Detailed overview of this medicine</p>
+      <h1 class="text-3xl font-semibold text-slate-900 tracking-tight">{{ medicine.name }}</h1>
+      <p class="text-sm text-slate-500 mt-1">Comprehensive profile & lifecycle information</p>
     </div>
-    <div class="flex gap-3">
-      <a href="{% url 'medicine_update' medicine.id %}" 
-         class="flex items-center gap-2 px-5 py-2 rounded-lg bg-amber-500 text-white font-medium shadow hover:shadow-lg hover:bg-amber-600 transition">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20h9" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 3.5a2.121 2.121 0 010 3L7 16l-4 1 1-4 9.5-9.5a2.121 2.121 0 013 0z" />
+    <div class="flex flex-wrap gap-3">
+      <a href="{% url 'medicine_update' medicine.id %}"
+         class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 text-white px-5 py-2.5 text-sm font-medium shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.862 3.487 20.5 7.125a1.75 1.75 0 0 1 0 2.475l-9.31 9.31a2 2 0 0 1-.9.52l-3.41.85a.75.75 0 0 1-.91-.91l.85-3.41a2 2 0 0 1 .52-.9l9.31-9.31a1.75 1.75 0 0 1 2.475 0z"/>
         </svg>
         Edit
       </a>
-      <a href="{% url 'medicine_table' %}" 
-         class="flex items-center gap-2 px-5 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white font-medium shadow-sm hover:bg-gray-50 transition">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      <a href="{% url 'medicine_table' %}"
+         class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white text-slate-700 px-5 py-2.5 text-sm font-medium hover:bg-slate-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m10 19-7-7m0 0 7-7m-7 7h18"/>
         </svg>
         Back
       </a>
     </div>
   </div>
 
-  <!-- Grid Layout -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-    <!-- General Info -->
-    <div class="bg-white hover:shadow-md shadow-sm rounded-2xl p-6 border border-gray-100 transition">
-      <div class="flex items-center gap-2 mb-5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h13M9 11V5a2 2 0 012-2h8a2 2 0 012 2v6m-6 6v-6m-6 6h6" />
-        </svg>
-        <h3 class="text-lg font-semibold text-gray-800">General Info</h3>
+  <!-- Summary Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-10">
+    <!-- Stock (Fixed progress overflow) -->
+    <div class="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Stock</p>
+        {% if medicine.quantity_in_stock <= medicine.reorder_level %}
+          <span class="inline-flex items-center rounded-full bg-rose-50 text-rose-600 text-[11px] font-medium px-2 py-0.5">Low</span>
+        {% else %}
+          <span class="inline-flex items-center rounded-full bg-emerald-50 text-emerald-600 text-[11px] font-medium px-2 py-0.5">OK</span>
+        {% endif %}
       </div>
-      <dl class="space-y-3 text-sm">
-        <div><dt class="font-semibold text-gray-700">Brand:</dt><dd class="text-gray-600">{{ medicine.brand|default:"—" }}</dd></div>
-        <div><dt class="font-semibold text-gray-700">Category:</dt><dd class="text-gray-600">{{ medicine.category|default:"—" }}</dd></div>
-        <div><dt class="font-semibold text-gray-700">Description:</dt><dd class="text-gray-600">{{ medicine.description|default:"—" }}</dd></div>
-        <div><dt class="font-semibold text-gray-700">Dosage:</dt><dd class="text-gray-600">{{ medicine.dosage|default:"—" }}</dd></div>
-        <div><dt class="font-semibold text-gray-700">Supplier:</dt><dd class="text-gray-600">{{ medicine.supplier.name|default:"—" }}</dd></div>
-        <div>
-          <dt class="font-semibold text-gray-700">Batch Number:</dt>
-          <dd class="text-gray-600 flex items-center gap-2">
-            {{ medicine.batch_number|default:"—" }}
-            {% if medicine.batch_number %}
-            <button class="text-xs text-cyan-600 hover:underline copy-btn" data-copy="{{ medicine.batch_number }}">Copy</button>
-            {% endif %}
-          </dd>
-        </div>
+      <div class="mt-3 flex items-end gap-2">
+        <span class="text-2xl font-semibold text-slate-900">{{ medicine.quantity_in_stock }}</span>
+        <span class="text-xs text-slate-500 mb-1">units</span>
+      </div>
 
-        {% if medicine.batch_number %}
-          {% with parts=medicine.batch_number|split:"-" %}
-            {% if parts|length == 4 %}
-              <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-1">
-                <p class="text-sm flex justify-between">
-                  <span><span class="font-semibold">MED Code:</span> {{ parts.0 }}</span>
-                  <button class="text-xs text-cyan-600 hover:underline copy-btn" data-copy="{{ parts.0 }}">Copy</button>
-                </p>
-                <p class="text-sm"><span class="font-semibold">Batch Date:</span> {{ parts.1 }}</p>
-                <p class="text-sm"><span class="font-semibold">Supplier Code:</span> {{ parts.2 }}</p>
-                <p class="text-sm"><span class="font-semibold">Sequence:</span> {{ parts.3 }}</p>
+      {% if medicine.reorder_level and medicine.reorder_level > 0 %}
+        {% with rl=medicine.reorder_level q=medicine.quantity_in_stock %}
+          {% widthratio q rl 100 as pct %}
+          <div class="mt-4 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+            {# Clamp bar to 100% so it never spills out #}
+            {% if pct|floatformat:0 > 100 %}
+              {% with pct_clamped=100 %}
+                <div
+                  class="h-1.5 rounded-full transition-all duration-500
+                  {% if pct_clamped < 40 %}bg-rose-500
+                  {% elif pct_clamped < 70 %}bg-amber-400
+                  {% else %}bg-emerald-500{% endif %}"
+                  style="width: {{ pct_clamped }}%;">
+                </div>
+              {% endwith %}
+            {% else %}
+              <div
+                class="h-1.5 rounded-full transition-all duration-500
+                {% if pct|floatformat:0 < 40 %}bg-rose-500
+                {% elif pct|floatformat:0 < 70 %}bg-amber-400
+                {% else %}bg-emerald-500{% endif %}"
+                style="width: {{ pct|floatformat:0 }}%; max-width:100%;">
               </div>
             {% endif %}
-          {% endwith %}
+          </div>
+          <div class="mt-2 flex justify-between text-[11px] text-slate-500">
+            <span>Reorder @ {{ rl }}</span>
+            <span>
+              {% if pct|floatformat:0 > 100 %}100{% else %}{{ pct|floatformat:0 }}{% endif %}%
+              of reorder
+            </span>
+          </div>
+        {% endwith %}
+      {% endif %}
+    </div>
+
+    <!-- Expiry -->
+    <div class="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Expiry Status</p>
+      </div>
+      <div class="mt-3">
+        {% if medicine.is_expired %}
+          <div class="text-xl font-semibold text-rose-600">Expired</div>
+        {% elif medicine.is_near_expiry %}
+          <div class="text-xl font-semibold text-amber-500">Near Expiry</div>
+        {% else %}
+          <div class="text-xl font-semibold text-emerald-600">Valid</div>
         {% endif %}
-      </dl>
+      </div>
+      <p class="mt-2 text-xs text-slate-500">Exp {{ medicine.expiry_date|date:"Y-m-d" }}</p>
     </div>
 
-    <!-- Stock & Pricing -->
-    <div class="bg-white hover:shadow-md shadow-sm rounded-2xl p-6 border border-gray-100 transition">
-      <div class="flex items-center gap-2 mb-5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V7a2 2 0 00-2-2h-3V3H9v2H6a2 2 0 00-2 2v6m16 0h-2m-4 0h-4m-4 0H4m16 0v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6" />
-        </svg>
-        <h3 class="text-lg font-semibold text-gray-800">Stock & Pricing</h3>
+    <!-- Pricing -->
+    <div class="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+      <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Pricing</p>
+      <div class="mt-3 space-y-1">
+        <p class="text-sm text-slate-600">Cost:
+          <span class="font-medium text-slate-900">
+            {% if medicine.cost_price %}Rs. {{ medicine.cost_price }}{% else %}—{% endif %}
+          </span>
+        </p>
+        <p class="text-sm text-slate-600">Sell:
+          <span class="font-semibold text-indigo-600">
+            {% if medicine.selling_price %}Rs. {{ medicine.selling_price }}{% else %}—{% endif %}
+          </span>
+        </p>
+        <p class="text-sm text-slate-600 flex items-center gap-2">
+          Profit:
+          {% if profit is not None %}
+            <span class="font-medium text-slate-900">Rs. {{ profit|floatformat:2 }}</span>
+            {% if profit_percent is not None %}
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-600 ring-1 ring-inset ring-emerald-200">
+                {{ profit_percent|floatformat:1 }}%
+              </span>
+            {% endif %}
+          {% else %}
+            <span class="text-slate-400">—</span>
+          {% endif %}
+        </p>
       </div>
-      <dl class="space-y-3 text-sm">
-        <div><dt class="font-semibold text-gray-700">Quantity in Stock:</dt><dd class="text-gray-600">{{ medicine.quantity_in_stock }}</dd></div>
-        <div><dt class="font-semibold text-gray-700">Reorder Level:</dt><dd class="text-gray-600">{{ medicine.reorder_level }}</dd></div>
-        <div><dt class="font-semibold text-gray-700">Cost Price:</dt><dd class="text-gray-600">Rs. {{ medicine.cost_price }}</dd></div>
-        <div><dt class="font-semibold text-gray-700">Selling Price:</dt><dd class="text-gray-600">Rs. {{ medicine.selling_price }}</dd></div>
-      </dl>
+      {% if profit_percent is not None %}
+        <div class="mt-4 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+          {% with pct=profit_percent %}
+            <div class="h-1.5 rounded-full bg-indigo-500"
+                 style="width: {{ pct|floatformat:0|add:'0' }}%; max-width:100%;"></div>
+          {% endwith %}
+        </div>
+        <p class="mt-2 text-[10px] text-slate-500">
+          Profit margin shown
+        </p>
+      {% endif %}
     </div>
 
-    <!-- Dates -->
-    <div class="bg-white hover:shadow-md shadow-sm rounded-2xl p-6 border border-gray-100 transition" id="dates-card"
-         data-expiry="{{ medicine.expiry_date|date:'Y-m-d' }}">
-      <div class="flex items-center gap-2 mb-5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3h8v4m-9 4h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <h3 class="text-lg font-semibold text-gray-800">Dates</h3>
-      </div>
-      <dl class="space-y-3 text-sm">
-        <div><dt class="font-semibold text-gray-700">Manufacture Date:</dt><dd class="text-gray-600">{{ medicine.manufacture_date|date:"Y-m-d" }}</dd></div>
-        <div><dt class="font-semibold text-gray-700">Expiry Date:</dt><dd class="text-gray-600">{{ medicine.expiry_date|date:"Y-m-d" }}</dd></div>
-      </dl>
+    <!-- Category / Reorder -->
+    <div class="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+      <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Category</p>
+      <div class="mt-3 text-xl font-semibold text-slate-900 truncate">{{ medicine.category|default:"—" }}</div>
+      <p class="mt-2 text-xs text-slate-500">Reorder Level: {{ medicine.reorder_level }}</p>
+    </div>
+  </div>
 
-      <!-- Status Badge -->
-      <div class="mt-4" id="expiry-status"></div>
+  <!-- Content Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left (Details) -->
+    <div class="space-y-8 lg:col-span-2">
+
+      <!-- General Information -->
+      <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <header class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100">
+          <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-600">General Information</h2>
+        </header>
+        <div class="px-6 py-6">
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 text-sm">
+            <div>
+              <dt class="text-slate-500">Name</dt>
+              <dd class="mt-1 font-medium text-slate-900">{{ medicine.name }}</dd>
+            </div>
+            <div>
+              <dt class="text-slate-500">Brand</dt>
+              <dd class="mt-1 font-medium text-slate-900">{{ medicine.brand|default:"—" }}</dd>
+            </div>
+            <div class="sm:col-span-2">
+              <dt class="text-slate-500">Description</dt>
+              <dd class="mt-1 text-slate-700 leading-relaxed">{{ medicine.description|default:"—" }}</dd>
+            </div>
+            <div>
+              <dt class="text-slate-500">Dosage</dt>
+              <dd class="mt-1 font-medium text-slate-900">{{ medicine.dosage|default:"—" }}</dd>
+            </div>
+            <div>
+              <dt class="text-slate-500">Supplier</dt>
+              <dd class="mt-1 font-medium text-slate-900">{{ medicine.supplier.name|default:"—" }}</dd>
+            </div>
+            <div class="sm:col-span-2">
+              <dt class="text-slate-500 flex items-center gap-2">
+                Batch Number
+                {% if medicine.batch_number %}
+                  {% if '--' in medicine.batch_number %}
+                    {% with segs=medicine.batch_number|split:"--" %}
+                      <button type="button"
+                              class="copy-btn text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                              data-copy="{{ segs.0 }}-{{ segs.1 }}">
+                        Copy
+                      </button>
+                    {% endwith %}
+                  {% else %}
+                    <button type="button"
+                            class="copy-btn text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                            data-copy="{{ medicine.batch_number }}">
+                      Copy
+                    </button>
+                  {% endif %}
+                {% endif %}
+              </dt>
+              <dd class="mt-1">
+                {% if medicine.batch_number %}
+                  {% if '--' in medicine.batch_number %}
+                    {% with segs=medicine.batch_number|split:"--" %}
+                      <code class="rounded bg-slate-100 px-2 py-1 text-[13px] font-medium text-slate-800">
+                        {{ segs.0 }}-{{ segs.1 }}
+                      </code>
+                    {% endwith %}
+                  {% else %}
+                    <code class="rounded bg-slate-100 px-2 py-1 text-[13px] font-medium text-slate-800">
+                      {{ medicine.batch_number }}
+                    </code>
+                  {% endif %}
+                {% else %}
+                  <span class="text-slate-400">—</span>
+                {% endif %}
+              </dd>
+            </div>
+
+            {% if medicine.batch_number %}
+              {% with parts=medicine.batch_number|split:"-" %}
+                {% if parts|length == 4 %}
+                  <div>
+                    <dt class="text-slate-500">MED Code</dt>
+                    <dd class="mt-1 flex items-center gap-3">
+                      <span class="font-medium text-slate-900">{{ parts.0 }}</span>
+                      <button class="copy-btn text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                              data-copy="{{ parts.0 }}">Copy</button>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="text-slate-500">Batch Date</dt>
+                    <dd class="mt-1 font-medium text-slate-900">{{ parts.1 }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-slate-500">Supplier Code</dt>
+                    <dd class="mt-1 font-medium text-slate-900">{{ parts.2 }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-slate-500">Sequence</dt>
+                    <dd class="mt-1 font-medium text-slate-900">{{ parts.3 }}</dd>
+                  </div>
+                {% endif %}
+              {% endwith %}
+            {% endif %}
+          </dl>
+        </div>
+      </section>
+
+      <!-- Inventory & Pricing -->
+      <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <header class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100">
+          <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-600">Inventory & Pricing</h2>
+        </header>
+        <div class="px-6 py-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-xs font-medium text-slate-500 uppercase">In Stock</p>
+              <p class="mt-2 text-lg font-semibold text-slate-900">{{ medicine.quantity_in_stock }}</p>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-xs font-medium text-slate-500 uppercase">Reorder Level</p>
+              <p class="mt-2 text-lg font-semibold text-slate-900">{{ medicine.reorder_level }}</p>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-xs font-medium text-slate-500 uppercase">Cost Price</p>
+              <p class="mt-2 text-lg font-semibold text-slate-900">
+                {% if medicine.cost_price %}Rs. {{ medicine.cost_price }}{% else %}—{% endif %}
+              </p>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-xs font-medium text-slate-500 uppercase">Selling Price</p>
+              <p class="mt-2 text-lg font-semibold text-indigo-600">
+                {% if medicine.selling_price %}Rs. {{ medicine.selling_price }}{% else %}—{% endif %}
+              </p>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-xs font-medium text-slate-500 uppercase">Profit</p>
+              <p class="mt-2 text-lg font-semibold {% if profit and profit > 0 %}text-emerald-600{% elif profit and profit < 0 %}text-rose-600{% else %}text-slate-900{% endif %}">
+                {% if profit is not None %}Rs. {{ profit|floatformat:2 }}{% else %}—{% endif %}
+              </p>
+              <p class="mt-1 text-[11px] text-slate-500">
+                {% if profit_percent is not None %}{{ profit_percent|floatformat:1 }}% of cost{% else %}&nbsp;{% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lifecycle -->
+      <section class="rounded-2xl border border-slate-200 bg-white shadow-sm" id="dates-card"
+               data-expiry="{{ medicine.expiry_date|date:'Y-m-d' }}">
+        <header class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100">
+          <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-600">Lifecycle</h2>
+        </header>
+        <div class="px-6 py-6">
+          <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+            <div>
+              <dt class="text-slate-500">Manufactured</dt>
+              <dd class="mt-1 font-medium text-slate-900">{{ medicine.manufacture_date|date:"Y-m-d" }}</dd>
+            </div>
+            <div>
+              <dt class="text-slate-500">Expires</dt>
+              <dd class="mt-1 font-medium text-slate-900">{{ medicine.expiry_date|date:"Y-m-d" }}</dd>
+            </div>
+            <div>
+              <dt class="text-slate-500">Status</dt>
+              <dd class="mt-2" id="expiry-status">
+                {% if medicine.is_expired %}
+                  <span class="inline-flex items-center gap-1 rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-600 ring-1 ring-inset ring-rose-200">Expired</span>
+                {% elif medicine.is_near_expiry %}
+                  <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-600 ring-1 ring-inset ring-amber-200">Near Expiry</span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600 ring-1 ring-inset ring-emerald-200">Valid</span>
+                {% endif %}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
     </div>
 
-    <!-- Image -->
-    {% if medicine.image %}
-    <div class="bg-white hover:shadow-md shadow-sm rounded-2xl p-6 border border-gray-100 transition">
-      <div class="flex items-center gap-2 mb-5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M5 7V5a2 2 0 012-2h10a2 2 0 012 2v2m0 0h2a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z" />
-        </svg>
-        <h3 class="text-lg font-semibold text-gray-800">Image</h3>
-      </div>
-      <div class="flex justify-center">
-        <img src="{{ medicine.image.url }}" alt="{{ medicine.name }}" 
-             class="max-h-60 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
-             id="medicine-img">
-      </div>
+    <!-- Right (Image & Meta) -->
+    <div class="space-y-8">
+      <!-- Image -->
+      {% if medicine.image %}
+      <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <header class="px-6 pt-6 pb-4 border-b border-slate-100">
+          <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-600">Image</h2>
+        </header>
+        <div class="p-6">
+          <div class="aspect-[4/3] w-full overflow-hidden rounded-xl border border-slate-100 bg-slate-50 relative group cursor-pointer"
+               id="image-wrapper">
+            <img src="{{ medicine.image.url }}" alt="{{ medicine.name }}"
+                 id="medicine-img"
+                 class="h-full w-full object-contain transition duration-500 group-hover:scale-[1.03]">
+            <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition"></div>
+          </div>
+          <p class="mt-3 text-xs text-slate-500">Click to enlarge</p>
+        </div>
+      </section>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
 </div>
 
-<!-- Lightbox Modal -->
-<div id="lightbox" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-  <img src="" alt="Expanded view" class="max-h-[80vh] rounded-lg shadow-2xl border-4 border-white" id="lightbox-img">
+<!-- Lightbox -->
+<div id="lightbox"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/80 p-6">
+  <button id="lightbox-close"
+          class="absolute top-4 right-4 inline-flex items-center justify-center rounded-full bg-white/90 hover:bg-white w-10 h-10 shadow focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+    </svg>
+  </button>
+  <img src="" alt="Preview" id="lightbox-img"
+       class="max-h-[80vh] w-auto rounded-xl shadow-2xl ring-1 ring-white/10 object-contain">
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  // Page fade-in
-  document.getElementById("page-wrapper").classList.remove("opacity-0");
-
-  // Copy-to-clipboard
-  document.querySelectorAll(".copy-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      navigator.clipboard.writeText(btn.dataset.copy);
-      btn.innerText = "✔ Copied!";
-      setTimeout(() => btn.innerText = "Copy", 1500);
+document.addEventListener('DOMContentLoaded', () => {
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.getAttribute('data-copy');
+      navigator.clipboard.writeText(val).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.remove('text-indigo-600');
+        btn.classList.add('text-emerald-600');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.add('text-indigo-600');
+          btn.classList.remove('text-emerald-600');
+        }, 1200);
+      });
     });
   });
 
   // Lightbox
-  const img = document.getElementById("medicine-img");
-  const lightbox = document.getElementById("lightbox");
-  const lightboxImg = document.getElementById("lightbox-img");
-
+  const img = document.getElementById('medicine-img');
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+  const lbClose = document.getElementById('lightbox-close');
   if (img) {
-    img.addEventListener("click", () => {
-      lightboxImg.src = img.src;
-      lightbox.classList.remove("hidden");
+    img.addEventListener('click', () => {
+      lbImg.src = img.src;
+      lb.classList.remove('hidden');
+      lb.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
     });
   }
-  lightbox.addEventListener("click", () => lightbox.classList.add("hidden"));
+  function closeLB() {
+    lb.classList.add('hidden');
+    lb.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
+    lbImg.src = '';
+  }
+  lbClose.addEventListener('click', closeLB);
+  lb.addEventListener('click', e => { if (e.target === lb) closeLB(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); });
 
-  // Expiry check (auto badge update)
-  const expiryCard = document.getElementById("dates-card");
+  // Client-side expiry validation fallback
+  const expiryCard = document.getElementById('dates-card');
   if (expiryCard) {
-    const expiryDate = new Date(expiryCard.dataset.expiry);
-    const today = new Date();
-    const statusEl = document.getElementById("expiry-status");
-
-    if (expiryDate < today) {
-      statusEl.innerHTML = `<span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">Expired</span>`;
-    } else if ((expiryDate - today) / (1000*60*60*24) < 30) {
-      statusEl.innerHTML = `<span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Near Expiry</span>`;
-    } else {
-      statusEl.innerHTML = `<span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Valid</span>`;
+    const expiryStr = expiryCard.dataset.expiry;
+    if (expiryStr) {
+      const expiryDate = new Date(expiryStr + 'T00:00:00');
+      const today = new Date();
+      const diffDays = (expiryDate - today) / 86400000;
+      const statusEl = document.getElementById('expiry-status');
+      if (statusEl) {
+        if (diffDays < 0) {
+          statusEl.innerHTML = '<span class="inline-flex items-center rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-600 ring-1 ring-inset ring-rose-200">Expired</span>';
+        } else if (diffDays < 30) {
+          statusEl.innerHTML = '<span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-600 ring-1 ring-inset ring-amber-200">Near Expiry</span>';
+        } else {
+          statusEl.innerHTML = '<span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600 ring-1 ring-inset ring-emerald-200">Valid</span>';
+        }
+      }
     }
   }
 });

@@ -99,52 +99,64 @@ body {
     </form>
 </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {% for product in products %}
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-200">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {% for product in products %}
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-200">
+        
+        <!-- Product Image -->
+        <div class="relative w-full aspect-square">
             {% if product.image %}
-            <div class="relative w-full" style="padding-bottom: 100%;">
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" 
-                    class="absolute top-0 left-0 w-full h-full object-cover">
-            </div>
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="absolute inset-0 w-full h-full object-cover">
             {% else %}
-            <div class="relative w-full" style="padding-bottom: 100%;">
-                <div class="absolute top-0 left-0 w-full h-full bg-gray-200 flex items-center justify-center">
+                <div class="absolute inset-0 bg-gray-200 flex items-center justify-center">
                     <span class="text-gray-500 font-medium">No Image</span>
                 </div>
-            </div>
             {% endif %}
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-2">
-                    <h2 class="text-m font-bold text-gray-800">{{ product.brand }}</h2>
-                    <h2 class="text-m font-bold text-gray-800">{{ product.name }}</h2>
-                    {% if not product.is_active %}
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
-                    {% endif %}
-                </div>
-                <p class="text-gray-600 mb-2">Category: <span class="font-medium">{{ product.get_category_display }}</span></p>
-                <p class="text-gray-700 font-bold text-lg mb-4">Rs. {{ product.selling_price }}</p>
+        </div>
 
-                <div class="flex items-center mb-4">
-                    <span class="text-gray-600">Stock: {{ product.stock }}</span>
-                    {% if product.stock <= product.reorder_level %}
-                    <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Low Stock</span>
-                    {% endif %}
-                </div>
+        <!-- Product Details -->
+        <div class="p-6">
+            <!-- Header: Brand & Name -->
+            <div class="flex flex-col mb-2">
+                <h2 class="text-sm font-semibold text-gray-700">Brand: <span class="text-gray-900">{{ product.brand }}</span></h2>
+                <h2 class="text-sm font-semibold text-gray-700">Name: <span class="text-gray-900">{{ product.name }}</span></h2>
+            </div>
 
-                <div class="flex justify-end border-t border-gray-200 pt-4">
-                    <a href="{% url 'non_medicine:product_detail' slug=product.slug %}" class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 mr-4">View</a>
-                    <a href="{% url 'non_medicine:product_update' slug=product.slug %}" class="text-green-600 hover:text-green-800 font-medium transition-colors duration-200 mr-4">Edit</a>
-                    <a href="{% url 'non_medicine:product_delete' slug=product.slug %}" class="text-red-600 hover:text-red-800 font-medium transition-colors duration-200">Delete</a>
-                </div>
+            <!-- Status Badge -->
+            {% if not product.is_active %}
+            <span class="inline-block mb-2 px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
+            {% endif %}
+
+            <!-- Category -->
+            <p class="text-gray-600 mb-2">Category: <span class="font-medium">{{ product.get_category_display }}</span></p>
+
+            <!-- Price -->
+            <p class="text-gray-800 font-bold text-lg mb-4">Rs. {{ product.selling_price }}</p>
+
+            <!-- Stock Info -->
+            <div class="flex items-center mb-4">
+                <span class="text-gray-600">Stock: {{ product.stock }}</span>
+                {% if product.stock <= product.reorder_level %}
+                <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-red-50 text-red-700 border border-red-200">Low Stock</span>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end border-t border-gray-200 pt-4 space-x-4">
+                <a href="{% url 'non_medicine:product_detail' slug=product.slug %}" class="text-blue-600 hover:text-blue-800 font-medium transition-colors">View</a>
+                <a href="{% url 'non_medicine:product_update' slug=product.slug %}" class="text-green-600 hover:text-green-800 font-medium transition-colors">Edit</a>
+                <a href="{% url 'non_medicine:product_delete' slug=product.slug %}" class="text-red-600 hover:text-red-800 font-medium transition-colors">Delete</a>
             </div>
         </div>
-        {% empty %}
-        <div class="col-span-full bg-white p-8 rounded-lg shadow-lg text-center border border-gray-200">
-            <p class="text-gray-500 text-lg mb-4">No products found.</p>
-            <a href="{% url 'non_medicine:product_create' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md shadow-sm transition-colors">Add Your First Product</a>
-        </div>
-        {% endfor %}
     </div>
+    {% empty %}
+    <!-- Empty State -->
+    <div class="col-span-full bg-white p-8 rounded-lg shadow-lg text-center border border-gray-200">
+        <p class="text-gray-500 text-lg mb-4">No products found.</p>
+        <a href="{% url 'non_medicine:product_create' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md shadow-sm transition-colors">Add Your First Product</a>
+    </div>
+    {% endfor %}
+</div>
+
 </div>
 {% endblock %}

@@ -175,10 +175,39 @@
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-              <div class="flex justify-center gap-3">
-                <a href="{% url 'medicine_detail' med.pk %}" class="text-cyan-700 hover:text-cyan-900">View</a>
-                <a href="{% url 'medicine_update' med.id %}" class="text-blue-700 hover:text-blue-900">Edit</a>
-                <button type="button" class="open-modal-button text-red-700 hover:text-red-900" data-modal-target="#deleteModal{{ med.id }}">Delete</button>
+              <div class="flex justify-center gap-2">
+                <!-- View -->
+                <a href="{% url 'medicine_detail' med.pk %}"
+                   class="inline-flex items-center px-3 py-1 rounded-lg bg-cyan-100 text-cyan-800 hover:bg-cyan-200 transition"
+                   aria-label="View">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <circle cx="12" cy="12" r="3" stroke-width="2" stroke="currentColor" fill="none"></circle>
+                  </svg>
+                  View
+                </a>
+                <!-- Edit -->
+                <a href="{% url 'medicine_update' med.id %}"
+                   class="inline-flex items-center px-3 py-1 rounded-lg bg-amber-100 text-amber-800 hover:bg-amber-200 transition"
+                   aria-label="Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M16.862 3.487l2.651 2.651a1.75 1.75 0 010 2.475l-9.31 9.31a2 2 0 01-.9.52l-3.41.85a.75.75 0 01-.91-.91l.85-3.41a2 2 0 01.52-.9l9.31-9.31a1.75 1.75 0 012.475 0z" />
+                  </svg>
+                  Edit
+                </a>
+                <!-- Delete -->
+                <button type="button"
+                        class="open-modal-button inline-flex items-center px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition"
+                        data-modal-target="#deleteModal{{ med.id }}"
+                        aria-label="Delete">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v11a1 1 0 001 1h4a1 1 0 001-1V7M4 7h16" />
+                  </svg>
+                  Delete
+                </button>
               </div>
             </td>
           </tr>
