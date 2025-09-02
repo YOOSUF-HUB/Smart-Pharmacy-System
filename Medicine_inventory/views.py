@@ -149,7 +149,7 @@ def create_medicine(request):
             medicine = form.save()
             MedicineAction.objects.create(
                 medicine=medicine,
-                action='add',
+                action='Added',
                 user=request.user
             )
             messages.success(request, f"Successfully registered new medication: '{medicine.name}'.")
@@ -169,7 +169,7 @@ def delete_medicine(request, id):
     MedicineAction.objects.create(
         medicine_name=medicine.name,
         batch_number=medicine.batch_number,
-        action='delete',
+        action='Deleted',
         user=request.user
     )
     medicine.delete()
@@ -199,7 +199,7 @@ def update_medicine(request, id):
             medicine = form.save()
             MedicineAction.objects.create(
                 medicine=medicine,
-                action='update',
+                action='Updated',
                 user=request.user
             )
             messages.success(request, f"The record for '{medicine.name}' has been updated successfully.")

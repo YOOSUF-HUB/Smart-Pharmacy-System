@@ -82,9 +82,9 @@ class Medicine(models.Model):
 
 class MedicineAction(models.Model):
     ACTION_CHOICES = [
-        ('created', 'Created'),
-        ('updated', 'Updated'),
-        ('deleted', 'Deleted'),
+        ('Created', 'Created'),
+        ('Updated', 'Updated'),
+        ('Deleted', 'Deleted'),
     ]
     medicine = models.ForeignKey(Medicine, on_delete=models.SET_NULL, null=True, blank=True)
     medicine_name = models.CharField(max_length=255, blank=True, null=True)
