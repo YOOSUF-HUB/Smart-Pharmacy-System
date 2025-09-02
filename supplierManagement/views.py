@@ -8,7 +8,7 @@ from .forms import SupplierForm, ProductForm
 
 class SupplierListView(ListView):
     model = Supplier
-    template_name = "supplier_list.html"
+    template_name = "supplierManagement/supplier_list.html"
     context_object_name = "suppliers"
     paginate_by = 10
 
@@ -27,10 +27,8 @@ class SupplierListView(ListView):
         if product_type:
             qs = qs.filter(products__category=product_type)
 
-        if status == "active":
-            qs = qs.filter(is_active=True)
-        elif status == "inactive":
-            qs = qs.filter(is_active=False)
+        if status:
+            qs = qs.filter(status__iexact=status.capitalize())
 
         qs = qs.annotate(num_products=Count("products", distinct=True)).order_by("name")
         return qs.distinct()
@@ -57,7 +55,7 @@ class SupplierCreateView(CreateView):
 class SupplierUpdateView(UpdateView):
     model = Supplier
     form_class = SupplierForm
-    template_name = "supplier_form.html"
+    template_name = "supplierManagement/supplier_form.html"
     success_url = reverse_lazy("suppliers:list")
 
 

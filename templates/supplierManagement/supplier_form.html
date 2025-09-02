@@ -55,7 +55,6 @@
         {% endif %}
       </div>
 
-
       <div class="mb-3">
         <label for="id_email" class="form-label">Email</label>
         {{ form.email }}
@@ -76,6 +75,83 @@
         {% endif %}
       </div>
 
+      <!-- Supplier Type -->
+      <div class="mb-3">
+        <label for="id_supplier_type" class="form-label">Supplier Type</label>
+        {{ form.supplier_type }}
+        {% if form.supplier_type.errors %}
+          <div class="text-danger small">
+            {{ form.supplier_type.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Products Supplied -->
+      <div class="mb-3">
+        <label for="id_products_supplied" class="form-label">Products Supplied</label>
+        {{ form.products_supplied }}
+        {% if form.products_supplied.errors %}
+          <div class="text-danger small">
+            {{ form.products_supplied.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- License Number -->
+      <div class="mb-3">
+        <label for="id_license_number" class="form-label">License Number</label>
+        {{ form.license_number }}
+        {% if form.license_number.errors %}
+          <div class="text-danger small">
+            {{ form.license_number.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Tax/Registration Number -->
+      <div class="mb-3">
+        <label for="id_tax_id" class="form-label">Tax/Registration Number</label>
+        {{ form.tax_id }}
+        {% if form.tax_id.errors %}
+          <div class="text-danger small">
+            {{ form.tax_id.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Payment Terms -->
+      <div class="mb-3">
+        <label for="id_payment_terms" class="form-label">Payment Terms</label>
+        {{ form.payment_terms }}
+        {% if form.payment_terms.errors %}
+          <div class="text-danger small">
+            {{ form.payment_terms.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Bank Details -->
+      <div class="mb-3">
+        <label for="id_bank_details" class="form-label">Bank Details</label>
+        {{ form.bank_details }}
+        {% if form.bank_details.errors %}
+          <div class="text-danger small">
+            {{ form.bank_details.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Status -->
+      <div class="mb-3">
+        <label for="id_status" class="form-label">Status</label>
+        {{ form.status }}
+        {% if form.status.errors %}
+          <div class="text-danger small">
+            {{ form.status.errors|striptags }}
+          </div>
+        {% endif %}
+      </div>
+
       <!-- Product List -->
       <h5 class="mt-4">Product List</h5>
       <div class="mb-3">
@@ -84,17 +160,6 @@
         {% if form.products.errors %}
           <div class="text-danger small">
             {{ form.products.errors|striptags }}
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Active Status -->
-      <div class="form-check mb-3">
-        {{ form.is_active }}
-        <label for="id_is_active" class="form-check-label">Active</label>
-        {% if form.is_active.errors %}
-          <div class="text-danger small">
-            {{ form.is_active.errors|striptags }}
           </div>
         {% endif %}
       </div>

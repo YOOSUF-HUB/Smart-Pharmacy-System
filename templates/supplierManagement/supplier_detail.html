@@ -23,35 +23,53 @@
         <p class="mb-0"><strong>Address:</strong><br>{{ supplier.address|linebreaksbr }}</p>
       </div>
     </div>
+    <div class="card mb-3">
+      <div class="card-header">Supplier Details</div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Supplier Type:</strong> {{ supplier.supplier_type|default:"—" }}</p>
+        <p class="mb-1"><strong>Products Supplied:</strong> {{ supplier.products_supplied|default:"—" }}</p>
+        <p class="mb-1"><strong>License Number:</strong> {{ supplier.license_number|default:"—" }}</p>
+        <p class="mb-1"><strong>Tax/Registration Number:</strong> {{ supplier.tax_id|default:"—" }}</p>
+        <p class="mb-1"><strong>Payment Terms:</strong> {{ supplier.payment_terms|default:"—" }}</p>
+        <p class="mb-0"><strong>Bank Details:</strong><br>{{ supplier.bank_details|linebreaksbr|default:"—" }}</p>
+      </div>
+    </div>
   </div>
   <div class="col-lg-6">
     <div class="card mb-3">
       <div class="card-header">Status</div>
       <div class="card-body">
-        {% if supplier.is_active %}
+        {% if supplier.status == "Active" %}
           <span class="badge text-bg-success">Active</span>
-        {% else %}
+        {% elif supplier.status == "Inactive" %}
           <span class="badge text-bg-secondary">Inactive</span>
+        {% elif supplier.status == "Blacklisted" %}
+          <span class="badge text-bg-danger">Blacklisted</span>
+        {% else %}
+          <span class="badge text-bg-light">Unknown</span>
+        {% endif %}
+        <div class="mt-3">
+          <strong>Created At:</strong> {{ supplier.created_at|date:"Y-m-d H:i" }}<br>
+          <strong>Updated At:</strong> {{ supplier.updated_at|date:"Y-m-d H:i" }}
+        </div>
+      </div>
+    </div>
+    <div class="card mb-3">
+      <div class="card-header">Products Linked</div>
+      <div class="card-body">
+        {% if supplier.products.all %}
+          <ul class="mb-0">
+            {% for p in supplier.products.all %}
+              <li>{{ p.name }} <small class="text-muted">({{ p.category }})</small></li>
+            {% empty %}
+              <p class="text-muted mb-0">No products linked.</p>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">No products linked.</p>
         {% endif %}
       </div>
     </div>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-header">Products Supplied</div>
-  <div class="card-body">
-    {% if supplier.products.all %}
-      <ul class="mb-0">
-        {% for p in supplier.products.all %}
-          <li>{{ p.name }} <small class="text-muted">({{ p.product_type }})</small></li>
-        {% empty %}
-          <p class="text-muted mb-0">No products linked.</p>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="text-muted mb-0">No products linked.</p>
-    {% endif %}
   </div>
 </div>
 {% endblock %}

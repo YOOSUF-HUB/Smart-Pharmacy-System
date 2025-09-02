@@ -23,8 +23,9 @@
   <div class="col-md-3">
     <select name="status" class="form-select">
       <option value="">All Status</option>
-      <option value="active" {% if current_status == "active" %}selected{% endif %}>Active</option>
-      <option value="inactive" {% if current_status == "inactive" %}selected{% endif %}>Inactive</option>
+      <option value="Active" {% if current_status == "Active" %}selected{% endif %}>Active</option>
+      <option value="Inactive" {% if current_status == "Inactive" %}selected{% endif %}>Inactive</option>
+      <option value="Blacklisted" {% if current_status == "Blacklisted" %}selected{% endif %}>Blacklisted</option>
     </select>
   </div>
   <div class="col-md-2 d-grid">
@@ -40,7 +41,7 @@
           <th>Supplier Name</th>
           <th>Contact Person</th>
           <th>Contact Number</th>
-          <th>Product Category</th>
+          <th>Product Categories</th>
           <th>Status</th>
           <th style="width:160px;">Actions</th>
         </tr>
@@ -55,20 +56,22 @@
             {{ s.contact_person|default:"—" }}
           </td>
           <td> {{ s.phone|default:"" }}</td>
-          <!-- <td>{{ s.num_products }}</td> -->
           <td>
             {% for product in s.products.all %}
-            <!-- <span class="badge text-bg-info">{{ product.product_type }}</span> -->
-             <span class="badge text-bg-info">{{ product.category.name }}</span>
+              <span class="badge text-bg-info">{{ product.category }}</span>
             {% empty %}
-            <span class="text-muted">No Products</span>
+              <span class="text-muted">No Products</span>
             {% endfor %}
           </td>
           <td>
-            {% if s.is_active %}
+            {% if s.status == "Active" %}
               <span class="badge text-bg-success">Active</span>
-            {% else %}
+            {% elif s.status == "Inactive" %}
               <span class="badge text-bg-secondary">Inactive</span>
+            {% elif s.status == "Blacklisted" %}
+              <span class="badge text-bg-danger">Blacklisted</span>
+            {% else %}
+              <span class="badge text-bg-light">Unknown</span>
             {% endif %}
           </td>
           <td>
