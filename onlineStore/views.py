@@ -214,8 +214,6 @@ def products(request):
 
 
 # Product detail view (Simplified)
-from django.shortcuts import get_object_or_404, render
-from .models import Product
 
 def product_detail(request, pk):
     """
@@ -251,4 +249,4 @@ def product_detail(request, pk):
         'related_products': related_products,
     }
     
-    return render(request, 'onlineStore/product_detail.html', context)
+    return render(request, 'onlineStore/productDetail.html', context)
