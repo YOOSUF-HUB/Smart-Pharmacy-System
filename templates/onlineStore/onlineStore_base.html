@@ -49,55 +49,74 @@
         </nav> -->
 
         <header class="absolute inset-x-0 top-0 z-50">
-            <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8">
-            <div class="flex lg:flex-1">
-                <a href="#" class="-m-1.5 p-1.5">
-                <span class="sr-only">MediSync</span>
-                <img src="{% static 'MediSyn_logo/1.png' %}" alt="" class="h-16 w-auto" />
-                </a>
-                <span class="justify-center items-center  lg:flex lg:text-3xl font-semibold text-indigo-600">MediSync</span>
-            </div>
-            <div class="flex lg:hidden">
-                <button type="button" command="show-modal" commandfor="mobile-menu" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
-                <span class="sr-only">Open main menu</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
-                    <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                </button>
-            </div>
-            <div class="hidden lg:flex lg:gap-x-12">
-                <a href="/online-store/" class="text-sm/6 font-semibold text-gray-900">Home</a>
-                <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-gray-900">Product</a>
-                <a href="#" class="text-sm/6 font-semibold text-gray-900">Contact us</a>
-                <a href="#" class="text-sm/6 font-semibold text-gray-900">About us</a>
-            </div>
-            <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-                <a href="#" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
-            </div>
-            </nav>
+            <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8 shadow-xl border-b-4 bg-white bg-opacity-80  fixed w-full" style="border-color: #00eebc;">
+                <div class="flex lg:flex-1">
+                    <a href="#" class="-m-1.5 p-1.5">
+                    <img src="{% static 'MediSyn_logo/1.png' %}" alt="" class="h-16 w-auto" />
+                    </a>
+                    <span class="justify-center items-center  lg:flex lg:text-3xl font-semibold text-indigo-600">MediSync</span>
+                </div>
+                <div class="flex lg:hidden">
+                    <button type="button" command="show-modal" commandfor="mobile-menu" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
+                    <span class="sr-only">Open main menu</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
+                        <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    </button>
+                </div>
+                <div class="hidden lg:flex lg:gap-x-12">
+                    <a href="/online-store/" class="text-sm/6 font-semibold text-gray-900">Home</a>
+                    <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-gray-900">Product</a>
+                    <a href="#" class="text-sm/6 font-semibold text-gray-900">Contact us</a>
+                    <a href="#" class="text-sm/6 font-semibold text-gray-900">About us</a>
+                </div>
+                <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+                    <a href="#" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+                </div>
+            </nav> 
+            <!-- <nav aria-label="Global" class="flex items-center justify-between p-3 lg:px-8 bg-indigo-600 rounded-full shadow-lg mx-4 my-3">
+                <div class="flex lg:flex-1 ">
+                    <a href="#" class="-m-1.5 p-1.5">
+                    <img src="{% static 'MediSyn_logo/2.png' %}" alt="" class="h-14 lg:h-16 w-auto " />
+                    </a>
+                    <span class="justify-center items-center  flex lg:text-3xl text-2xl font-semibold" style="color: #00eebc;">MediSync</span>
+                </div>
+                <div class="flex lg:hidden">
+                    <button type="button" command="show-modal" commandfor="mobile-menu" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0,0,256,256">
+                        <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M0,7.5v5h50v-5zM0,22.5v5h50v-5zM0,37.5v5h50v-5z"></path></g></g>
+                        </svg>
+                    </button>
+                </div>
+                <div class="hidden lg:flex lg:gap-x-12">
+                    <a href="/online-store/" class="text-sm/6 font-semibold text-white">Home</a>
+                    <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-white">Product</a>
+                    <a href="#" class="text-sm/6 font-semibold text-white">Contact us</a>
+                    <a href="#" class="text-sm/6 font-semibold text-white">About us</a>
+                </div>
+                <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+                    <a href="#" class="text-sm/6 font-semibold text-white">Log in <span aria-hidden="true">&rarr;</span></a>
+                </div>
+            </nav> -->
             <el-dialog>
             <dialog id="mobile-menu" class="backdrop:bg-transparent lg:hidden">
                 <div tabindex="0" class="fixed inset-0 focus:outline-none">
                 <el-dialog-panel class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
                     <div class="flex items-center justify-between">
                     <a href="#" class="-m-1.5 p-1.5">
-                        <span class="sr-only">Your Company</span>
-                        <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="" class="h-8 w-auto" />
+                        <img src="{% static 'MediSyn_logo/1.png' %}" alt="" class="h-16 w-auto" />
                     </a>
-                    <button type="button" command="close" commandfor="mobile-menu" class="-m-2.5 rounded-md p-2.5 text-gray-700">
-                        <span class="sr-only">Close menu</span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
-                        <path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                    <button type="button" command="close" commandfor="mobile-menu" class="-m-2.5 rounded-md p-2.5 mr-3">
+                        <img src="https://img.icons8.com/?size=100&id=121477&format=png&color=000000" class="h-8" alt="">
                     </button>
                     </div>
                     <div class="mt-6 flow-root">
                     <div class="-my-6 divide-y divide-gray-500/10">
                         <div class="space-y-2 py-6">
-                        <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Product</a>
-                        <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Features</a>
-                        <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Marketplace</a>
-                        <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Company</a>
+                        <a href="/online-store/" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Home</a>
+                        <a href="{% url 'onlineStore:products' %}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Product</a>
+                        <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Contact us</a>
+                        <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">About us</a>
                         </div>
                         <div class="py-6">
                                 <!-- Show greeting and logout link if user is logged in -->

@@ -40,6 +40,20 @@ class Product(models.Model):
         return "Unknown Product"
 
     @property
+    def brand(self):
+        if self.product_type == 'Medicine' and self.medicine:
+            return self.medicine.brand
+        elif self.product_type == 'NonMedicalProduct' and self.non_medical_product:
+            return self.non_medical_product.brand
+        return "Unknown Brand"
+    
+    @property
+    def medicine_type(self):
+        if self.product_type == 'Medicine' and self.medicine:
+            return self.medicine.medicine_type
+        return "Unknown Medicine Type"
+
+    @property
     def price(self):
         if self.product_type == 'Medicine' and self.medicine:
             return self.medicine.selling_price
