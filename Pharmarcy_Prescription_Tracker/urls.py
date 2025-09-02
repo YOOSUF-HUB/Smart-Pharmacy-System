@@ -20,6 +20,8 @@ urlpatterns = [
     path('payments/' , include('payments.payments_urls')),
     path('online-store/', include('onlineStore.urls')),
 
+    # Supplier management URLs
+    path('suppliers/', include('supplierManagement.urls', namespace='suppliers')),
 
 
 ]

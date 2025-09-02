@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Supplier: {{ supplier.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="m-0">Supplier: {{ supplier.name }}</h3>
+  <div>
+    <a href="{% url 'suppliers:edit' supplier.pk %}" class="btn btn-warning">Edit</a>
+    <a href="{% url 'suppliers:delete' supplier.pk %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'suppliers:list' %}" class="btn btn-outline-secondary">Back</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card mb-3">
+      <div class="card-header">Contact</div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Contact Person:</strong> {{ supplier.contact_person|default:"—" }}</p>
+        <p class="mb-1"><strong>Phone:</strong> {{ supplier.phone|default:"—" }}</p>
+        <p class="mb-1"><strong>Email:</strong> {{ supplier.email|default:"—" }}</p>
+        <p class="mb-0"><strong>Address:</strong><br>{{ supplier.address|linebreaksbr }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card mb-3">
+      <div class="card-header">Status</div>
+      <div class="card-body">
+        {% if supplier.is_active %}
+          <span class="badge text-bg-success">Active</span>
+        {% else %}
+          <span class="badge text-bg-secondary">Inactive</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Products Supplied</div>
+  <div class="card-body">
+    {% if supplier.products.all %}
+      <ul class="mb-0">
+        {% for p in supplier.products.all %}
+          <li>{{ p.name }} <small class="text-muted">({{ p.product_type }})</small></li>
+        {% empty %}
+          <p class="text-muted mb-0">No products linked.</p>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted mb-0">No products linked.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

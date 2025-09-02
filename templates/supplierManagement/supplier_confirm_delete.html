@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Supplier{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h4>Delete Supplier</h4>
+    <p>Are you sure you want to delete <strong>{{ object.name }}</strong>?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit">Yes, delete</button>
+      <a class="btn btn-light" href="{% url 'suppliers:list' %}">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

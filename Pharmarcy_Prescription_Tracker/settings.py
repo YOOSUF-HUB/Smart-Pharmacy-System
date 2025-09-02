@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'onlineStore',
     'widget_tweaks',
     'accounts',
+    'supplierManagement',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
