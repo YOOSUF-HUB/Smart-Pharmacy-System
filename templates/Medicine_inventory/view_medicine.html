@@ -187,6 +187,7 @@
 
       <!-- Card Footer -->
       <div class="p-3 mt-auto bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-3">
+        <a href="{% url 'medicine_detail' med.pk %}" class="text-sm font-medium bg-cyan-100 text-cyan-800 hover:bg-cyan-200 px-4 py-2 rounded-md transition-colors">View</a>
         <a href="{% url 'medicine_update' med.id %}" class="text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-2 rounded-md transition-colors">Modify Record</a>
         <button type="button" class="open-modal-button text-sm font-medium bg-red-100 text-red-800 hover:bg-red-200 px-4 py-2 rounded-md transition-colors" data-modal-target="#deleteModal{{ med.id }}">
           Remove

@@ -4,7 +4,7 @@ from django.db.models import F
 from .models import NonMedicalProduct
 from .forms import NonMedicalProductForm
 import csv
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.conf import settings
@@ -94,15 +94,28 @@ def product_update(request, slug):
 
 @pharmacist_required
 def product_delete(request, slug):
-    """Delete a non-medical product"""
+    """Delete a non-medical product (supports AJAX confirmation modal)."""
     product = get_object_or_404(NonMedicalProduct, slug=slug)
     product_name = product.name
-    
+
+    # AJAX (modal) delete path
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        if request.POST.get('confirm') == 'true':
+            product.delete()
+            messages.success(request, f'Product "{product_name}" has been deleted successfully.')
+            return JsonResponse({'status': 'ok', 'redirect': redirect('non_medicine:product_list').url})
+        return JsonResponse({'status': 'cancelled'})
+
+    # Standard (non-AJAX) POST (e.g. fallback form)
     if request.method == 'POST':
-        product.delete()
-        messages.success(request, f'Product "{product_name}" has been deleted successfully.')
-        return redirect('non_medicine:product_list')
-    
+        if request.POST.get('confirm') == 'yes':
+            product.delete()
+            messages.success(request, f'Product "{product_name}" has been deleted successfully.')
+            return redirect('non_medicine:product_list')
+        messages.info(request, 'Deletion cancelled.')
+        return redirect('non_medicine:product_detail', slug=product.slug)
+
+    # GET never deletes – just return confirmation template (fallback)
     context = {'product': product}
     return render(request, 'Non_Medicine_inventory/product_confirm_delete.html', context)
 
