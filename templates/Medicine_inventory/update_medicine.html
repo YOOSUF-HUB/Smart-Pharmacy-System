@@ -136,7 +136,7 @@
           <div>
             <label class="block text-xs font-medium text-slate-600 mb-1">Manufacture Date *</label>
             {% render_field form.manufacture_date type="date" class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
-            {% for e in form.manufacture_date.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+            <p id="manufacture-warning" class="hidden mt-1 text-[11px] font-medium text-rose-600"></p>
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-600 mb-1">Expiry Date *</label>
@@ -214,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const imgInput = document.getElementById('id_image');
   const imgWrapper = document.getElementById('image-preview-wrapper');
   const imgPrev = document.getElementById('image-preview');
+  const manufWarn = document.getElementById('manufacture-warning');
 
   function padSeq(v){
     if(!v) return '';
@@ -261,9 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
       profitPill.classList.add('hidden');
     }
     if(s>0 && c>s){
-      priceWarn.textContent = 'Warning: cost is greater than selling price.';
-      priceWarn.className = 'text-[11px] text-rose-600 mt-1';
-      priceWarn.classList.remove('hidden');
+      priceWarn && (priceWarn.textContent = 'Warning: cost is greater than selling price.');
+      priceWarn && priceWarn.classList.remove('hidden');
     } else {
       priceWarn && priceWarn.classList.add('hidden');
     }
@@ -275,22 +275,49 @@ document.addEventListener('DOMContentLoaded', () => {
       imgPrev.removeAttribute('src');
       return;
     }
-    const f = imgInput.files[0];
-    imgPrev.src = URL.createObjectURL(f);
+    imgPrev.src = URL.createObjectURL(imgInput.files[0]);
     imgWrapper.classList.remove('hidden');
+  }
+  function checkManufactureDate(){
+    if(!manuf) return;
+    const val = manuf.value;
+    if(!val){
+      manuf.classList.remove('border-rose-500','focus:border-rose-500');
+      manufWarn.classList.add('hidden');
+      manufWarn.textContent = '';
+      return;
+    }
+    const today = new Date();
+    const todayYMD = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const parts = val.split('-');
+    if(parts.length === 3){
+      const d = new Date(+parts[0], parts[1]-1, +parts[2]);
+      if(d > todayYMD){
+        manufWarn.textContent = 'Warning: Manufacture date is in the future.';
+        manufWarn.classList.remove('hidden');
+        manuf.classList.add('border-rose-500','focus:border-rose-500');
+      } else {
+        manufWarn.classList.add('hidden');
+        manufWarn.textContent = '';
+        manuf.classList.remove('border-rose-500','focus:border-rose-500');
+      }
+    }
   }
 
   [medCode,batchDate,supplierCode,seqNum].forEach(el=>{
     el && el.addEventListener('input', buildBatch);
     el && el.addEventListener('blur', buildBatch);
   });
-  manuf && manuf.addEventListener('change', () => { syncBatchDate(); buildBatch(); });
+  manuf && manuf.addEventListener('change', () => { syncBatchDate(); buildBatch(); checkManufactureDate(); });
+  manuf && manuf.addEventListener('input', checkManufactureDate);
   [cost,sell].forEach(el=> el && el.addEventListener('input', calcProfit));
   imgInput && imgInput.addEventListener('change', previewImg);
 
-  // Init with existing values
+  // Init
   buildBatch();
+  syncBatchDate();
   calcProfit();
+  checkManufactureDate();
 });
 </script>
 {% endblock content %}

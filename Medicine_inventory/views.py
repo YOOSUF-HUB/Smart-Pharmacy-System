@@ -3,6 +3,7 @@ from datetime import datetime
 import base64
 import csv
 import os
+from decimal import Decimal, InvalidOperation
 
 from django.conf import settings
 from django.contrib import messages
@@ -236,14 +237,24 @@ def export_medicine_csv(request):
 @pharmacist_required
 def medicine_detail(request, pk):
     medicine = get_object_or_404(Medicine, pk=pk)
-
-    recent_medicines = request.session.get('recent_medicines', [])
-    if pk in recent_medicines:
-        recent_medicines.remove(pk)
-    recent_medicines.insert(0, pk)
-    request.session['recent_medicines'] = recent_medicines[:5]
-
-    return render(request, 'Medicine_inventory/medicine_detail.html', {'medicine': medicine})
+    recent_actions = MedicineAction.objects.filter(medicine=medicine).order_by('-timestamp')[:15]
+    profit = None
+    margin_pct = None
+    try:
+        if medicine.cost_price is not None and medicine.selling_price is not None:
+            profit = medicine.selling_price - medicine.cost_price
+            if medicine.cost_price and medicine.cost_price > 0:
+                margin_pct = (profit / medicine.cost_price) * Decimal('100')
+    except (InvalidOperation, ZeroDivisionError):
+        profit = None
+        margin_pct = None
+    context = {
+        'medicine': medicine,
+        'recent_actions': recent_actions,
+        'profit': profit,
+        'margin_pct': margin_pct,
+    }
+    return render(request, 'Medicine_inventory/medicine_detail.html', context)
 
 @pharmacist_required
 def export_medicine_pdf(request):
@@ -333,14 +344,24 @@ def med_inventory_dash(request):
 @pharmacist_required
 def medicine_detail(request, pk):
     medicine = get_object_or_404(Medicine, pk=pk)
-
-    recent_medicines = request.session.get('recent_medicines', [])
-    if pk in recent_medicines:
-        recent_medicines.remove(pk)
-    recent_medicines.insert(0, pk)
-    request.session['recent_medicines'] = recent_medicines[:5]
-
-    return render(request, 'Medicine_inventory/medicine_detail.html', {'medicine': medicine})
+    recent_actions = MedicineAction.objects.filter(medicine=medicine).order_by('-timestamp')[:15]
+    profit = None
+    margin_pct = None
+    try:
+        if medicine.cost_price is not None and medicine.selling_price is not None:
+            profit = medicine.selling_price - medicine.cost_price
+            if medicine.cost_price and medicine.cost_price > 0:
+                margin_pct = (profit / medicine.cost_price) * Decimal('100')
+    except (InvalidOperation, ZeroDivisionError):
+        profit = None
+        margin_pct = None
+    context = {
+        'medicine': medicine,
+        'recent_actions': recent_actions,
+        'profit': profit,
+        'margin_pct': margin_pct,
+    }
+    return render(request, 'Medicine_inventory/medicine_detail.html', context)
 
 
 @pharmacist_required
