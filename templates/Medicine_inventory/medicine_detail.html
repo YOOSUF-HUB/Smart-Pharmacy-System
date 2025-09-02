@@ -1,0 +1,188 @@
+{% extends 'Medicine_inventory/base.html' %}
+
+{% block title %}Medicine: {{ medicine.name }}{% endblock %}
+{% load split %}
+
+{% block content %}
+<style>
+  body {
+    font-family: "Montserrat", sans-serif;
+    background-color: #f8fafc;
+  }
+</style>
+
+<div class="max-w-7xl mx-auto px-6 py-10 opacity-0 transition-opacity duration-700" id="page-wrapper">
+  
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-10">
+    <div>
+      <h2 class="text-3xl font-bold text-gray-900 tracking-tight">{{ medicine.name }} - {{ medicine.batch_number }}</h2>
+      <p class="text-gray-500 text-sm mt-1">Detailed overview of this medicine</p>
+    </div>
+    <div class="flex gap-3">
+      <a href="{% url 'medicine_update' medicine.id %}" 
+         class="flex items-center gap-2 px-5 py-2 rounded-lg bg-amber-500 text-white font-medium shadow hover:shadow-lg hover:bg-amber-600 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20h9" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 3.5a2.121 2.121 0 010 3L7 16l-4 1 1-4 9.5-9.5a2.121 2.121 0 013 0z" />
+        </svg>
+        Edit
+      </a>
+      <a href="{% url 'medicine_table' %}" 
+         class="flex items-center gap-2 px-5 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white font-medium shadow-sm hover:bg-gray-50 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back
+      </a>
+    </div>
+  </div>
+
+  <!-- Grid Layout -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+    <!-- General Info -->
+    <div class="bg-white hover:shadow-md shadow-sm rounded-2xl p-6 border border-gray-100 transition">
+      <div class="flex items-center gap-2 mb-5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h13M9 11V5a2 2 0 012-2h8a2 2 0 012 2v6m-6 6v-6m-6 6h6" />
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-800">General Info</h3>
+      </div>
+      <dl class="space-y-3 text-sm">
+        <div><dt class="font-semibold text-gray-700">Brand:</dt><dd class="text-gray-600">{{ medicine.brand|default:"—" }}</dd></div>
+        <div><dt class="font-semibold text-gray-700">Category:</dt><dd class="text-gray-600">{{ medicine.category|default:"—" }}</dd></div>
+        <div><dt class="font-semibold text-gray-700">Description:</dt><dd class="text-gray-600">{{ medicine.description|default:"—" }}</dd></div>
+        <div><dt class="font-semibold text-gray-700">Dosage:</dt><dd class="text-gray-600">{{ medicine.dosage|default:"—" }}</dd></div>
+        <div><dt class="font-semibold text-gray-700">Supplier:</dt><dd class="text-gray-600">{{ medicine.supplier.name|default:"—" }}</dd></div>
+        <div>
+          <dt class="font-semibold text-gray-700">Batch Number:</dt>
+          <dd class="text-gray-600 flex items-center gap-2">
+            {{ medicine.batch_number|default:"—" }}
+            {% if medicine.batch_number %}
+            <button class="text-xs text-cyan-600 hover:underline copy-btn" data-copy="{{ medicine.batch_number }}">Copy</button>
+            {% endif %}
+          </dd>
+        </div>
+
+        {% if medicine.batch_number %}
+          {% with parts=medicine.batch_number|split:"-" %}
+            {% if parts|length == 4 %}
+              <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-1">
+                <p class="text-sm flex justify-between">
+                  <span><span class="font-semibold">MED Code:</span> {{ parts.0 }}</span>
+                  <button class="text-xs text-cyan-600 hover:underline copy-btn" data-copy="{{ parts.0 }}">Copy</button>
+                </p>
+                <p class="text-sm"><span class="font-semibold">Batch Date:</span> {{ parts.1 }}</p>
+                <p class="text-sm"><span class="font-semibold">Supplier Code:</span> {{ parts.2 }}</p>
+                <p class="text-sm"><span class="font-semibold">Sequence:</span> {{ parts.3 }}</p>
+              </div>
+            {% endif %}
+          {% endwith %}
+        {% endif %}
+      </dl>
+    </div>
+
+    <!-- Stock & Pricing -->
+    <div class="bg-white hover:shadow-md shadow-sm rounded-2xl p-6 border border-gray-100 transition">
+      <div class="flex items-center gap-2 mb-5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V7a2 2 0 00-2-2h-3V3H9v2H6a2 2 0 00-2 2v6m16 0h-2m-4 0h-4m-4 0H4m16 0v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6" />
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-800">Stock & Pricing</h3>
+      </div>
+      <dl class="space-y-3 text-sm">
+        <div><dt class="font-semibold text-gray-700">Quantity in Stock:</dt><dd class="text-gray-600">{{ medicine.quantity_in_stock }}</dd></div>
+        <div><dt class="font-semibold text-gray-700">Reorder Level:</dt><dd class="text-gray-600">{{ medicine.reorder_level }}</dd></div>
+        <div><dt class="font-semibold text-gray-700">Cost Price:</dt><dd class="text-gray-600">Rs. {{ medicine.cost_price }}</dd></div>
+        <div><dt class="font-semibold text-gray-700">Selling Price:</dt><dd class="text-gray-600">Rs. {{ medicine.selling_price }}</dd></div>
+      </dl>
+    </div>
+
+    <!-- Dates -->
+    <div class="bg-white hover:shadow-md shadow-sm rounded-2xl p-6 border border-gray-100 transition" id="dates-card"
+         data-expiry="{{ medicine.expiry_date|date:'Y-m-d' }}">
+      <div class="flex items-center gap-2 mb-5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3h8v4m-9 4h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-800">Dates</h3>
+      </div>
+      <dl class="space-y-3 text-sm">
+        <div><dt class="font-semibold text-gray-700">Manufacture Date:</dt><dd class="text-gray-600">{{ medicine.manufacture_date|date:"Y-m-d" }}</dd></div>
+        <div><dt class="font-semibold text-gray-700">Expiry Date:</dt><dd class="text-gray-600">{{ medicine.expiry_date|date:"Y-m-d" }}</dd></div>
+      </dl>
+
+      <!-- Status Badge -->
+      <div class="mt-4" id="expiry-status"></div>
+    </div>
+
+    <!-- Image -->
+    {% if medicine.image %}
+    <div class="bg-white hover:shadow-md shadow-sm rounded-2xl p-6 border border-gray-100 transition">
+      <div class="flex items-center gap-2 mb-5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M5 7V5a2 2 0 012-2h10a2 2 0 012 2v2m0 0h2a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z" />
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-800">Image</h3>
+      </div>
+      <div class="flex justify-center">
+        <img src="{{ medicine.image.url }}" alt="{{ medicine.name }}" 
+             class="max-h-60 rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
+             id="medicine-img">
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Lightbox Modal -->
+<div id="lightbox" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+  <img src="" alt="Expanded view" class="max-h-[80vh] rounded-lg shadow-2xl border-4 border-white" id="lightbox-img">
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Page fade-in
+  document.getElementById("page-wrapper").classList.remove("opacity-0");
+
+  // Copy-to-clipboard
+  document.querySelectorAll(".copy-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      navigator.clipboard.writeText(btn.dataset.copy);
+      btn.innerText = "✔ Copied!";
+      setTimeout(() => btn.innerText = "Copy", 1500);
+    });
+  });
+
+  // Lightbox
+  const img = document.getElementById("medicine-img");
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+
+  if (img) {
+    img.addEventListener("click", () => {
+      lightboxImg.src = img.src;
+      lightbox.classList.remove("hidden");
+    });
+  }
+  lightbox.addEventListener("click", () => lightbox.classList.add("hidden"));
+
+  // Expiry check (auto badge update)
+  const expiryCard = document.getElementById("dates-card");
+  if (expiryCard) {
+    const expiryDate = new Date(expiryCard.dataset.expiry);
+    const today = new Date();
+    const statusEl = document.getElementById("expiry-status");
+
+    if (expiryDate < today) {
+      statusEl.innerHTML = `<span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">Expired</span>`;
+    } else if ((expiryDate - today) / (1000*60*60*24) < 30) {
+      statusEl.innerHTML = `<span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Near Expiry</span>`;
+    } else {
+      statusEl.innerHTML = `<span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Valid</span>`;
+    }
+  }
+});
+</script>
+{% endblock %}

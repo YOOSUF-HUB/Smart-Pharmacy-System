@@ -19,6 +19,7 @@ urlpatterns = [
     path('delete/<int:id>/', views.delete_medicine, name='medicine_delete'),
     path('export/csv/', views.export_medicine_csv, name='export_medicine_csv'),
     path('export/pdf/', views.export_medicine_pdf, name='export_medicine_pdf'),
+    path('medicine/<int:pk>/', views.medicine_detail, name='medicine_detail'),
     # Remove this line: path('accounts/', include('accounts.urls')),
 ]
 

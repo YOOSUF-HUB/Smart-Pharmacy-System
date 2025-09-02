@@ -1,12 +1,22 @@
 from django.db import models
-from Medicine_inventory.models import Medicine
+
 
 # Create your models here.
 class Product(models.Model):
+
+    CATEGORY_CHOICES = [
+    ("Tablet", "Tablet"),
+    ("Capsule", "Capsule"),
+    ("Syrup", "Syrup"),
+    ("Injection", "Injection"),
+    # ...add all your categories here...
+]
+
+
     name = models.CharField(max_length=120)
     category = models.CharField(
         max_length=50,
-        choices=Medicine.CATEGORY_CHOICES
+        choices=CATEGORY_CHOICES
     )
 
     def __str__(self):

@@ -58,7 +58,14 @@ class Medicine(models.Model):
     manufacture_date = models.DateField()
     expiry_date = models.DateField()
     batch_number = models.CharField(max_length=150, unique=True)
-    supplier = models.CharField(max_length=100)
+    # supplier = models.CharField(max_length=100)
+    supplier = models.ForeignKey(
+        'supplierManagement.Supplier',  # Use string reference
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='medicines'
+    )
 
     def is_expired(self):
         return date.today() >= self.expiry_date

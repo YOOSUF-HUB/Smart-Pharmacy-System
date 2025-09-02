@@ -233,6 +233,17 @@ def export_medicine_csv(request):
         ])
     return response
 
+@pharmacist_required
+def medicine_detail(request, pk):
+    medicine = get_object_or_404(Medicine, pk=pk)
+
+    recent_medicines = request.session.get('recent_medicines', [])
+    if pk in recent_medicines:
+        recent_medicines.remove(pk)
+    recent_medicines.insert(0, pk)
+    request.session['recent_medicines'] = recent_medicines[:5]
+
+    return render(request, 'Medicine_inventory/medicine_detail.html', {'medicine': medicine})
 
 @pharmacist_required
 def export_medicine_pdf(request):
