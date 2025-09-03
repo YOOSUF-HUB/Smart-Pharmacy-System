@@ -332,5 +332,35 @@ document.addEventListener('DOMContentLoaded', () => {
   calcProfit();
   checkManufactureDate(); // initial check
 });
+document.addEventListener('DOMContentLoaded', function() {
+    const manufDate = document.getElementById('id_manufacture_date');
+    const expiryDate = document.getElementById('id_expiry_date');
+    const batchNumber = document.getElementById('id_batch_number');
+    
+    // Validate manufacture date
+    if (manufDate) {
+        manufDate.addEventListener('change', function() {
+            const today = new Date().toISOString().split('T')[0];
+            if (this.value > today) {
+                this.setCustomValidity('Manufacture date cannot be in the future');
+                this.reportValidity();
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    // Validate expiry date
+    if (expiryDate && manufDate) {
+        expiryDate.addEventListener('change', function() {
+            if (manufDate.value && this.value <= manufDate.value) {
+                this.setCustomValidity('Expiry date must be after manufacture date');
+                this.reportValidity();
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+});
 </script>
 {% endblock content %}

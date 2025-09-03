@@ -57,7 +57,8 @@ class Medicine(models.Model):
     reorder_level = models.PositiveIntegerField(default=10)
     manufacture_date = models.DateField()
     expiry_date = models.DateField()
-    batch_number = models.CharField(max_length=150, unique=True)
+    batch_number = models.CharField(max_length=150, unique=True)  # This should already be unique
+    
     # supplier = models.CharField(max_length=100)
     supplier = models.ForeignKey(
         'supplierManagement.Supplier',  # Use string reference
@@ -79,6 +80,27 @@ class Medicine(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.dosage} ({self.batch_number})"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        from datetime import date
+        
+        # Prevent future manufacture dates
+        if self.manufacture_date and self.manufacture_date > date.today():
+            raise ValidationError({
+                'manufacture_date': 'Manufacture date cannot be in the future.'
+            })
+            
+        # Ensure expiry date is after manufacture date
+        if self.manufacture_date and self.expiry_date:
+            if self.expiry_date <= self.manufacture_date:
+                raise ValidationError({
+                    'expiry_date': 'Expiry date must be after manufacture date.'
+                })
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()  # This will call clean() method
+        super().save(*args, **kwargs)
 
 class MedicineAction(models.Model):
     ACTION_CHOICES = [

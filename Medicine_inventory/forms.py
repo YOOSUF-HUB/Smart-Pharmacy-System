@@ -1,4 +1,6 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from datetime import date
 from .models import Medicine
 import re
 
@@ -31,9 +33,11 @@ class MedicineForm(forms.ModelForm):
     class Meta:
         model = Medicine
         fields = [
-            'name','brand','category','description', 'medicine_type','dosage','supplier',
-            'manufacture_date','expiry_date','quantity_in_stock','reorder_level',
-            'cost_price','selling_price','image','batch_number'
+            'name', 'brand', 'category', 'medicine_type', 'description', 
+            'dosage', 'cost_price', 'selling_price', 'image', 
+            'quantity_in_stock', 'reorder_level', 'manufacture_date', 
+            'expiry_date', 'batch_number', 'supplier',
+            # Add any batch generation fields if you have them
         ]
         widgets = {
             'manufacture_date': forms.DateInput(
@@ -48,7 +52,8 @@ class MedicineForm(forms.ModelForm):
                     'class': 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500'
                 }
             ),
-            'batch_number': forms.TextInput(attrs={'readonly': 'readonly'})
+            'batch_number': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'medicine_type': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -95,6 +100,48 @@ class MedicineForm(forms.ModelForm):
             instance.save()
             self.save_m2m()
         return instance
+
+    def clean_batch_number(self):
+        batch_number = self.cleaned_data.get('batch_number')
+        
+        if batch_number:
+            # Check if batch number already exists (excluding current instance in update)
+            existing = Medicine.objects.filter(batch_number=batch_number)
+            if self.instance.pk:
+                existing = existing.exclude(pk=self.instance.pk)
+            
+            if existing.exists():
+                raise ValidationError(
+                    f"A medicine with batch number '{batch_number}' already exists. "
+                    "Batch numbers must be unique."
+                )
+        
+        return batch_number
+    
+    def clean_manufacture_date(self):
+        manufacture_date = self.cleaned_data.get('manufacture_date')
+        
+        if manufacture_date:
+            if manufacture_date > date.today():
+                raise ValidationError(
+                    "Manufacture date cannot be in the future."
+                )
+        
+        return manufacture_date
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        manufacture_date = cleaned_data.get('manufacture_date')
+        expiry_date = cleaned_data.get('expiry_date')
+        
+        # Validate expiry date is after manufacture date
+        if manufacture_date and expiry_date:
+            if expiry_date <= manufacture_date:
+                raise ValidationError({
+                    'expiry_date': 'Expiry date must be after manufacture date.'
+                })
+        
+        return cleaned_data
 
 
 

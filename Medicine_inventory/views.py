@@ -8,6 +8,7 @@ from decimal import Decimal, InvalidOperation
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, F
 from django.http import HttpResponse
@@ -147,16 +148,23 @@ def create_medicine(request):
     if request.method == 'POST':
         form = MedicineForm(request.POST, request.FILES)
         if form.is_valid():
-            medicine = form.save()
-            MedicineAction.objects.create(
-                medicine=medicine,
-                action='Added',
-                user=request.user
-            )
-            messages.success(request, f"Successfully registered new medication: '{medicine.name}'.")
-            return redirect('medicine_table')
+            try:
+                medicine = form.save()
+                MedicineAction.objects.create(
+                    medicine=medicine,
+                    action='Added',
+                    user=request.user
+                )
+                messages.success(request, f"Successfully registered new medication: '{medicine.name}'.")
+                return redirect('medicine_table')
+            except ValidationError as e:
+                # Handle model validation errors
+                for field, errors in e.message_dict.items():
+                    for error in errors:
+                        form.add_error(field, error)
         else:
-            form.add_error(None, "A medicine with this batch number already exists. Please change the batch details.")
+            # Form validation failed
+            messages.error(request, "Please correct the errors below.")
     else:
         form = MedicineForm()
     return render(request, 'Medicine_inventory/create_medicine.html', {'form': form})
@@ -197,14 +205,22 @@ def update_medicine(request, id):
     if request.method == 'POST':
         form = MedicineForm(request.POST, request.FILES, instance=medicine)
         if form.is_valid():
-            medicine = form.save()
-            MedicineAction.objects.create(
-                medicine=medicine,
-                action='Updated',
-                user=request.user
-            )
-            messages.success(request, f"The record for '{medicine.name}' has been updated successfully.")
-            return redirect('medicine_table')
+            try:
+                medicine = form.save()
+                MedicineAction.objects.create(
+                    medicine=medicine,
+                    action='Updated',
+                    user=request.user
+                )
+                messages.success(request, f"The record for '{medicine.name}' has been updated successfully.")
+                return redirect('medicine_table')
+            except ValidationError as e:
+                # Handle model validation errors
+                for field, errors in e.message_dict.items():
+                    for error in errors:
+                        form.add_error(field, error)
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = MedicineForm(instance=medicine, initial=initial)
 
