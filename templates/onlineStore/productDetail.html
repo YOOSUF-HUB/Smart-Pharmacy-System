@@ -3,25 +3,24 @@
 {% block title %}{{ product.name }} - MediSync{% endblock %}
 
 {% block content %}
-<div class="bg-white pt-28 pb-16">
+<div class="bg-white pt-28 pb-16 mt-20">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-3 gap-10">
 
       <!-- Left Content -->
       <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-8">
-        
-        <!-- Product Name & Brand -->
-        <div class="border-b pb-4">
-          <h1 class="text-3xl font-bold text-gray-900">{{ product.name }}</h1>
-          <p class="mt-2 text-base text-gray-600">by 
-            <span class="font-semibold text-indigo-600">{{ product.brand }}</span>
-          </p>
-        </div>
 
-        <!-- Product Image -->
-        <div class="mt-6 flex justify-center">
-          <img src="{{ product.image_url }}" alt="{{ product.name }}" 
-               class="h-[400px] w-auto rounded-xl object-cover shadow-md" />
+        <!-- Product Name & Brand & Price -->
+        <div class="border-b pb-4 flex justify-between ">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ product.name }}</h1>
+            <p class="mt-2 text-base text-gray-600">by 
+              <span class="font-semibold text-indigo-600">{{ product.brand }}</span>
+            </p>
+          </div>
+          <div>
+            <p class="text-3xl font-bold text-gray-900">Rs. {{ product.price|floatformat:2 }}</p>
+          </div>
         </div>
 
         <!-- Description & Medical Details -->
@@ -31,7 +30,7 @@
             <p class="mt-2 text-gray-700">{{ product.description }}</p>
           </div>
 
-          {% if product.product_type == 'medicine' and product.medicine %}
+          {% if product.product_type == 'Medicine' and product.medicine %}
           <div>
             <h3 class="text-xl font-semibold text-gray-900">Medical Details</h3>
             <dl class="mt-4 grid sm:grid-cols-2 gap-6 text-sm">
@@ -63,9 +62,14 @@
 
       <!-- Right Column: Purchase -->
       <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col justify-between">
-        <div>
-          <p class="text-3xl font-bold text-gray-900">Rs. {{ product.price|floatformat:2 }}</p>
+        
+        <!-- Product Image -->
+        <div class="mt-6 flex justify-center">
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" 
+               class="h-[400px] w-auto rounded-xl object-cover shadow-md" />
+        </div>
 
+        <div class="flex flex-row items-center gap-1.5">
           <!-- Stock Badge -->
           <div class="mt-4">
             {% if product.stock > 10 %}
@@ -80,7 +84,7 @@
           </div>
 
           <!-- Rx or OTC Badge -->
-          <div class="mt-2">
+          <div class="mt-4">
               {% if product.medicine_type == 'RX' %}
                 <span class="bg-red-500 text-red-100 px-3 py-1 rounded-full text-xs">Prescription Required</span>
               {% endif %}
