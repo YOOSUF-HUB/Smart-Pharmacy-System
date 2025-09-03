@@ -131,14 +131,22 @@
 
 # onlineStore/views.py
 
-from django.shortcuts import get_object_or_404, render
-from .models import Product
+from django.shortcuts import get_object_or_404, render, redirect
+from .models import Cart, Product, CartItem
 from django.db.models import Q
 from django.db.models.functions import Coalesce
+
+from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 
 # NOTE: Moved inventory imports to the top for better practice
 from Medicine_inventory.models import Medicine
 from Non_Medicine_inventory.models import NonMedicalProduct
+
+
+# Customer required decorator
+def customer_required(view_func):
+    return user_passes_test(lambda u: u.is_authenticated and u.role == "customer")(view_func)
 
 # Homepage view (Your code was fine)
 def online_store_homepage(request):
@@ -250,3 +258,93 @@ def product_detail(request, pk):
     }
     
     return render(request, 'onlineStore/productDetail.html', context)
+
+
+
+@customer_required
+def add_to_cart(request, pk):
+    """Add a product to the shopping cart"""
+    if request.method == 'POST':
+        product = get_object_or_404(Product, pk=pk, available_online=True)
+        quantity = int(request.POST.get('quantity', 1))
+        
+        # Validate quantity
+        if quantity <= 0:
+            messages.error(request, "Invalid quantity")
+            return redirect('onlineStore:product_detail', pk=pk)
+        
+        if quantity > product.stock:
+            messages.error(request, f"Only {product.stock} items available in stock")
+            return redirect('onlineStore:product_detail', pk=pk)
+        
+        # Get or create cart for user (using customer_user field)
+        cart, created = Cart.objects.get_or_create(customer_user=request.user)
+        
+        # Get or create cart item
+        cart_item, item_created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+        
+        if not item_created:
+            # Item already exists, update quantity
+            new_quantity = cart_item.quantity + quantity
+            if new_quantity > product.stock:
+                messages.error(request, f"Cannot add more. Only {product.stock} items available")
+                return redirect('onlineStore:product_detail', pk=pk)
+            cart_item.quantity = new_quantity
+            cart_item.save()
+            messages.success(request, f"Updated {product.name} quantity to {cart_item.quantity}")
+        else:
+            messages.success(request, f"Added {product.name} to cart")
+        
+        return redirect('onlineStore:cart')
+    
+    return redirect('onlineStore:product_detail', pk=pk)
+
+@customer_required
+def cart_view(request):
+    """Display the shopping cart"""
+    try:
+        cart = Cart.objects.get(customer_user=request.user)  # Changed to customer_user
+        cart_items = cart.items.all()
+    except Cart.DoesNotExist:
+        cart = None
+        cart_items = []
+    
+    context = {
+        'cart': cart,
+        'cart_items': cart_items,
+        'cart_total': cart.total_price if cart else 0,
+    }
+    
+    return render(request, 'onlineStore/cart.html', context)
+
+@customer_required
+def update_cart_item(request, item_id):
+    """Update quantity of cart item"""
+    if request.method == 'POST':
+        cart_item = get_object_or_404(CartItem, id=item_id, cart__customer_user=request.user)  # Changed to customer_user
+        quantity = int(request.POST.get('quantity', 1))
+        
+        if quantity <= 0:
+            cart_item.delete()
+            messages.success(request, f"Removed {cart_item.product.name} from cart")
+        elif quantity > cart_item.product.stock:
+            messages.error(request, f"Only {cart_item.product.stock} items available")
+        else:
+            cart_item.quantity = quantity
+            cart_item.save()
+            messages.success(request, f"Updated {cart_item.product.name} quantity")
+    
+    return redirect('onlineStore:cart')
+
+@customer_required
+def remove_from_cart(request, item_id):
+    """Remove item from cart"""
+    cart_item = get_object_or_404(CartItem, id=item_id, cart__customer_user=request.user)  # Changed to customer_user
+    product_name = cart_item.product.name
+    cart_item.delete()
+    messages.success(request, f"Removed {product_name} from cart")
+    return redirect('onlineStore:cart')

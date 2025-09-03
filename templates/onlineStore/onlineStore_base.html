@@ -18,36 +18,7 @@
                 Click me
             </button> -->
             
-        <!-- <nav class="z-50 bg-black backdrop-blur-md flex items-center justify-between px-4 sm:px-6 text-white  mx-4 my-3 relative">
-            
-            <div class="container mx-auto">
-                <div class="flex justify-between items-center">
-                    <a href="{% url 'onlineStore:homepage' %}" >
-                        <img src="../media/non_medical_products/5.png" alt="MedsiSync logo" class="h-20 w-60">
-                    </a>
-                    <div class="container mx-auto ml-10">
-                        <ul class="flex space-x-4">
-                            <li><a href="{% url 'onlineStore:homepage' %}" class="text-white hover:text-gray-300">Home</a></li>
-                            <li><a href="{% url 'onlineStore:products' %}" class="text-white hover:text-gray-300">Products</a></li>
-                            <li><a href="" class="text-white hover:text-gray-300">About Us</a></li>
-                        </ul>
-                    </div>
-                    <form action="" method="get" class="flex items-center">
-                        <input type="text" name="query" placeholder="Search products..."
-                            class="border border-gray-300 rounded-l p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button type="submit" class="bg-blue-500 text-white p-2 rounded-r hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Search
-                        </button>
-                    </form>
-                    <div class="flex items-center">
-                        <a href="" class="text-white hover:text-gray-300 mr-4">Cart</a>
-                        <a href="" class="text-white hover:text-gray-300">Wishlist</a>
-                    </div>
-                </div>
-                
-            </div>
-        </nav> -->
-
+        <!-- Navigation Bar -->
         <header class="absolute inset-x-0 top-0 z-50">
             <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8 shadow-xl border-b-4 bg-white bg-opacity-80  fixed w-full" style="border-color: #00eebc;">
                 <div class="flex lg:flex-1">
@@ -72,14 +43,17 @@
                 </div>
                 <div class="hidden lg:flex lg:flex-1 lg:justify-end">
                     {% if user.is_authenticated and user.role == 'customer' %}
-                        <span class="welcome-text mr-4">Hey, {{ user.first_name|default:user.username }}!</span>
+                        <span class="welcome-text mr-4 font-bold">Hey, {{ user.first_name|default:user.username }}!</span>
                         <a href="{% url 'customer_logout' %}" class="text-sm/6 font-semibold text-red-500">Logout <span aria-hidden="true">&larr;</span></a>
                     {% else %}
                         <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
                     {% endif %}
                 </div>
-            </nav> 
-            <!-- <nav aria-label="Global" class="flex items-center justify-between p-3 lg:px-8 bg-indigo-600 rounded-full shadow-lg mx-4 my-3">
+            </nav>
+            <!-- <nav aria-label="Global"
+            class="flex items-center justify-between p-3 lg:px-8 bg-indigo-600 rounded-full shadow-lg my-5 border-b-2 fixed  sm:right-10 sm:left-10 left-3 right-3"
+            style="border-color: #00eebc;">
+
                 <div class="flex lg:flex-1 ">
                     <a href="#" class="-m-1.5 p-1.5">
                     <img src="{% static 'MediSyn_logo/2.png' %}" alt="" class="h-14 lg:h-16 w-auto " />
@@ -100,7 +74,12 @@
                     <a href="#" class="text-sm/6 font-semibold text-white">About us</a>
                 </div>
                 <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-                    <a href="#" class="text-sm/6 font-semibold text-white">Log in <span aria-hidden="true">&rarr;</span></a>
+                    {% if user.is_authenticated and user.role == 'customer' %}
+                        <span class="welcome-text mr-4" style="color: #00eebc;">Hey, {{ user.first_name|default:user.username }}!</span>
+                        <a href="{% url 'customer_logout' %}" class="text-sm/6 font-semibold text-white">Logout <span aria-hidden="true">&larr;</span></a>
+                    {% else %}
+                        <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-white">Log in <span aria-hidden="true">&rarr;</span></a>
+                    {% endif %}
                 </div>
             </nav> -->
             <el-dialog>
@@ -124,9 +103,14 @@
                         <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">About us</a>
                         </div>
                         <div class="py-6">
-                                <!-- Show greeting and logout link if user is logged in -->
-                            
-                        </div>
+                             {% if user.is_authenticated and user.role == 'customer' %}
+                                <span class="welcome-text mr-4 font-bold italic" style="color: #00eebc;">Hey, {{ user.first_name|default:user.username }}!</span>
+                                <a href="{% url 'customer_logout' %}" class="text-sm/6 font-semibold text-red-600">Logout <span aria-hidden="true">&larr;</span></a>
+                            {% else %}
+                                <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-indigo-600">Log in <span aria-hidden="true">&rarr;</span></a>
+                            {% endif %}
+                                    
+                                </div>
 
                     </div>
                     </div>
@@ -135,12 +119,51 @@
             </dialog>
             </el-dialog>
         </header>
+
+        
+        {% if messages %}
+        <div class="fixed bottom-4 right-4 space-y-4 z-50" id="message-container">
+            {% for message in messages %}
+            <div class="flex items-center justify-between p-4 text-sm rounded-lg shadow-lg w-80
+                        {% if message.tags == 'success' %} bg-green-100 text-green-800 border border-green-200 {% endif %}
+                        {% if message.tags == 'error' %} bg-red-100 text-red-800 border border-red-200 {% endif %}
+                        {% if message.tags == 'warning' %} bg-yellow-100 text-yellow-800 border border-yellow-200 {% endif %}
+                        {% if message.tags == 'info' %} bg-blue-100 text-blue-800 border border-blue-200 {% endif %}"
+                role="alert">
+                <span class="font-medium">{{ message }}</span>
+                <button type="button" class="ml-4 p-1.5 rounded-lg focus:ring-2 inline-flex h-8 w-8
+                            {% if message.tags == 'success' %} hover:bg-green-200 focus:ring-green-400 {% endif %}
+                            {% if message.tags == 'error' %} hover:bg-red-200 focus:ring-red-400 {% endif %}
+                            {% if message.tags == 'warning' %} hover:bg-yellow-200 focus:ring-yellow-400 {% endif %}
+                            {% if message.tags == 'info' %} hover:bg-blue-200 focus:ring-blue-400 {% endif %}"
+                    aria-label="Close" onclick="this.parentElement.remove();">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="">
             
             {% block content %}
             <!-- Content will be injected here -->
+            <!-- Content will be injected here -->
+            <!-- Content will be injected here -->
+
             {% endblock %}
         </div>
+
+        <script>
+            setTimeout(() => {
+                const container = document.getElementById('message-container');
+                if (container) container.remove();
+            }, 5000); // 5000ms = 5 seconds
+        </script>
+
     
 </body>
 </html>

@@ -93,6 +93,10 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"Cart({self.customer_user.username}, {self.created_at})"
+    
+    @property
+    def total_price(self):
+        return sum(item.total_price for item in self.items.all())
 
 # CartItem links products to cart with quantity
 class CartItem(models.Model):
@@ -100,8 +104,15 @@ class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
+    class Meta:
+        unique_together = ('cart', 'product')  # Prevent duplicate items
+
     def __str__(self):
         return f"CartItem({self.product.name}, Qty: {self.quantity})"
+    
+    @property
+    def total_price(self):
+        return self.product.price * self.quantity
 
 # Order model for checkout
 class Order(models.Model):

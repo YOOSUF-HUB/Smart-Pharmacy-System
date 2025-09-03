@@ -92,33 +92,48 @@
         </div>
 
         <!-- Add to Cart -->
-        <form method="post" action="" class="mt-10">
-          {% csrf_token %}
+        <form method="post" action="{% url 'onlineStore:add_to_cart' pk=product.pk %}" class="mt-10">
+            {% csrf_token %}
+            
+            <!-- Check if user can add to cart -->
+            {% if not user.is_authenticated %}
+                <p class="text-red-600 mb-4">Please <a href="{% url 'customer_login' %}" class="underline">log in</a> to add items to cart.</p>
+            {% elif user.role != 'customer' %}
+                <p class="text-red-600 mb-4">Only customers can purchase items.</p>
+            {% endif %}
 
-          <!-- Quantity Selector -->
-          <div>
-            <label class="text-sm font-medium text-gray-800">Quantity</label>
-            <div class="mt-2 flex items-center gap-3">
-              <button type="button" onclick="changeQuantity(-1)" 
-                      class="h-10 w-10 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
-                -
-              </button>
-              <input id="quantityInput" name="quantity" type="number" value="1" readonly 
-                     class="h-10 w-16 text-center border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
-              <button type="button" onclick="changeQuantity(1)" 
-                      class="h-10 w-10 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
-                +
-              </button>
+            <!-- Quantity Selector -->
+            <div>
+                <label class="text-sm font-medium text-gray-800">Quantity</label>
+                <div class="mt-2 flex items-center gap-3">
+                    <button type="button" onclick="changeQuantity(-1)" 
+                            class="h-10 w-10 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
+                        -
+                    </button>
+                    <input id="quantityInput" name="quantity" type="number" value="1" min="1" max="{{ product.stock }}"
+                          class="h-10 w-16 text-center border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" />
+                    <button type="button" onclick="changeQuantity(1)" 
+                            class="h-10 w-10 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100">
+                        +
+                    </button>
+                </div>
             </div>
-          </div>
 
-          <!-- Button -->
-          <button type="submit" {% if product.stock <= 0 %}disabled{% endif %}
-                  class="mt-8 w-full rounded-lg bg-indigo-600 px-6 py-3 text-white font-semibold 
-                         hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 
-                         disabled:opacity-50 disabled:cursor-not-allowed">
-            Add to Cart
-          </button>
+            <!-- Add to Cart Button -->
+            <button type="submit" 
+                    {% if product.stock <= 0 or not user.is_authenticated or user.role != 'customer' %}disabled{% endif %}
+                    class="mt-8 w-full rounded-lg bg-indigo-600 px-6 py-3 text-white font-semibold 
+                          disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-700">
+                {% if user.is_authenticated and user.role == 'customer' %}
+                    {% if product.stock > 0 %}
+                        Add to Cart
+                    {% else %}
+                        Out of Stock
+                    {% endif %}
+                {% else %}
+                    Login to Purchase
+                {% endif %}
+            </button>
         </form>
       </div>
     </div>
@@ -148,13 +163,15 @@
   </div>
 </div>
 
+
 <script>
-  function changeQuantity(amount) {
+function changeQuantity(amount) {
     const input = document.getElementById('quantityInput');
     let currentValue = parseInt(input.value);
     let newValue = currentValue + amount;
     if (newValue < 1) newValue = 1;
+    // if (newValue > {{ product.stock }}) newValue = {{ product.stock }};
     input.value = newValue;
-  }
+}
 </script>
 {% endblock %}
