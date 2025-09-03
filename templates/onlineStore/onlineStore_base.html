@@ -18,7 +18,6 @@
                 Click me
             </button> -->
             
-        <!-- Navigation Bar -->
         <header class="absolute inset-x-0 top-0 z-50">
             <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8 shadow-xl border-b-4 bg-white bg-opacity-80  fixed w-full" style="border-color: #00eebc;">
                 <div class="flex lg:flex-1">
@@ -88,7 +87,7 @@
                         <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-gray-900 hover:text-gray-700 transition-colors duration-200">
                             Log in <span aria-hidden="true">&rarr;</span>
                         </a>
-                        <a href="{% url 'register' %}" class="text-sm/6 font-semibold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-4">
+                        <a href="{% url 'customer_register' %}" class="text-sm/6 font-semibold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-4">
                             Sign up <span aria-hidden="true">&rarr;</span>
                         </a>
                     {% endif %}
@@ -216,4 +215,102 @@
 
     
 </body>
+<footer class="bg-gray-900 text-white mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            
+            <div class="space-y-4">
+                <div class="flex items-center space-x-2">
+                    <img src="{% static 'MediSyn_logo/1.png' %}" alt="MediSync" class="h-12 w-auto">
+                    <span class="text-2xl font-bold text-indigo-500">MediSync</span>
+                </div>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    Your trusted online pharmacy delivering health and wellness products right to your doorstep. Licensed, secure, and reliable.
+                </p>
+                <div class="flex space-x-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook-icon lucide-facebook opacity-80"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-instagram-icon lucide-instagram opacity-80"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-4" style="color: #00eebc;">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="/online-store/" class="text-gray-400 hover:text-white transition-colors text-sm">Home</a></li>
+                    <li><a href="{% url 'onlineStore:products' %}" class="text-gray-400 hover:text-white transition-colors text-sm">All Products</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Upload Prescription</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Track Order</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-4" style="color: #00eebc;">Customer Service</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">About Us</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Contact Us</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">FAQs</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Shipping & Returns</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-4" style="color: #00eebc;">Get in Touch</h3>
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-start space-x-3">
+                        <svg class="h-5 w-5 text-indigo-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        <div class="text-sm text-gray-400">
+                            <p>+94 11 234 5678</p>
+                            <p>+94 77 123 4567</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <svg class="h-5 w-5 text-indigo-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="text-sm text-gray-400">support@medisync.lk</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <svg class="h-5 w-5 text-indigo-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <p class="text-sm text-gray-400">123 Health Street,<br>Colombo 03, Sri Lanka</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+                <p class="text-sm text-gray-400">
+                    © 2025 MediSync. All rights reserved.
+                </p>
+                <div class="flex items-center space-x-4 text-sm text-gray-400">
+                    <span class="flex items-center">
+                        <svg class="h-4 w-4 mr-1 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Secure Payments
+                    </span>
+                    <span>|</span>
+                    <span class="flex items-center">
+                        <svg class="h-4 w-4 mr-1 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                        </svg>
+                        Island-wide Delivery
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
 </html>

@@ -59,7 +59,7 @@
           </div>
 
           <div class="text-sm">
-            <a href="#" class="font-medium text-cyan-600 hover:text-cyan-500">
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
               Forgot your password?
             </a>
           </div>
@@ -67,7 +67,7 @@
 
         <div>
           <button type="submit" 
-                  class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+                  class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
             Sign in
           </button>
         </div>
@@ -86,19 +86,18 @@
         </div>
 
         <div class="mt-6">
+          <a href="{% url 'onlineStore:homepage' %}" 
+             class="w-full flex justify-center py-2 px-4 border border-indigo-300 rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 sm:mb-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+            Visit as guest
+          </a>
           <a href="{% url 'customer_register' %}" 
              class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
-            Create a customer account
+            Create an account
           </a>
         </div>
       </div>
     </div>
 
-    <div class="text-center mt-4">
-      <a href="{% url 'login' %}" class="text-sm font-medium text-cyan-600 hover:text-cyan-500">
-        Staff login →
-      </a>
-    </div>
   </div>
 </div>
 {% endblock %}

@@ -3,9 +3,7 @@
 {% block title %}MediSync - Your Trusted Online Pharmacy{% endblock %}
 
 {% block content %}
-<!-- =================================== -->
-<!-- Hero Section: Main Welcome Area -->
-<!-- =================================== -->
+
 <div class="bg-white">
   <div class="relative isolate px-4 pt-14 lg:px-8 bg-white">
     <div class="mx-auto min-h-screen flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 py-8 lg:py-0">
@@ -39,9 +37,7 @@
   </div>
 </div>
 
-<!-- =================================== -->
-<!-- Trust-Building Features Section -->
-<!-- =================================== -->
+<!-- Features Section -->
 <div class="bg-gray-50 py-16 sm:py-20 lg:py-24 xl:py-32">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-2xl lg:text-center">
@@ -96,15 +92,12 @@
   </div>
 </div>
 
-<!-- ======================================== -->
-<!-- Featured Products Section (Dynamic) -->
-<!-- ======================================== -->
+<!-- Featured Products -->
 <div class="bg-white">
   <div class="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16 lg:py-24 lg:max-w-7xl lg:px-8">
     <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Featured Products</h2>
     <p class="mt-2 text-base sm:text-lg leading-7 lg:leading-8 text-gray-600">Hand-picked essentials for your health and wellness.</p>
 
-    <!-- The Grid now loops through 'featured_products' from your view -->
     <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 xl:gap-x-8">
       
       {% for product in featured_products %}
@@ -123,7 +116,6 @@
           </div>
         </a>
       {% empty %}
-        <!-- This message shows if you haven't marked any products as 'featured' -->
         <div class="col-span-full text-center text-gray-500">
           <p class="text-sm sm:text-base">Featured products will be displayed here soon. Please check back later!</p>
         </div>
