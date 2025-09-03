@@ -1,6 +1,6 @@
 # onlineStore/urls.py
 
-from django.urls import path
+from django.urls import include,path
 from . import views
 
 app_name = 'onlineStore' # Good practice to keep app_name
@@ -12,4 +12,7 @@ urlpatterns = [
     # FIX: Corrected view name from `view_product_detail` to `product_detail`
     # FIX: Changed URL parameter from `<int:id>` to `<int:pk>` to match the view
     path('products/<int:pk>/', views.product_detail, name='product_detail'), 
+
+    # Include accounts URLs for login/logout
+    path('accounts/', include('accounts.urls')),
 ]

@@ -71,7 +71,12 @@
                     <a href="#" class="text-sm/6 font-semibold text-gray-900">About us</a>
                 </div>
                 <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-                    <a href="#" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+                    {% if user.is_authenticated and user.role == 'customer' %}
+                        <span class="welcome-text mr-4">Hey, {{ user.first_name|default:user.username }}!</span>
+                        <a href="{% url 'customer_logout' %}" class="text-sm/6 font-semibold text-red-500">Logout <span aria-hidden="true">&larr;</span></a>
+                    {% else %}
+                        <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+                    {% endif %}
                 </div>
             </nav> 
             <!-- <nav aria-label="Global" class="flex items-center justify-between p-3 lg:px-8 bg-indigo-600 rounded-full shadow-lg mx-4 my-3">
