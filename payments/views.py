@@ -13,15 +13,31 @@ from weasyprint import HTML
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from payments.models import Payment  # Import your Payment model
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+def is_cashier(user):
+    """Check if user is a cashier"""
+    return user.groups.filter(name='Cashier').exists() or user.is_staff
+
 @login_required
+# @user_passes_test(is_cashier)
 def cashier_dashboard(request):
     """Cashier dashboard view"""
+    # Get payment count
+    payment_count = Payment.objects.count()
+    
     context = {
         'user': request.user,
+        'payment_count': payment_count,
+        # Add more context data here as needed
     }
     return render(request, 'cashier/cashier_dashboard.html', context)
+
+
+
+
 
 def checkout_prescription(request, pk):
    
