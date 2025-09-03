@@ -9,13 +9,13 @@ class MedicineForm(forms.ModelForm):
         max_length=5,
         required=True,
         label="Medicine Code",
-        widget=forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     batch_date = forms.CharField(
         max_length=8,
         required=True,
         label="Batch Date",
-        widget=forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     supplier_code = forms.CharField(
         max_length=20,
