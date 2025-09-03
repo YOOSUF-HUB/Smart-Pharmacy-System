@@ -247,7 +247,7 @@ class CustomLoginView(LoginView):
 class CustomerLoginView(LoginView):
     template_name = 'accounts/customer_login.html'
     redirect_authenticated_user = True
-    success_url = reverse_lazy('customer_dashboard')
+    success_url = reverse_lazy('onlineStore:homepage')
     
     def form_valid(self, form):
         """Check if the user is a customer before logging in"""
@@ -258,7 +258,7 @@ class CustomerLoginView(LoginView):
         return super().form_valid(form)
         
     def get_success_url(self):
-        return reverse_lazy('customer_dashboard')
+        return reverse_lazy('onlineStore:homepage')
 
 @admin_required
 @never_cache
