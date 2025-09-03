@@ -75,6 +75,12 @@
             {% for e in form.category.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
           </div>
           <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Medicine Type *</label>
+            {% render_field form.medicine_type class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %}
+            {% for e in form.medicine_type.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+            <p class="text-[11px] text-slate-500 mt-1">RX = Prescription, OTC = Over-the-Counter</p>
+          </div>
+          <div>
             <label class="block text-xs font-medium text-slate-600 mb-1">Dosage</label>
             {% render_field form.dosage class+="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g. 500mg" %}
             {% for e in form.dosage.errors %}<p class="text-rose-600 text-xs mt-1">{{ e }}</p>{% endfor %}
