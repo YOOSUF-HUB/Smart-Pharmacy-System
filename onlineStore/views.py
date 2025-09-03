@@ -139,16 +139,15 @@ from django.db.models.functions import Coalesce
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 
-# NOTE: Moved inventory imports to the top for better practice
 from Medicine_inventory.models import Medicine
 from Non_Medicine_inventory.models import NonMedicalProduct
 
 
-# Customer required decorator
+# Customer required
 def customer_required(view_func):
     return user_passes_test(lambda u: u.is_authenticated and u.role == "customer")(view_func)
 
-# Homepage view (Your code was fine)
+# Homepage view
 def online_store_homepage(request):
     featured_products = Product.objects.filter(
         featured=True, 
@@ -160,7 +159,7 @@ def online_store_homepage(request):
     }
     return render(request, 'onlineStore/homepage.html', context)
 
-# Product listing view (Refactored for performance and clarity)
+# Product listing view
 def products(request):
     products = Product.objects.filter(available_online=True).select_related(
         'medicine', 'non_medical_product'
@@ -169,7 +168,6 @@ def products(request):
     product_type = request.GET.get('type', '')
     category = request.GET.get('category', '')
     search_query = request.GET.get('search', '').strip()
-    sort_by = request.GET.get('sort', 'name')
     
     if product_type:
         products = products.filter(product_type=product_type)
@@ -189,22 +187,9 @@ def products(request):
             Q(non_medical_product__brand__icontains=search_query)
         )
     
-    # --- PERFORMANCE FIX: Sort in the database, not in Python ---
-    # Annotate creates a temporary column in the database for sorting.
-    # Coalesce picks the first non-null value, unifying the fields.
-    products = products.annotate(
-        current_price=Coalesce('medicine__selling_price', 'non_medical_product__selling_price'),
-        current_name=Coalesce('medicine__name', 'non_medical_product__name')
-    )
 
-    if sort_by == 'price_low':
-        products = products.order_by('current_price')
-    elif sort_by == 'price_high':
-        products = products.order_by('-current_price')
-    else: # Default sort by name
-        products = products.order_by('current_name')
     
-    # Get categories for filter dropdown
+    # Get categories for category filter dropdown
     medicine_categories = Medicine.CATEGORY_CHOICES
     non_medical_categories = NonMedicalProduct.CATEGORY_CHOICES
     
@@ -215,18 +200,13 @@ def products(request):
         'current_type': product_type,
         'current_category': category,
         'search_query': search_query,
-        'current_sort': sort_by,
     }
     
     return render(request, 'onlineStore/products.html', context)
 
 
-# Product detail view (Simplified)
-
+# Product detail view 
 def product_detail(request, pk):
-    """
-    Display detailed information about a specific product.
-    """
     product = get_object_or_404(
         Product.objects.select_related('medicine', 'non_medical_product'), 
         pk=pk, 
@@ -263,12 +243,10 @@ def product_detail(request, pk):
 
 @customer_required
 def add_to_cart(request, pk):
-    """Add a product to the shopping cart"""
     if request.method == 'POST':
         product = get_object_or_404(Product, pk=pk, available_online=True)
-        quantity = int(request.POST.get('quantity', 1))
+        quantity = int(request.POST.get('quantity'))
         
-        # Validate quantity
         if quantity <= 0:
             messages.error(request, "Invalid quantity")
             return redirect('onlineStore:product_detail', pk=pk)
@@ -277,10 +255,10 @@ def add_to_cart(request, pk):
             messages.error(request, f"Only {product.stock} items available in stock")
             return redirect('onlineStore:product_detail', pk=pk)
         
-        # Get or create cart for user (using customer_user field)
+        # create cart 
         cart, created = Cart.objects.get_or_create(customer_user=request.user)
         
-        # Get or create cart item
+        # create cart item
         cart_item, item_created = CartItem.objects.get_or_create(
             cart=cart,
             product=product,
@@ -288,7 +266,7 @@ def add_to_cart(request, pk):
         )
         
         if not item_created:
-            # Item already exists, update quantity
+            # if item already exists, update quantity
             new_quantity = cart_item.quantity + quantity
             if new_quantity > product.stock:
                 messages.error(request, f"Cannot add more. Only {product.stock} items available")
@@ -305,9 +283,8 @@ def add_to_cart(request, pk):
 
 @customer_required
 def cart_view(request):
-    """Display the shopping cart"""
     try:
-        cart = Cart.objects.get(customer_user=request.user)  # Changed to customer_user
+        cart = Cart.objects.get(customer_user=request.user)  
         cart_items = cart.items.all()
     except Cart.DoesNotExist:
         cart = None
@@ -323,7 +300,6 @@ def cart_view(request):
 
 @customer_required
 def update_cart_item(request, item_id):
-    """Update quantity of cart item"""
     if request.method == 'POST':
         cart_item = get_object_or_404(CartItem, id=item_id, cart__customer_user=request.user)  # Changed to customer_user
         quantity = int(request.POST.get('quantity', 1))
@@ -342,7 +318,6 @@ def update_cart_item(request, item_id):
 
 @customer_required
 def remove_from_cart(request, item_id):
-    """Remove item from cart"""
     cart_item = get_object_or_404(CartItem, id=item_id, cart__customer_user=request.user)  # Changed to customer_user
     product_name = cart_item.product.name
     cart_item.delete()

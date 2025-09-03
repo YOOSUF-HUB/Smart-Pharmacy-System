@@ -11,12 +11,7 @@
         <!-- This form submits a GET request, reloading the page with filter parameters in the URL -->
         <form method="get" class="w-full bg-white  rounded-lg p-6 space-y-6">
           
-          <!-- Search Box -->
-          <div>
-            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
-            <input type="text" name="search" id="search" value="{{ search_query|default:'' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., Panadol">
-          </div>
-
+          
           <!-- Product Type Filter -->
           <div>
             <label class="block text-lg font-semibold mb-2">Product Type</label>
@@ -26,12 +21,10 @@
                 All
               </label>
               <label class="flex items-center gap-2">
-                <!-- FIX: Change value to 'Medicine' (capital M) -->
                 <input type="radio" name="type" value="Medicine" {% if current_type == 'Medicine' %}checked{% endif %} class="form-radio text-indigo-600">
                 Medicine
               </label>
               <label class="flex items-center gap-2">
-                <!-- FIX: Change value to 'NonMedicalProduct' -->
                 <input type="radio" name="type" value="NonMedicalProduct" {% if current_type == 'NonMedicalProduct' %}checked{% endif %} class="form-radio text-indigo-600">
                 Non-Medical
               </label>
@@ -56,15 +49,7 @@
             </select>
           </div>
 
-          <!-- Sort By Filter -->
-          <div>
-              <label for="sort" class="block text-lg font-semibold mb-2">Sort By</label>
-              <select name="sort" id="sort" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                  <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Name</option>
-                  <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-                  <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-              </select>
-          </div>
+          
 
           <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
             Apply Filters

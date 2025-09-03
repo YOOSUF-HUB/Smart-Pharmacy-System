@@ -3,7 +3,7 @@ from django.db import models
 from Medicine_inventory.models import Medicine
 from Non_Medicine_inventory.models import NonMedicalProduct
 
-# Unified Products model to represent both Medicine and Non-Medical Products
+# Model to represent both Medicine and Non-Medicines
 class Product(models.Model):
     PRODUCT_TYPE_CHOICES = [
         ('Medicine', 'Medicine'),
@@ -30,7 +30,6 @@ class Product(models.Model):
             return f"{self.non_medical_product.name}"
         return "Unknown Product"
 
-    # Unified display fields for templates and views
     @property
     def name(self):
         if self.product_type == 'Medicine' and self.medicine:
@@ -98,14 +97,14 @@ class Cart(models.Model):
     def total_price(self):
         return sum(item.total_price for item in self.items.all())
 
-# CartItem links products to cart with quantity
+# CartItem adds products to cart 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
     class Meta:
-        unique_together = ('cart', 'product')  # Prevent duplicate items
+        unique_together = ('cart', 'product')  #to prevent duplicate items
 
     def __str__(self):
         return f"CartItem({self.product.name}, Qty: {self.quantity})"
@@ -133,12 +132,12 @@ class Order(models.Model):
     def __str__(self):
         return f"Order({self.customer_user.username}, {self.created_at})"
 
-# Individual order items
+# OrderItem adds products to Order
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # snapshot of price at order time
+    price = models.DecimalField(max_digits=10, decimal_places=2)  
 
     def __str__(self):
         return f"OrderItem({self.product.name}, Qty: {self.quantity})"
