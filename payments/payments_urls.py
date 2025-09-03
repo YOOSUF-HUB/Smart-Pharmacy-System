@@ -12,4 +12,8 @@ urlpatterns = [
     path('list/<int:pk>/', views.payment_detail, name='payment_detail'),
     path('<int:pk>/invoice/', views.generate_invoice_pdf, name='generate_invoice_pdf'),
     path('<int:pk>/send-invoice/', views.send_invoice_email, name='send_invoice_email'),
+    
+
+    #cashier
+    path('cashier/dashboard/', views.cashier_dashboard, name='cashier_dashboard'),
 ]

@@ -12,8 +12,16 @@ from django.core.paginator import Paginator
 from weasyprint import HTML
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
-
+from django.contrib.auth.decorators import login_required
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+@login_required
+def cashier_dashboard(request):
+    """Cashier dashboard view"""
+    context = {
+        'user': request.user,
+    }
+    return render(request, 'cashier/cashier_dashboard.html', context)
 
 def checkout_prescription(request, pk):
    

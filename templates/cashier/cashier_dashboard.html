@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashier Dashboard - MediSync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: all 0.3s ease-in-out;
+        }
+        .hover-scale {
+            transition: transform 0.2s ease-in-out;
+        }
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-blue-600">
+                            <i class="fas fa-hospital mr-2"></i>MediSync
+                        </h1>
+                    </div>
+                    <div class="ml-10">
+                        <span class="text-gray-700 font-medium">Cashier Dashboard</span>
+                    </div>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-user-circle text-gray-500 text-xl"></i>
+                        <span class="text-gray-700">{{ user.username|title }}</span>
+                    </div>
+                    
+                    <!-- Logout Button -->
+                    <a href="{% url 'logout' %}" 
+                       class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center space-x-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Welcome Section -->
+        <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-cash-register text-blue-500 text-3xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Welcome back,</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ user.get_full_name|default:user.username }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Today's Sales -->
+            <div class="bg-white overflow-hidden shadow rounded-lg hover-scale">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-dollar-sign text-green-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Today's Sales</dt>
+                                <dd class="text-lg font-medium text-gray-900">$0.00</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions -->
+            <div class="bg-white overflow-hidden shadow rounded-lg hover-scale">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-receipt text-blue-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Transactions</dt>
+                                <dd class="text-lg font-medium text-gray-900">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Orders -->
+            <div class="bg-white overflow-hidden shadow rounded-lg hover-scale">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock text-yellow-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Pending Orders</dt>
+                                <dd class="text-lg font-medium text-gray-900">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Time -->
+            <div class="bg-white overflow-hidden shadow rounded-lg hover-scale">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock text-purple-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Current Time</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="current-time">--:--</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Process Sale -->
+            <div class="bg-white overflow-hidden shadow rounded-lg hover-scale cursor-pointer">
+                <div class="p-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <i class="fas fa-shopping-cart text-green-500 text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 text-center mb-2">Process Sale</h3>
+                    <p class="text-sm text-gray-500 text-center">Handle customer purchases and payments</p>
+                </div>
+            </div>
+
+            <!-- View Inventory -->
+            <div class="bg-white overflow-hidden shadow rounded-lg hover-scale cursor-pointer">
+                <div class="p-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <i class="fas fa-boxes text-blue-500 text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 text-center mb-2">View Inventory</h3>
+                    <p class="text-sm text-gray-500 text-center">Check product availability and stock levels</p>
+                </div>
+            </div>
+
+            <!-- Customer Management -->
+            <div class="bg-white overflow-hidden shadow rounded-lg hover-scale cursor-pointer">
+                <div class="p-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <i class="fas fa-users text-purple-500 text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 text-center mb-2">Customer Info</h3>
+                    <p class="text-sm text-gray-500 text-center">Manage customer information and history</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    <i class="fas fa-history mr-2 text-gray-500"></i>Recent Activity
+                </h3>
+                <div class="text-center py-8">
+                    <i class="fas fa-inbox text-gray-300 text-4xl mb-4"></i>
+                    <p class="text-gray-500">No recent activity to display</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <p class="text-sm text-gray-500">
+                    © 2025 MediSync Pharmacy Management System
+                </p>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">Logged in as: {{ user.username }}</span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-circle text-green-400 mr-1" style="font-size: 8px;"></i>
+                        Online
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for real-time clock -->
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('current-time').textContent = timeString;
+        }
+        
+        // Update time immediately and then every second
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Add click animations to action cards
+        document.querySelectorAll('.hover-scale').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1.02)';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
