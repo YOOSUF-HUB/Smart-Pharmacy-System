@@ -33,4 +33,5 @@ urlpatterns = [
     path("dashboard/admin/customers/", views.customer_list, name="customer_list"),
     path('dashboard/admin/customers/<int:customer_id>/', views.customer_detail, name='customer_detail'),
     path('dashboard/admin/staff_detail/<int:staff_id>/', views.staff_detail, name='staff_detail'),
+    path('customer-logout/', views.customer_logout_view, name='customer_logout'),
 ]

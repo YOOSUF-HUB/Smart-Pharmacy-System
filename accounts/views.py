@@ -260,6 +260,28 @@ class CustomerLoginView(LoginView):
     def get_success_url(self):
         return reverse_lazy('onlineStore:homepage')
 
+@never_cache
+def customer_logout_view(request):
+    """Custom logout view for customers with success message"""
+    if request.user.is_authenticated and request.user.role == 'customer':
+        username = request.user.first_name or request.user.username
+        logout(request)
+        messages.success(
+            request, f"Goodbye {username}! You have been successfully logged out.")
+    else:
+        logout(request)
+        messages.info(request, "You have been logged out.")
+
+    response = redirect('onlineStore:homepage')
+    # Set cache control headers
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
+
+
+
+
 @admin_required
 @never_cache
 def staff_detail(request, staff_id):
