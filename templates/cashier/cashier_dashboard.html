@@ -91,7 +91,7 @@
             </div>
 
             <!-- Transactions -->
-            <div class="bg-white overflow-hidden shadow rounded-lg hover-scale">
+            <a href="{% url 'payment_list' %}" class="block bg-white overflow-hidden shadow rounded-lg hover-scale hover:shadow-lg transition-all duration-200 transform hover:bg-gray-50">
                 <div class="p-5">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -103,9 +103,12 @@
                                 <dd class="text-lg font-medium text-gray-900">0</dd>
                             </dl>
                         </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-arrow-right text-gray-400 text-sm"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
 
             <!-- Pending Orders -->
             <div class="bg-white overflow-hidden shadow rounded-lg hover-scale">
