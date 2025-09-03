@@ -14,4 +14,3 @@ class NonMedicalProductAdmin(admin.ModelAdmin):
     list_filter = ['category', 'is_active', 'brand']
     ordering = ['name', 'brand']
     readonly_fields = ['created_at', 'updated_at', 'slug']
-    prepopulated_fields = {'slug': ('name',)}

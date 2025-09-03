@@ -66,7 +66,7 @@ class Product(models.Model):
         if self.product_type == 'Medicine' and self.medicine:
             return self.medicine.quantity_in_stock
         elif self.product_type == 'NonMedicalProduct' and self.non_medical_product:
-            return self.non_medical_product.quantity_in_stock
+            return self.non_medical_product.stock
         return 0
 
     @property
