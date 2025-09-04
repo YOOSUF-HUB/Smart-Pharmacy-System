@@ -470,4 +470,169 @@ def order_confirmation(request, order_id):
     
     return render(request, 'onlineStore/orderConfirmation.html', context)
 
-# ...existing code...
+
+
+
+
+##PAYMENT GATE WAY VIEWS
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+import json
+
+# Configure Stripe
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+# Update your process_checkout function
+def process_checkout(request, cart, cart_items, customer):
+    """Process the checkout form submission"""
+    
+    # 1-4. Existing validation code...
+    first_name = request.POST.get('first-name', '').strip()
+    last_name = request.POST.get('last-name', '').strip()
+    email = request.POST.get('email', '').strip()
+    phone = request.POST.get('phone', '').strip()
+    address = request.POST.get('address', '').strip()
+    city = request.POST.get('city', '').strip()
+    postal_code = request.POST.get('postal-code', '').strip()
+    country = request.POST.get('country', '').strip()
+    update_profile = request.POST.get('update_profile', False)
+    
+    # Validation code (same as before)...
+    if not all([first_name, last_name, email, address, city]):
+        messages.error(request, "Please fill in all required fields")
+        return redirect('onlineStore:checkout')
+    
+    if '@' not in email:
+        messages.error(request, "Please enter a valid email address")
+        return redirect('onlineStore:checkout')
+    
+    for item in cart_items:
+        if item.quantity > item.product.stock:
+            messages.error(request, f"Sorry, only {item.product.stock} units of {item.product.name} available")
+            return redirect('onlineStore:cart')
+    
+    try:
+        # 5. Update customer profile if requested (same as before)...
+        
+        # 6. Create Order FIRST (before payment)
+        order = Order.objects.create(
+            customer_user=request.user,
+            total_amount=cart.total_price,
+            status='Pending',
+            payment_status='pending',
+            shipping_first_name=first_name,
+            shipping_last_name=last_name,
+            shipping_email=email,
+            shipping_phone=phone,
+            shipping_address=address,
+            shipping_city=city,
+            shipping_postal_code=postal_code,
+            shipping_country=country,
+        )
+        
+        # 7. Create OrderItems (before payment)
+        for cart_item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                price=cart_item.product.price
+            )
+        
+        # 8. REDIRECT TO PAYMENT PAGE instead of completing order
+        return redirect('onlineStore:payment', order_id=order.order_id)
+        
+    except Exception as e:
+        messages.error(request, f"There was an error processing your order: {str(e)}")
+        return redirect('onlineStore:checkout')
+
+
+@customer_required
+def payment_view(request, order_id):
+    """Display payment page with Stripe integration"""
+    order = get_object_or_404(Order, order_id=order_id, customer_user=request.user, status='Pending')
+    
+    try:
+        # Create Stripe PaymentIntent
+        intent = stripe.PaymentIntent.create(
+            amount=int(order.total_amount * 100),  # Stripe uses cents
+            currency='lkr',  # Sri Lankan Rupee
+            metadata={
+                'order_id': order.order_id,
+                'customer_email': order.shipping_email,
+            }
+        )
+        
+        # Save the payment intent ID
+        order.stripe_payment_intent_id = intent.id
+        order.save()
+        
+        context = {
+            'order': order,
+            'client_secret': intent.client_secret,
+            'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY,
+        }
+        
+        return render(request, 'onlineStore/payment.html', context)
+        
+    except Exception as e:
+        messages.error(request, f"Payment setup failed: {str(e)}")
+        return redirect('onlineStore:checkout')
+
+
+@customer_required
+def payment_success(request, order_id):
+    """Handle successful payment"""
+    order = get_object_or_404(Order, order_id=order_id, customer_user=request.user)
+    
+    try:
+        # Verify payment with Stripe
+        if order.stripe_payment_intent_id:
+            intent = stripe.PaymentIntent.retrieve(order.stripe_payment_intent_id)
+            
+            if intent.status == 'succeeded':
+                # Payment successful - complete the order
+                order.status = 'Paid'
+                order.payment_status = 'succeeded'
+                order.save()
+                
+                # Now update inventory
+                cart = Cart.objects.get(customer_user=request.user)
+                for order_item in order.items.all():
+                    if order_item.product.product_type == 'Medicine':
+                        medicine = order_item.product.medicine
+                        medicine.quantity_in_stock -= order_item.quantity
+                        medicine.save()
+                    elif order_item.product.product_type == 'NonMedicalProduct':
+                        non_medical = order_item.product.non_medical_product
+                        non_medical.stock -= order_item.quantity
+                        non_medical.save()
+                
+                # Clear cart
+                cart.items.all().delete()
+                
+                messages.success(request, f"Payment successful! Order #{order.order_id} confirmed.")
+                return redirect('onlineStore:order_confirmation', order_id=order.order_id)
+            else:
+                order.payment_status = 'failed'
+                order.status = 'Payment_Failed'
+                order.save()
+                messages.error(request, "Payment was not completed. Please try again.")
+                return redirect('onlineStore:payment', order_id=order.order_id)
+                
+    except Exception as e:
+        messages.error(request, f"Payment verification failed: {str(e)}")
+        return redirect('onlineStore:payment', order_id=order.order_id)
+
+
+@customer_required 
+def payment_cancel(request, order_id):
+    """Handle cancelled payment"""
+    order = get_object_or_404(Order, order_id=order_id, customer_user=request.user)
+    order.status = 'Payment_Failed'
+    order.payment_status = 'cancelled'
+    order.save()
+    
+    messages.warning(request, "Payment was cancelled. You can try again.")
+    return redirect('onlineStore:cart')

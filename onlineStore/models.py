@@ -128,6 +128,10 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=ORDER_STATUS, default='Pending')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    # Payment fields
+    stripe_payment_intent_id = models.CharField(max_length=200, blank=True, null=True)
+    payment_status = models.CharField(max_length=50, default='pending')  # pending, succeeded, failed
     
     # Add shipping address - use existing Customer model fields
     shipping_first_name = models.CharField(max_length=100, blank=True)
