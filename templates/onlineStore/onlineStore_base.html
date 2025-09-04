@@ -19,7 +19,7 @@
             </button> -->
             
         <header class="absolute inset-x-0 top-0 z-50">
-            <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8 shadow-xl border-b-4 bg-white bg-opacity-80  fixed w-full" style="border-color: #00eebc;">
+            <!-- <nav aria-label="Global" class="flex items-center justify-between p-6 lg:px-8 shadow-xl border-b-4 bg-white bg-opacity-80  fixed w-full" style="border-color: #00eebc;">
                 <div class="flex lg:flex-1">
                     <a href="#" class="-m-1.5 p-1.5">
                     <img src="{% static 'MediSyn_logo/1.png' %}" alt="" class="h-16 w-auto" />
@@ -41,11 +41,36 @@
                     <a href="#" class="text-sm/6 font-semibold text-gray-900">About us</a>
                 </div>
                                 
+                
+            </nav> -->
+            <nav aria-label="Global"
+            class="flex items-center justify-between p-3 lg:px-8 bg-indigo-600 rounded-full shadow-lg my-5 border-b-2 fixed  sm:right-10 sm:left-10 left-3 right-3"
+            style="border-color: #00eebc;">
+
+                <div class="flex lg:flex-1 ">
+                    <a href="#" class="-m-1.5 p-1.5">
+                    <img src="{% static 'MediSyn_logo/2.png' %}" alt="" class="h-14 lg:h-16 w-auto " />
+                    </a>
+                    <span class="justify-center items-center  flex lg:text-3xl text-2xl font-semibold" style="color: #00eebc;">MediSync</span>
+                </div>
+                <div class="flex lg:hidden">
+                    <button type="button" command="show-modal" commandfor="mobile-menu" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0,0,256,256">
+                        <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M0,7.5v5h50v-5zM0,22.5v5h50v-5zM0,37.5v5h50v-5z"></path></g></g>
+                        </svg>
+                    </button>
+                </div>
+                <div class="hidden lg:flex lg:gap-x-12">
+                    <a href="/online-store/" class="text-sm/6 font-semibold text-white">Home</a>
+                    <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-white">Product</a>
+                    <a href="#" class="text-sm/6 font-semibold text-white">Contact us</a>
+                    <a href="#" class="text-sm/6 font-semibold text-white">About us</a>
+                </div>
                 <div class="hidden lg:flex lg:flex-1 lg:justify-end items-center space-x-6">
                     {% if user.is_authenticated and user.role == 'customer' %}
                         
                         <!-- Cart Icon -->
-                        <a href="{% url 'onlineStore:cart' %}" class="relative text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                        <a href="{% url 'onlineStore:cart' %}" class="relative text-white hover:text-gray-100 transition-colors duration-200">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
@@ -58,7 +83,7 @@
 
                         <!-- Profile Dropdown -->
                         <div class="relative">
-                            <button onclick="toggleDropdown()" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">
+                            <button onclick="toggleDropdown()" class="flex items-center space-x-2 text-white hover:text-gray-100 focus:outline-none">
                                 <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
@@ -84,47 +109,15 @@
 
                     {% else %}
                         <!-- Login / Signup for guests -->
-                        <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-gray-900 hover:text-gray-700 transition-colors duration-200">
+                        <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-white hover:text-gray-100 transition-colors duration-200">
                             Log in <span aria-hidden="true">&rarr;</span>
                         </a>
-                        <a href="{% url 'customer_register' %}" class="text-sm/6 font-semibold text-gray-900 hover:text-gray-700 transition-colors duration-200 ml-4">
+                        <a href="{% url 'customer_register' %}" class="text-sm/6 font-semibold text-white hover:text-gray-100 transition-colors duration-200 ml-4">
                             Sign up <span aria-hidden="true">&rarr;</span>
                         </a>
                     {% endif %}
                 </div>
             </nav>
-            <!-- <nav aria-label="Global"
-            class="flex items-center justify-between p-3 lg:px-8 bg-indigo-600 rounded-full shadow-lg my-5 border-b-2 fixed  sm:right-10 sm:left-10 left-3 right-3"
-            style="border-color: #00eebc;">
-
-                <div class="flex lg:flex-1 ">
-                    <a href="#" class="-m-1.5 p-1.5">
-                    <img src="{% static 'MediSyn_logo/2.png' %}" alt="" class="h-14 lg:h-16 w-auto " />
-                    </a>
-                    <span class="justify-center items-center  flex lg:text-3xl text-2xl font-semibold" style="color: #00eebc;">MediSync</span>
-                </div>
-                <div class="flex lg:hidden">
-                    <button type="button" command="show-modal" commandfor="mobile-menu" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 mr-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0,0,256,256">
-                        <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M0,7.5v5h50v-5zM0,22.5v5h50v-5zM0,37.5v5h50v-5z"></path></g></g>
-                        </svg>
-                    </button>
-                </div>
-                <div class="hidden lg:flex lg:gap-x-12">
-                    <a href="/online-store/" class="text-sm/6 font-semibold text-white">Home</a>
-                    <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-white">Product</a>
-                    <a href="#" class="text-sm/6 font-semibold text-white">Contact us</a>
-                    <a href="#" class="text-sm/6 font-semibold text-white">About us</a>
-                </div>
-                <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-                    {% if user.is_authenticated and user.role == 'customer' %}
-                        <span class="welcome-text mr-4" style="color: #00eebc;">Hey, {{ user.first_name|default:user.username }}!</span>
-                        <a href="{% url 'customer_logout' %}" class="text-sm/6 font-semibold text-white">Logout <span aria-hidden="true">&larr;</span></a>
-                    {% else %}
-                        <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-white">Log in <span aria-hidden="true">&rarr;</span></a>
-                    {% endif %}
-                </div>
-            </nav> -->
             <el-dialog>
             <dialog id="mobile-menu" class="backdrop:bg-transparent lg:hidden">
                 <div tabindex="0" class="fixed inset-0 focus:outline-none">
