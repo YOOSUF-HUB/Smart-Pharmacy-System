@@ -131,8 +131,9 @@
 
 # onlineStore/views.py
 
+from multiprocessing import context
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import Cart, Product, CartItem
+from .models import Cart, Order, Product, CartItem, OrderItem
 from django.db.models import Q
 from django.db.models.functions import Coalesce
 
@@ -323,3 +324,150 @@ def remove_from_cart(request, item_id):
     cart_item.delete()
     messages.success(request, f"Removed {product_name} from cart")
     return redirect('onlineStore:cart')
+
+
+
+# ...existing code...
+
+from accounts.models import Customer
+
+@customer_required
+def checkout_view(request):
+    try:
+        cart = Cart.objects.get(customer_user=request.user)
+        cart_items = cart.items.all()
+    except Cart.DoesNotExist:
+        messages.error(request, "Your cart is empty")
+        return redirect('onlineStore:cart')
+    
+    # Check if cart is empty
+    if not cart_items:
+        messages.error(request, "Your cart is empty")
+        return redirect('onlineStore:cart')
+    
+    # Get or create customer profile
+    customer, created = Customer.objects.get_or_create(user=request.user)
+    
+    # Handle POST request (form submission)
+    if request.method == 'POST':
+        return process_checkout(request, cart, cart_items, customer)
+    
+    # Show checkout form (GET request)
+    context = {
+        'cart': cart,
+        'cart_items': cart_items,
+        'cart_total': cart.total_price,
+        'customer': customer,  # Pass customer data to pre-fill form
+    }
+    return render(request, 'onlineStore/checkout.html', context)
+
+
+def process_checkout(request, cart, cart_items, customer):
+    """Process the checkout form submission"""
+    
+    # 1. Extract form data from POST request
+    first_name = request.POST.get('first-name', '').strip()
+    last_name = request.POST.get('last-name', '').strip()
+    email = request.POST.get('email', '').strip()
+    phone = request.POST.get('phone', '').strip()
+    address = request.POST.get('address', '').strip()
+    city = request.POST.get('city', '').strip()
+    postal_code = request.POST.get('postal-code', '').strip()
+    country = request.POST.get('country', '').strip()
+    
+    # Option: Update customer profile with new shipping info
+    update_profile = request.POST.get('update_profile', False)
+    
+    # 2. Validate required form data
+    if not all([first_name, last_name, email, address, city]):
+        messages.error(request, "Please fill in all required fields")
+        return redirect('onlineStore:checkout')
+    
+    # 3. Validate email format
+    if '@' not in email:
+        messages.error(request, "Please enter a valid email address")
+        return redirect('onlineStore:checkout')
+    
+    # 4. Check stock availability
+    for item in cart_items:
+        if item.quantity > item.product.stock:
+            messages.error(request, f"Sorry, only {item.product.stock} units of {item.product.name} available")
+            return redirect('onlineStore:cart')
+    
+    try:
+        # 5. Update customer profile if requested
+        if update_profile:
+            customer.phone = phone
+            customer.address = address
+            customer.city = city
+            customer.postal_code = postal_code
+            customer.country = country
+            customer.save()
+            
+            # Update user info too
+            request.user.first_name = first_name
+            request.user.last_name = last_name
+            request.user.email = email
+            request.user.save()
+        
+        # 6. Create Order with shipping info
+        order = Order.objects.create(
+            customer_user=request.user,
+            #cart=cart,
+            total_amount=cart.total_price,
+            status='Pending',
+            shipping_first_name=first_name,
+            shipping_last_name=last_name,
+            shipping_email=email,
+            shipping_phone=phone,
+            shipping_address=address,
+            shipping_city=city,
+            shipping_postal_code=postal_code,
+            shipping_country=country,
+        )
+        
+        # 7. Create OrderItems and Update Stock
+        for cart_item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                price=cart_item.product.price
+            )
+            
+            # Update inventory
+            if cart_item.product.product_type == 'Medicine':
+                medicine = cart_item.product.medicine
+                medicine.quantity_in_stock -= cart_item.quantity
+                medicine.save()
+            elif cart_item.product.product_type == 'NonMedicalProduct':
+                non_medical = cart_item.product.non_medical_product
+                non_medical.stock -= cart_item.quantity
+                non_medical.save()
+        
+        # 8. Clear the cart after successful order
+        cart_items.delete()
+        
+        # 9. Success message
+        messages.success(request, f"Order #{order.order_id} placed successfully!")
+        
+        # 10. Redirect to confirmation
+        return redirect('onlineStore:order_confirmation', order_id=order.order_id)
+        
+    except Exception as e:
+        messages.error(request, f"There was an error processing your order: {str(e)}")
+        return redirect('onlineStore:checkout')
+
+
+@customer_required
+def order_confirmation(request, order_id):
+    """Display order confirmation page"""
+    order = get_object_or_404(Order, order_id=order_id, customer_user=request.user)
+    
+    context = {
+        'order': order,
+    }
+    
+    return render(request, 'onlineStore/orderConfirmation.html', context)
+
+# ...existing code...

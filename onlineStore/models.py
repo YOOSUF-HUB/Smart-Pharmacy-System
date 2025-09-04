@@ -124,14 +124,24 @@ class Order(models.Model):
 
     order_id = models.AutoField(primary_key=True)
     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
+    #cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=ORDER_STATUS, default='Pending')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Add shipping address - use existing Customer model fields
+    shipping_first_name = models.CharField(max_length=100, blank=True)
+    shipping_last_name = models.CharField(max_length=100, blank=True)
+    shipping_email = models.EmailField(blank=True)
+    shipping_phone = models.CharField(max_length=15, blank=True)
+    shipping_address = models.TextField(blank=True)
+    shipping_city = models.CharField(max_length=100, blank=True)
+    shipping_postal_code = models.CharField(max_length=20, blank=True)
+    shipping_country = models.CharField(max_length=100, default='Sri Lanka')
 
     def __str__(self):
-        return f"Order({self.customer_user.username}, {self.created_at})"
-
+        return f"Order #{self.order_id} - {self.customer_user.username}"
+    
 # OrderItem adds products to Order
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')

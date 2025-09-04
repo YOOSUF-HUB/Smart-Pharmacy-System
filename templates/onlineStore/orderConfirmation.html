@@ -1,0 +1,30 @@
+{% extends 'onlineStore/onlineStore_base.html' %}
+{% block title %}Order Confirmation - MediSync{% endblock %}
+
+{% block content %}
+<div class="bg-white pt-28 pb-16">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <svg class="mx-auto h-16 w-16 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h1 class="mt-4 text-3xl font-bold text-gray-900">Order Confirmed!</h1>
+            <p class="mt-2 text-lg text-gray-600">Thank you for your order. We'll send you a confirmation email shortly.</p>
+        </div>
+
+        <div class="mt-10 bg-gray-50 rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Order Details</h2>
+            <p><strong>Order ID:</strong> #{{ order.order_id }}</p>
+            <p><strong>Status:</strong> {{ order.status }}</p>
+            <p><strong>Total Amount:</strong> Rs. {{ order.total_amount|floatformat:2 }}</p>
+            <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="{% url 'onlineStore:products' %}" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+                Continue Shopping
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
