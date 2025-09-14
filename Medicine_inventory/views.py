@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Count, F
+from django.db.models import Count, F, Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
@@ -316,6 +316,20 @@ def med_inventory_dash(request):
     nonmedical_active_count = NonMedicalProduct.objects.filter(is_active=True).count()
     nonmedical_categories_count = NonMedicalProduct.objects.values('category').distinct().count()
 
+    # Add online orders statistics
+    try:
+        from your_app.models import Order  # Replace with actual app name
+        pending_orders_count = Order.objects.filter(status='pending').count()
+        processing_orders_count = Order.objects.filter(status='processing').count()
+        total_orders_today = Order.objects.filter(created_at__date=today).count()
+        recent_orders = Order.objects.all().order_by('-created_at')[:5]
+    except ImportError:
+        # Fallback if Order model not found
+        pending_orders_count = 0
+        processing_orders_count = 0
+        total_orders_today = 0
+        recent_orders = []
+
     category_data = Medicine.objects.values('category').annotate(count=Count('id')).order_by('-count')
     category_labels = [item['category'] for item in category_data]
     category_counts = [item['count'] for item in category_data]
@@ -351,6 +365,11 @@ def med_inventory_dash(request):
         'nonmed_category_counts': nonmed_category_counts,
         'recent_medicines': recent_medicines,
         'recent_actions': recent_actions,
+        # Add online orders data
+        'pending_orders_count': pending_orders_count,
+        'processing_orders_count': processing_orders_count,
+        'total_orders_today': total_orders_today,
+        'recent_orders': recent_orders,
     }
     return render(request, 'Medicine_inventory/med_inventory_dash.html', context)
 
@@ -447,3 +466,95 @@ def medicine_update(request, pk):
     else:
         form = MedicineForm(instance=medicine)
     return render(request, 'Medicine_inventory/medicine_form.html', {'form': form, 'medicine': medicine})
+
+
+# Add these imports at the top if not already present
+from django.db.models import Q
+
+# Add these new views for online orders
+
+@pharmacist_required
+def view_online_orders(request):
+    from onlineStore.models import Order
+    
+    orders = Order.objects.all().order_by('-created_at')
+    
+    # Calculate statistics
+    total_orders = orders.count()
+    pending_orders = orders.filter(status='pending').count()
+    processing_orders = orders.filter(status='processing').count()
+    completed_orders = orders.filter(status='completed').count()
+    cancelled_orders = orders.filter(status='cancelled').count()
+    
+    # Filter by status if specified
+    status_filter = request.GET.get('status')
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+    
+    # Search functionality
+    search_query = request.GET.get('search')
+    if search_query:
+        orders = orders.filter(
+            Q(order_id__icontains=search_query) |
+            Q(customer_name__icontains=search_query) |
+            Q(customer_email__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(orders, 15)
+    page = request.GET.get('page', 1)
+    try:
+        orders = paginator.page(page)
+    except PageNotAnInteger:
+        orders = paginator.page(1)
+    except EmptyPage:
+        orders = paginator.page(paginator.num_pages)
+    
+    context = {
+        'orders': orders,
+        'current_status': status_filter,
+        'search_query': search_query,
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'processing_orders': processing_orders,
+        'completed_orders': completed_orders,
+        'cancelled_orders': cancelled_orders,
+    }
+    return render(request, 'Medicine_inventory/onlineStoreOrder.html', context)
+
+@pharmacist_required
+def order_detail(request, order_id):
+    from onlineStore.models import Order  # Replace with actual app name
+    
+    order = get_object_or_404(Order, order_id=order_id)
+    order_items = order.items.all().select_related('product')  # Changed from 'medicine' to 'product'
+    
+    # Calculate totals for each item
+    for item in order_items:
+        item.total_price = item.quantity * item.price
+    
+    context = {
+        'order': order,
+        'order_items': order_items,
+    }
+    return render(request, 'Medicine_inventory/order_detail.html', context)
+
+@pharmacist_required
+def update_order_status(request, order_id):
+    from onlineStore.models import Order  # Replace with actual app name
+    
+    order = get_object_or_404(Order, order_id=order_id)
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        # Validate status - adjust based on your model's status choices
+        valid_statuses = ['pending', 'processing', 'completed', 'cancelled']
+        if new_status in valid_statuses:
+            order.status = new_status
+            order.save()
+            messages.success(request, f"Order {order.order_id} status updated to {new_status.title()}")
+        else:
+            messages.error(request, "Invalid status selected")
+        return redirect('order_detail', order_id=order.order_id)
+    
+    return redirect('view_online_orders')
