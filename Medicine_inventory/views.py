@@ -1,8 +1,7 @@
-from datetime import datetime
-
 import base64
 import csv
 import os
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
 from django.conf import settings
@@ -20,6 +19,7 @@ from weasyprint import HTML
 from .forms import MedicineForm
 from .models import Medicine, MedicineAction
 from Non_Medicine_inventory.models import NonMedicalProduct
+
 
 
 # Role check decorator
@@ -467,11 +467,6 @@ def medicine_update(request, pk):
         form = MedicineForm(instance=medicine)
     return render(request, 'Medicine_inventory/medicine_form.html', {'form': form, 'medicine': medicine})
 
-
-# Add these imports at the top if not already present
-from django.db.models import Q
-
-# Add these new views for online orders
 
 @pharmacist_required
 def view_online_orders(request):
