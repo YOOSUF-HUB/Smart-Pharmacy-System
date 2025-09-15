@@ -25,5 +25,11 @@ urlpatterns = [
 
     # checkout functionality
     path('checkout/', views.checkout_view, name='checkout'),
-    path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation')
+
+    path('payment/<int:order_id>/', views.payment_view, name='payment'),
+    path('payment-success/<int:order_id>/', views.payment_success, name='payment_success'),
+    path('payment-cancel/<int:order_id>/', views.payment_cancel, name='payment_cancel'),
+    
+    path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    
 ]

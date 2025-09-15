@@ -1,0 +1,99 @@
+{% extends 'onlineStore/onlineStore_base.html' %}
+{% block title %}Payment - MediSync{% endblock %}
+
+{% block content %}
+<div class="bg-white pt-28 pb-16">
+    <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900 mb-8">Payment</h2>
+        
+        <!-- Order Summary -->
+        <div class="bg-gray-50 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-semibold mb-4">Order Summary</h3>
+            <div class="space-y-2">
+                <div class="flex justify-between">
+                    <span>Order #{{ order.order_id }}</span>
+                    <span>Rs. {{ order.total_amount|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between font-bold border-t pt-2">
+                    <span>Total to Pay:</span>
+                    <span>Rs. {{ order.total_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Form -->
+        <form id="payment-form" class="space-y-6">
+            {% csrf_token %}
+            <div id="payment-element">
+                <!-- Stripe Elements will create form elements here -->
+            </div>
+            <button id="submit-button" class="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+                <span id="spinner" class="hidden">Processing...</span>
+                <span id="button-text">Pay Rs. {{ order.total_amount|floatformat:2 }}</span>
+            </button>
+            <div id="payment-message" class="hidden text-red-600"></div>
+        </form>
+        
+        <div class="mt-4 text-center">
+            <a href="{% url 'onlineStore:payment_cancel' order_id=order.order_id %}" 
+               class="text-gray-600 hover:text-gray-800">Cancel Payment</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+const stripe = Stripe('{{ stripe_publishable_key }}');
+const elements = stripe.elements({
+    clientSecret: '{{ client_secret }}'
+});
+
+const paymentElement = elements.create('payment');
+paymentElement.mount('#payment-element');
+
+const form = document.getElementById('payment-form');
+form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    
+    setLoading(true);
+    
+    // FIX: Construct the return URL properly
+    const returnUrl = window.location.origin + '{% url "onlineStore:payment_success" order_id=order.order_id %}';
+    
+    const {error} = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+            return_url: returnUrl,  // Use the fixed URL
+        },
+    });
+    
+    if (error) {
+        showMessage(error.message);
+        setLoading(false);
+    }
+});
+
+// ... rest of functions remain the same ...
+function showMessage(messageText) {
+    const messageContainer = document.querySelector('#payment-message');
+    messageContainer.classList.remove('hidden');
+    messageContainer.textContent = messageText;
+}
+
+function setLoading(isLoading) {
+    const spinner = document.querySelector('#spinner');
+    const buttonText = document.querySelector('#button-text');
+    const submitButton = document.querySelector('#submit-button');
+    
+    if (isLoading) {
+        submitButton.disabled = true;
+        spinner.classList.remove('hidden');
+        buttonText.classList.add('hidden');
+    } else {
+        submitButton.disabled = false;
+        spinner.classList.add('hidden');
+        buttonText.classList.remove('hidden');
+    }
+}
+</script>
+{% endblock %}

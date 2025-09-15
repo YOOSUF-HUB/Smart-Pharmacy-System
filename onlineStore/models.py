@@ -117,6 +117,8 @@ class CartItem(models.Model):
 class Order(models.Model):
     ORDER_STATUS = [
         ('Pending', 'Pending'),
+        ('Payment_Failed', 'Payment Failed'),
+        ('Paid', 'Paid'),
         ('Shipped', 'Shipped'),
         ('Delivered', 'Delivered'),
         ('Cancelled', 'Cancelled'),
@@ -124,12 +126,15 @@ class Order(models.Model):
 
     order_id = models.AutoField(primary_key=True)
     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    #cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=ORDER_STATUS, default='Pending')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     
-    # Add shipping address - use existing Customer model fields
+    # Payment fields
+    stripe_payment_intent_id = models.CharField(max_length=200, blank=True, null=True)
+    payment_status = models.CharField(max_length=50, default='pending')
+    
+    # ADD THESE MISSING SHIPPING FIELDS:
     shipping_first_name = models.CharField(max_length=100, blank=True)
     shipping_last_name = models.CharField(max_length=100, blank=True)
     shipping_email = models.EmailField(blank=True)
