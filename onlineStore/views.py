@@ -420,7 +420,112 @@ def order_confirmation(request, order_id):
 
 
 
+# Add to onlineStore/views.py
 
+from .forms import ContactForm
+from .models import Contact
+from django.core.mail import send_mail
+from django.conf import settings
+
+def contact_view(request):
+    """Display contact form and handle submissions"""
+    if request.method == 'POST':
+        form = ContactForm(request.POST, user=request.user if request.user.is_authenticated else None)
+        
+        if form.is_valid():
+            contact = form.save(commit=False)
+            
+            # Link to user if logged in
+            if request.user.is_authenticated:
+                contact.user = request.user
+            
+            contact.save()
+            
+            # Send email notification (optional)
+            try:
+                send_contact_email(contact)
+            except Exception as e:
+                # Log email error but don't fail the form submission
+                print(f"Email sending failed: {e}")
+            
+            messages.success(request, 
+                f"Thank you {contact.name}! Your message has been sent successfully. "
+                f"We'll get back to you within 24 hours at {contact.email}."
+            )
+            return redirect('onlineStore:contact_success')
+        
+        else:
+            messages.error(request, "Please correct the errors below.")
+    
+    else:
+        form = ContactForm(user=request.user if request.user.is_authenticated else None)
+    
+    context = {
+        'form': form,
+    }
+    
+    return render(request, 'onlineStore/contact.html', context)
+
+
+def contact_success(request):
+    """Display contact form success page"""
+    return render(request, 'onlineStore/contact_success.html')
+
+
+def send_contact_email(contact):
+    """Send email notification for new contact form submission"""
+    # Email to admin/pharmacy staff
+    admin_subject = f"New Contact Form: {contact.get_inquiry_type_display()} - {contact.subject}"
+    admin_message = f"""
+    New contact form submission:
+    
+    Name: {contact.name}
+    Email: {contact.email}
+    Phone: {contact.phone}
+    Inquiry Type: {contact.get_inquiry_type_display()}
+    Subject: {contact.subject}
+    
+    Message:
+    {contact.message}
+    
+    Submitted: {contact.created_at}
+    Contact ID: {contact.contact_id}
+    """
+    
+    send_mail(
+        admin_subject,
+        admin_message,
+        settings.DEFAULT_FROM_EMAIL,
+        [settings.CONTACT_EMAIL],  # Add this to settings
+        fail_silently=True,
+    )
+    
+    # Confirmation email to customer
+    customer_subject = "Thank you for contacting MediSync"
+    customer_message = f"""
+    Dear {contact.name},
+    
+    Thank you for contacting MediSync. We have received your message regarding "{contact.subject}".
+    
+    Our team will review your inquiry and get back to you within 24 hours at this email address.
+    
+    Your inquiry details:
+    - Inquiry Type: {contact.get_inquiry_type_display()}
+    - Reference ID: {contact.contact_id}
+    
+    If you have any urgent medical questions, please contact our hotline or visit the nearest pharmacy.
+    
+    Best regards,
+    MediSync Customer Support Team
+    """
+    
+    send_mail(
+        customer_subject,
+        customer_message,
+        settings.DEFAULT_FROM_EMAIL,
+        [contact.email],
+        fail_silently=True,
+    )
 
 
 
