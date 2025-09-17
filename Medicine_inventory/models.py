@@ -102,6 +102,13 @@ class Medicine(models.Model):
         self.full_clean()  # This will call clean() method
         super().save(*args, **kwargs)
 
+    @property
+    def total_value(self):
+        """Calculate total value of stock for this medicine"""
+        if self.price and self.quantity_in_stock:
+            return self.price * self.quantity_in_stock
+        return 0
+
 class MedicineAction(models.Model):
     ACTION_CHOICES = [
         ('Created', 'Created'),

@@ -1,237 +1,481 @@
 {% extends 'Medicine_inventory/base.html' %}
 
-{% block title %}Medical Inventory Management{% endblock title %}
+{% block title %}Medicine Inventory{% endblock title %}
 
 {% block content %}
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+
 <style>
   body {
     font-family: "Montserrat", sans-serif;
-    background-color: #f8fafc;
+    background-color: #f8fafc; /* slate-50 */
   }
   .font-serif {
     font-family: "Montserrat", sans-serif;
   }
+  .glassmorphism {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  @media (min-width: 1280px) {
+    .table-container-wide {
+      max-width: 90vw;
+      margin-left: calc(50% - 45vw);
+      margin-right: calc(50% - 45vw);
+    }
+  }
 </style>
 
-<div class="container mx-auto max-w-7.5xl px-4 py-10">
-  <h2 class="font-serif text-left text-4xl font-semibold text-slate-800 mb-8">Medicine Inventory Management</h2>
-  <hr class="border-slate-300 mb-10">
-
-<div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center mb-6 gap-4">
-  <!-- Left Buttons -->
-  <div class="flex flex-wrap gap-3 w-full sm:w-auto">
-    <a href="{% url 'medicine_table' %}" 
-       class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors flex-1 sm:flex-none text-center">
-      <span class="flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z" clip-rule="evenodd"></path>
-        </svg>
-        Table View
-      </span>
-    </a>
-
-    <a href="{% url 'med_inventory_dash' %}" 
-       class="bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors flex-1 sm:flex-none text-center">
-      Return to Dashboard
-    </a>
-
-    <a href="{% url 'export_medicine_csv' %}" 
-       class="bg-green-600 hover:bg-green-800 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors flex-1 sm:flex-none text-center">
-      Export as CSV
-    </a>
-
-    <a href="{% url 'export_medicine_pdf' %}" 
-       class="bg-red-600 hover:bg-red-900 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors flex-1 sm:flex-none text-center">
-      Export as PDF
-    </a>
-  </div>
-
-  <!-- Register New Medication Button -->
-  <div class="w-full sm:w-auto">
-    <a href="{% url 'medicine_create' %}" 
-       class="bg-blue-600 hover:bg-blue-900 text-white font-medium py-3 sm:py-4 px-6 sm:px-12 lg:px-40 rounded-md shadow-sm transition-colors block text-center w-full sm:w-auto">
-      Register New Medication
-    </a>
-  </div>
-</div>
-
-
-  <div class="text-left my-5">
-    <div class="relative inline-block group">
-      <button type="button" class="border border-yellow-500 text-yellow-700 hover:bg-yellow-50 font-semibold py-2 px-4 rounded-md transition-colors duration-200 text-sm">
-        View Activity Log
-      </button>
-      <div class="absolute z-20 hidden group-hover:block bg-white rounded-md shadow-xl border w-96 max-w-md mt-2">
-        <div class="font-serif font-bold text-lg text-slate-800 p-3 border-b">
-          Recent Transaction Log
-        </div>
-        <ul class="divide-y divide-slate-200">
-          {% for action in recent_actions %}
-            <li class="p-3 flex justify-between items-center">
-              <div>
-                <strong class="font-semibold text-slate-800">
-                  {% if action.medicine %}
-                    {{ action.medicine.name }} ({{ action.medicine.batch_number }})
-                  {% else %}
-                    {{ action.medicine_name }} ({{ action.batch_number }})
-                  {% endif %}
-                </strong>
-                <span class="text-xs font-semibold text-yellow-800 bg-yellow-100 border border-yellow-200 ml-2 px-2 py-0.5 rounded-full">{{ action.get_action_display }}</span>
-              </div>
-              <small class="text-slate-500 whitespace-nowrap text-xs">{{ action.timestamp|date:"M d, Y H:i" }}</small>
-            </li>
-          {% empty %}
-            <li class="p-4 text-slate-500 text-center">No recent activity recorded.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- Restructured Filter Section -->
-  <div class="bg-white shadow-md rounded-lg p-6 mb-8 border border-slate-200">
-    <form method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-4 items-end">
-      
-      <!-- Search Bar -->
-      <div class="sm:col-span-2 lg:col-span-2">
-        <label for="search" class="block text-sm font-medium text-slate-700">Search by Name</label>
-        <input type="text" name="search" id="search" value="{{ request.GET.search }}" placeholder="e.g., Paracetamol" class="mt-1 w-full py-3 px-4 border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-      </div>
-
-      <!-- Category Filter -->
-      <div>
-        <label for="category" class="block text-sm font-medium text-slate-700">Category</label>
-        <select name="category" id="category" class="mt-1 w-full border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-          <option value="">All</option>
-          {% for cat in categories %}
-            <option value="{{ cat }}" {% if request.GET.category == cat %}selected{% endif %}>{{ cat }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <!-- Expiry Filter -->
-      <div>
-        <label for="expiry" class="block text-sm font-medium text-slate-700">Expiry Status</label>
-        <select name="expiry" id="expiry" class="mt-1 w-full border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-          <option value="">All</option>
-          <option value="near" {% if request.GET.expiry == 'near' %}selected{% endif %}>Near Expiry</option>
-          <option value="expired" {% if request.GET.expiry == 'expired' %}selected{% endif %}>Expired</option>
-        </select>
-      </div>
-
-      <!-- Stock Filter -->
-      <div>
-        <label for="low_stock" class="block text-sm font-medium text-slate-700">Stock Level</label>
-        <select name="low_stock" id="low_stock" class="mt-1 w-full border-slate-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-          <option value="">All</option>
-          <option value="low" {% if request.GET.low_stock == 'low' %}selected{% endif %}>Low Stock</option>
-        </select>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="sm:col-span-2 lg:col-span-5 flex flex-col sm:flex-row gap-3 mt-2">
-        <button type="submit" class="py-3 px-6 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-md shadow-sm transition-colors">Apply Filters</button>
-        {% if request.GET.category or request.GET.expiry or request.GET.low_stock or request.GET.search %}
-          <a href="{% url 'medicine_cards' %}" class="py-3 px-6 text-center bg-white hover:bg-slate-100 text-slate-700 font-semibold border border-slate-300 rounded-md shadow-sm transition-colors">Reset Filters</a>
-        {% endif %}
-      </div>
-    </form>
-  </div>
-
-<div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-  {% for med in medicine %}
-    <div class="bg-white rounded-lg shadow-md border border-slate-200 flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-      
-            {% if med.image %}
-            <div class="relative w-full" style="padding-bottom: 100%;">
-                <img src="{{ med.image.url }}" alt="{{ med.name }}" 
-                    class="absolute top-0 left-0 w-full h-full object-cover">
-            </div>
-            {% else %}
-            <div class="relative w-full" style="padding-bottom: 100%;">
-                <div class="absolute top-0 left-0 w-full h-full bg-gray-200 flex items-center justify-center">
-                    <span class="text-gray-500 font-medium">No Image</span>
-                </div>
-            </div>
-            {% endif %}
-      
-      <!-- Card Header -->
-      <div class="p-4 border-b border-slate-200 flex justify-between items-center">
-        <h2 class="font-serif text-lg font-semibold text-slate-800">{{ med.name }}</h2>
-        <div class="flex items-center gap-2">
-          {% if med.is_expired %}
-            <span class="text-xs font-semibold text-red-800 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full">Expired</span>
-          {% elif med.near_expiry %}
-            <span class="text-xs font-semibold text-yellow-800 bg-yellow-100 border border-yellow-200 px-2 py-0.5 rounded-full">Near Expiry</span>
-          {% endif %}
-          {% if med.low_stock %}
-            <span class="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">Low Stock</span>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- Card Body -->
-      <div class="p-4 text-sm text-slate-600 space-y-2 flex-grow">
-        <p><strong class="font-medium text-slate-700">Batch Number:</strong> {{ med.batch_number }}</p>
-        <p><strong class="font-medium text-slate-700">Brand:</strong> {{ med.brand }}</p>
-        <p><strong class="font-medium text-slate-700">Category:</strong> {{ med.category }}</p>
-        <p><strong class="font-medium text-slate-700">Dosage:</strong> {{ med.dosage }}</p>
-        <p><strong class="font-medium text-slate-700">Cost:</strong> Rs. {{ med.cost_price }}</p>
-        <p class="font-medium text-base text-slate-800 mt-1"><strong>Selling:</strong> Rs. {{ med.selling_price }}</p>
-        <p class="font-medium text-base text-slate-800 mt-1"><strong>Type:</strong> {{ med.get_medicine_type_display }}</p>
-        <p class="font-medium text-base text-slate-800 mt-1"><strong>Quantity in Stock:</strong> {{ med.quantity_in_stock }}</p>
-      </div>
-
-      <!-- Card Footer -->
-      <div class="p-3 mt-auto bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-3">
-        <a href="{% url 'medicine_detail' med.pk %}" class="text-sm font-medium bg-cyan-100 text-cyan-800 hover:bg-cyan-200 px-4 py-2 rounded-md transition-colors">View</a>
-        <a href="{% url 'medicine_update' med.id %}" class="text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 px-4 py-2 rounded-md transition-colors">Modify Record</a>
-        <button type="button" class="open-modal-button text-sm font-medium bg-red-100 text-red-800 hover:bg-red-200 px-4 py-2 rounded-md transition-colors" data-modal-target="#deleteModal{{ med.id }}">
-          Remove
-        </button>
-      </div>
-    </div>
-
-
-      <div id="deleteModal{{ med.id }}" class="modal fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-          <div class="mt-3 text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-              <svg class="h-6 w-6 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+  <!-- Header Section -->
+  <div class="bg-white/70 backdrop-blur-sm shadow-sm border-b border-white/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-3">
+            <div class="p-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
               </svg>
             </div>
-            <h3 class="font-serif text-lg leading-6 font-medium text-slate-900 mt-4">Deletion Confirmation</h3>
-            <div class="mt-2 px-7 py-3">
-              <p class="text-sm text-slate-500">
-                Please confirm your intention to permanently delete the record for <strong>{{ med.name }} (Batch: {{ med.batch_number }})</strong>. This action cannot be reversed.
-              </p>
+            <div>
+              <h1 class="text-3xl font-bold text-slate-900 tracking-tight font-serif">Medicine Inventory</h1>
+              <p class="text-sm text-slate-600">Comprehensive medication database and stock management</p>
             </div>
-            <div class="items-center px-4 py-3 flex justify-center gap-4">
-              <button type="button" class="close-modal-button px-4 py-2 bg-slate-200 text-slate-800 rounded-md hover:bg-slate-300 w-full">
-                Cancel
+          </div>
+        </div>
+        <nav class="flex" aria-label="Breadcrumb">
+          <ol class="flex items-center space-x-4">
+            <li>
+              <a href="{% url 'med_inventory_dash' %}" class="text-slate-400 hover:text-slate-600 transition-colors duration-200 p-2 rounded-lg hover:bg-slate-100">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                </svg>
+                <span class="sr-only">Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <div class="flex items-center">
+                <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="ml-3 text-sm font-medium text-slate-700">Grid View</span>
+              </div>
+            </li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 table-container-wide">
+    
+    <!-- Quick Actions Bar -->
+    <div class="mb-8 flex flex-wrap gap-4">
+      <a href="{% url 'medicine_table' %}" 
+         class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-medium rounded-xl hover:from-purple-700 hover:to-violet-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+        Table View
+      </a>
+      
+      <a href="{% url 'medicine_create' %}" 
+         class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white font-medium rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Register New Medication
+      </a>
+
+      <div class="relative">
+        <button onclick="toggleExportMenu()" 
+                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Export Data
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        
+        <div id="exportMenu" class="hidden absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-md rounded-xl shadow-xl border border-white/20 z-10">
+          <div class="py-2">
+            <a href="{% url 'export_medicine_pdf' %}" class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-100/70 transition-colors duration-200">
+              <svg class="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+              </svg>
+              Export as PDF
+            </a>
+            <a href="{% url 'export_medicine_csv' %}" class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-100/70 transition-colors duration-200">
+              <svg class="w-4 h-4 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Export as CSV
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative inline-block group">
+        <button type="button" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Activity Log
+        </button>
+        
+        <div class="absolute z-20 hidden group-hover:block bg-white/90 backdrop-blur-md rounded-xl shadow-xl border border-white/20 w-96 max-w-xl mt-2">
+          <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 rounded-t-xl">
+            <h3 class="font-semibold text-white">Recent Transaction Log</h3>
+          </div>
+          <ul class="divide-y divide-slate-200 max-h-64 overflow-y-auto">
+            {% for action in recent_actions %}
+              <li class="p-3 flex justify-between items-center hover:bg-slate-50/70 transition-colors duration-200">
+                <div>
+                  <strong class="font-semibold text-slate-800">
+                    {% if action.medicine %}{{ action.medicine.name }} ({{ action.medicine.batch_number }}){% else %}{{ action.medicine_name }} ({{ action.batch_number }}){% endif %}
+                  </strong>
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200 ml-2">{{ action.get_action_display }}</span>
+                </div>
+                <small class="text-slate-500 whitespace-nowrap text-xs">{{ action.timestamp|date:"M d, Y H:i" }}</small>
+              </li>
+            {% empty %}
+              <li class="p-4 text-slate-500 text-center">No recent activity recorded.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Panel -->
+    <div class="mb-8">
+      <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-white/50 overflow-hidden card-hover">
+        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4">
+          <h3 class="text-lg font-semibold text-white flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"></path>
+            </svg>
+            Search & Filter Options
+          </h3>
+        </div>
+        <div class="p-6">
+          <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+            
+            <!-- Search Bar -->
+            <div class="md:col-span-2 lg:col-span-3">
+              <label for="search" class="block text-sm font-medium text-slate-700 mb-2">Search by Name</label>
+              <input type="text" name="search" id="search" value="{{ request.GET.search }}" 
+                     placeholder="e.g., Paracetamol" 
+                     class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm">
+            </div>
+
+            <div class="lg:col-span-1">
+              <label for="category" class="block text-sm font-medium text-slate-700 mb-2">Category</label>
+              <select name="category" id="category" 
+                      class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                <option value="">All</option>
+                {% for cat in categories %}
+                  <option value="{{ cat }}" {% if request.GET.category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="lg:col-span-1">
+              <label for="expiry" class="block text-sm font-medium text-slate-700 mb-2">Expiry Status</label>
+              <select name="expiry" id="expiry" 
+                      class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                <option value="">All</option>
+                <option value="near" {% if request.GET.expiry == 'near' %}selected{% endif %}>Near Expiry</option>
+                <option value="expired" {% if request.GET.expiry == 'expired' %}selected{% endif %}>Expired</option>
+              </select>
+            </div>
+
+            <div class="lg:col-span-1">
+              <label for="low_stock" class="block text-sm font-medium text-slate-700 mb-2">Stock Status</label>
+              <select name="low_stock" id="low_stock" 
+                      class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm">
+                <option value="">All</option>
+                <option value="low" {% if request.GET.low_stock == 'low' %}selected{% endif %}>Low Stock</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2 lg:col-span-3 flex items-end gap-3">
+              <button type="submit" 
+                      class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium">
+                Apply Filters
               </button>
-              <a href="{% url 'medicine_delete' med.id %}" class="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 w-full">
-                Confirm Deletion
+              {% if request.GET.category or request.GET.expiry or request.GET.low_stock or request.GET.search %}
+                <a href="{% url 'medicine_cards' %}" 
+                   class="flex-1 bg-slate-200 text-slate-800 px-6 py-3 rounded-xl hover:bg-slate-300 transition-all duration-200 text-center font-medium">
+                  Reset Filters
+                </a>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medicine Grid -->
+    <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {% for med in medicine %}
+        <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-white/50 flex flex-col h-full card-hover overflow-hidden">
+          
+          <!-- Medicine Image -->
+          {% if med.image %}
+          <div class="relative w-full" style="padding-bottom: 75%;">
+            <img src="{{ med.image.url }}" alt="{{ med.name }}" 
+                 class="absolute top-0 left-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+          </div>
+          {% else %}
+          <div class="relative w-full" style="padding-bottom: 75%;">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+              <div class="text-center">
+                <svg class="w-12 h-12 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                </svg>
+                <span class="text-slate-500 font-medium text-sm">No Image</span>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          
+          <!-- Card Header -->
+          <div class="p-4 border-b border-slate-200/50">
+            <div class="flex justify-between items-start mb-2">
+              <h2 class="font-serif text-lg font-semibold text-slate-900 line-clamp-2">{{ med.name }}</h2>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              {% if med.is_expired %}
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  Expired
+                </span>
+              {% elif med.near_expiry %}
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                  </svg>
+                  Near Expiry
+                </span>
+              {% endif %}
+              {% if med.low_stock %}
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                  </svg>
+                  Low Stock
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="p-4 text-sm text-slate-600 space-y-3 flex-grow">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <p class="text-xs text-slate-500 uppercase tracking-wide font-medium">Batch</p>
+                <p class="font-semibold text-slate-900">{{ med.batch_number }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 uppercase tracking-wide font-medium">Brand</p>
+                <p class="font-semibold text-slate-900">{{ med.brand }}</p>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <p class="text-xs text-slate-500 uppercase tracking-wide font-medium">Category</p>
+                <p class="font-semibold text-slate-900">{{ med.category }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 uppercase tracking-wide font-medium">Type</p>
+                <p class="font-semibold text-slate-900">{{ med.get_medicine_type_display }}</p>
+              </div>
+            </div>
+            
+            <div>
+              <p class="text-xs text-slate-500 uppercase tracking-wide font-medium">Dosage</p>
+              <p class="font-semibold text-slate-900">{{ med.dosage }}</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <p class="text-xs text-slate-500 uppercase tracking-wide font-medium">Cost Price</p>
+                <p class="font-semibold text-slate-900">Rs. {{ med.cost_price }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 uppercase tracking-wide font-medium">Selling Price</p>
+                <p class="font-semibold text-emerald-600">Rs. {{ med.selling_price }}</p>
+              </div>
+            </div>
+            
+            <div class="pt-2 border-t border-slate-200/50">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs text-slate-500 uppercase tracking-wide font-medium">Stock Quantity</p>
+                  <p class="text-lg font-bold text-slate-900">{{ med.quantity_in_stock }}</p>
+                </div>
+                <div class="text-right">
+                  {% if med.quantity_in_stock > 50 %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      Good Stock
+                    </span>
+                  {% elif med.quantity_in_stock > 20 %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                      </svg>
+                      Medium
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                      </svg>
+                      Low Stock
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="p-4 mt-auto bg-slate-50/50 border-t border-slate-200/50 flex justify-center items-center gap-2">
+            <a href="{% url 'medicine_detail' med.pk %}" 
+               class="flex-1 inline-flex items-center justify-center px-3 py-2 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 transition-all duration-200 shadow-sm hover:shadow-md text-sm font-medium">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              View
+            </a>
+            
+            <a href="{% url 'medicine_update' med.id %}" 
+               class="flex-1 inline-flex items-center justify-center px-3 py-2 rounded-lg bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition-all duration-200 shadow-sm hover:shadow-md text-sm font-medium">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Edit
+            </a>
+            
+            <button type="button" 
+                    class="open-modal-button flex-1 inline-flex items-center justify-center px-3 py-2 rounded-lg bg-red-100 text-red-800 hover:bg-red-200 transition-all duration-200 shadow-sm hover:shadow-md text-sm font-medium" 
+                    data-modal-target="#deleteModal{{ med.id }}">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              Delete
+            </button>
+          </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div id="deleteModal{{ med.id }}" class="modal fixed inset-0 bg-slate-900/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 hidden">
+          <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-xl rounded-2xl bg-white">
+            <div class="mt-3 text-center">
+              <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <svg class="h-6 w-6 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+              </div>
+              <h3 class="font-serif text-lg leading-6 font-medium text-slate-900 mt-4">Deletion Confirmation</h3>
+              <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-slate-500">
+                  Please confirm your intention to permanently delete the record for <strong>{{ med.name }} (Batch: {{ med.batch_number }})</strong>. This action cannot be reversed.
+                </p>
+              </div>
+              <div class="items-center px-4 py-3 flex justify-center gap-4">
+                <button type="button" class="close-modal-button px-4 py-2 bg-slate-200 text-slate-800 rounded-xl hover:bg-slate-300 w-full transition-all duration-200">
+                  Cancel
+                </button>
+                <a href="{% url 'medicine_delete' med.id %}" class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 w-full transition-all duration-200 text-center">
+                  Confirm Deletion
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-span-full">
+          <div class="text-center py-16">
+            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-slate-900 mb-2">No medicines found</h3>
+            <p class="text-sm text-slate-500 mb-6">
+              {% if request.GET.category or request.GET.expiry or request.GET.low_stock or request.GET.search %}
+                No medicines match your current filters. Try adjusting your search criteria.
+              {% else %}
+                Get started by adding your first medicine to the inventory.
+              {% endif %}
+            </p>
+            <div class="flex justify-center space-x-4">
+              {% if request.GET.category or request.GET.expiry or request.GET.low_stock or request.GET.search %}
+              <a href="{% url 'medicine_cards' %}" 
+                 class="inline-flex items-center px-4 py-2 bg-slate-200 text-slate-800 rounded-xl hover:bg-slate-300 transition-all duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                Clear Filters
+              </a>
+              {% endif %}
+              <a href="{% url 'medicine_create' %}" 
+                 class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add Medicine
               </a>
             </div>
           </div>
         </div>
-      </div>
-    {% empty %}
-      <div class="col-span-1 md:col-span-2 lg:col-span-3">
-        <div class="bg-slate-100 border border-slate-300 text-slate-700 px-4 py-3 rounded-md relative text-center" role="alert">
-          <span class="block sm:inline">No records match the specified criteria.</span>
-        </div>
-      </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
 </div>
 
 <script>
+  // Export menu toggle
+  function toggleExportMenu() {
+    const menu = document.getElementById('exportMenu');
+    menu.classList.toggle('hidden');
+  }
+
+  // Close export menu when clicking outside
+  document.addEventListener('click', function(event) {
+    const exportButton = event.target.closest('button[onclick="toggleExportMenu()"]');
+    const exportMenu = document.getElementById('exportMenu');
+    
+    if (!exportButton && !exportMenu.contains(event.target)) {
+      exportMenu.classList.add('hidden');
+    }
+  });
+
+  // Modal functionality
   document.addEventListener('DOMContentLoaded', function () {
     const openModal = (modal) => modal && modal.classList.remove('hidden');
     const closeModal = (modal) => modal && modal.classList.add('hidden');
