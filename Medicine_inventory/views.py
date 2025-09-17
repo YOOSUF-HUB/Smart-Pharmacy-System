@@ -487,15 +487,12 @@ def view_online_orders(request):
     completed_orders = orders.filter(status='Completed').count()
     cancelled_orders = orders.filter(status='Cancelled').count()
     delivered_orders = orders.filter(status='Delivered').count()
-
-    # Apply filters
-    status_filter = request.GET.get('status')
-    if status_filter:
-        orders = orders.filter(status=status_filter)
     
     # Search functionality - enhanced to include customer fields
-    search_query = request.GET.get('search')
-    if search_query:
+    search_query = request.GET.get('search', '').strip()
+    
+    # Fix: Check for actual content, not just if the parameter exists
+    if search_query and search_query.lower() not in ['', 'none', 'null']:
         orders = orders.filter(
             Q(order_id__icontains=search_query) |
             Q(customer_user__first_name__icontains=search_query) |
@@ -505,6 +502,10 @@ def view_online_orders(request):
             Q(shipping_address__icontains=search_query)
         )
     
+    # Apply status filter
+    status_filter = request.GET.get('status')
+    if status_filter and status_filter.lower() not in ['', 'none', 'null']:
+        orders = orders.filter(status=status_filter)
     
     # Pagination
     paginator = Paginator(orders, 15)
@@ -516,6 +517,10 @@ def view_online_orders(request):
         orders = paginator.page(1)
     except EmptyPage:
         orders = paginator.page(paginator.num_pages)
+    
+    # Clean up search query for template (remove 'None' strings)
+    if search_query and search_query.lower() in ['none', 'null']:
+        search_query = ''
     
     context = {
         'orders': orders,
