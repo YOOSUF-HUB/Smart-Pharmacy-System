@@ -574,6 +574,7 @@ def update_order_status(request, order_id):
     if request.method == 'POST':
         order = get_object_or_404(Order, order_id=order_id)
         new_status = request.POST.get('status')
+        old_status = order.status
         
         # Define valid status choices - make sure these match your model
         VALID_STATUSES = [
@@ -587,16 +588,205 @@ def update_order_status(request, order_id):
         ]
         
         if new_status in VALID_STATUSES:
-            old_status = order.status
-            order.status = new_status
-            order.save()
-            
-            messages.success(
-                request, 
-                f'Order {order_id} status updated from "{old_status}" to "{new_status}" successfully.'
-            )
+            # Handle inventory restoration for cancelled orders
+            if new_status == 'Cancelled' and old_status != 'Cancelled':
+                try:
+                    # Get all order items
+                    order_items = order.items.all().select_related('product')
+                    
+                    # Restore inventory for each item
+                    restored_items = []
+                    not_found_items = []
+                    
+                    for item in order_items:
+                        item_restored = False
+                        
+                        # Try to restore from Medicine inventory first (by ID)
+                        try:
+                            medicine = Medicine.objects.get(id=item.product.id)
+                            
+                            # Restore the quantity
+                            old_quantity = medicine.quantity_in_stock
+                            medicine.quantity_in_stock += item.quantity
+                            medicine.save()
+                            
+                            # Log the action for medicine
+                            MedicineAction.objects.create(
+                                medicine=medicine,
+                                medicine_name=medicine.name,
+                                batch_number=medicine.batch_number,
+                                action='Updated',
+                                user=request.user,
+                                details=f'Restored stock (Order #{order_id} cancelled) - Quantity: {item.quantity} units. Stock: {old_quantity} → {medicine.quantity_in_stock}'
+                            )
+                            
+                            restored_items.append({
+                                'name': medicine.name,
+                                'quantity': item.quantity,
+                                'new_stock': medicine.quantity_in_stock,
+                                'type': 'Medicine'
+                            })
+                            
+                            item_restored = True
+                            
+                        except Medicine.DoesNotExist:
+                            # Try to restore from Non-Medicine inventory (by ID)
+                            try:
+                                non_medicine = NonMedicalProduct.objects.get(id=item.product.id)
+                                
+                                # Restore the quantity
+                                old_quantity = non_medicine.stock
+                                non_medicine.stock += item.quantity
+                                non_medicine.save()
+                                
+                                # Log the action for non-medicine
+                                MedicineAction.objects.create(
+                                    medicine=None,  # No medicine reference
+                                    medicine_name=non_medicine.name,
+                                    batch_number=getattr(non_medicine, 'batch_number', 'N/A'),
+                                    action='Updated',
+                                    user=request.user,
+                                    details=f'Restored non-medicine stock (Order #{order_id} cancelled) - Product: {non_medicine.name}, Quantity: {item.quantity} units. Stock: {old_quantity} → {non_medicine.stock}'
+                                )
+                                
+                                restored_items.append({
+                                    'name': non_medicine.name,
+                                    'quantity': item.quantity,
+                                    'new_stock': non_medicine.stock,
+                                    'type': 'Non-Medicine'
+                                })
+                                
+                                item_restored = True
+                                
+                            except NonMedicalProduct.DoesNotExist:
+                                # ID not found in either inventory, try by name
+                                pass
+                        
+                        # If not found by ID, try by name (only if not already restored)
+                        if not item_restored:
+                            # Try medicine by name first
+                            try:
+                                medicine = Medicine.objects.get(name=item.product.name)
+                                old_quantity = medicine.quantity_in_stock
+                                medicine.quantity_in_stock += item.quantity
+                                medicine.save()
+                                
+                                MedicineAction.objects.create(
+                                    medicine=medicine,
+                                    medicine_name=medicine.name,
+                                    batch_number=medicine.batch_number,
+                                    action='Updated',
+                                    user=request.user,
+                                    details=f'Restored stock by name match (Order #{order_id} cancelled) - Quantity: {item.quantity} units. Stock: {old_quantity} → {medicine.quantity_in_stock}'
+                                )
+                                
+                                restored_items.append({
+                                    'name': medicine.name,
+                                    'quantity': item.quantity,
+                                    'new_stock': medicine.quantity_in_stock,
+                                    'type': 'Medicine'
+                                })
+                                
+                                item_restored = True
+                                
+                            except Medicine.DoesNotExist:
+                                # Try non-medicine by name
+                                try:
+                                    non_medicine = NonMedicalProduct.objects.get(name=item.product.name)
+                                    old_quantity = non_medicine.stock
+                                    non_medicine.stock += item.quantity
+                                    non_medicine.save()
+                                    
+                                    MedicineAction.objects.create(
+                                        medicine=None,
+                                        medicine_name=non_medicine.name,
+                                        batch_number=getattr(non_medicine, 'batch_number', 'N/A'),
+                                        action='Updated',
+                                        user=request.user,
+                                        details=f'Restored non-medicine stock by name match (Order #{order_id} cancelled) - Product: {non_medicine.name}, Quantity: {item.quantity} units. Stock: {old_quantity} → {non_medicine.stock}'
+                                    )
+                                    
+                                    restored_items.append({
+                                        'name': non_medicine.name,
+                                        'quantity': item.quantity,
+                                        'new_stock': non_medicine.stock,
+                                        'type': 'Non-Medicine'
+                                    })
+                                    
+                                    item_restored = True
+                                    
+                                except NonMedicalProduct.DoesNotExist:
+                                    # Item not found anywhere
+                                    not_found_items.append({
+                                        'name': item.product.name,
+                                        'quantity': item.quantity
+                                    })
+                    
+                    # Update order status
+                    order.status = new_status
+                    order.save()
+                    
+                    # Create success message with details
+                    success_messages = []
+                    
+                    if restored_items:
+                        medicine_items = [item for item in restored_items if item['type'] == 'Medicine']
+                        non_medicine_items = [item for item in restored_items if item['type'] == 'Non-Medicine']
+                        
+                        if medicine_items:
+                            medicine_details = ", ".join([
+                                f"{item['name']} (+{item['quantity']} units)" 
+                                for item in medicine_items
+                            ])
+                            success_messages.append(f"Medicine inventory restored: {medicine_details}")
+                        
+                        if non_medicine_items:
+                            non_medicine_details = ", ".join([
+                                f"{item['name']} (+{item['quantity']} units)" 
+                                for item in non_medicine_items
+                            ])
+                            success_messages.append(f"Non-medicine inventory restored: {non_medicine_details}")
+                    
+                    if not_found_items:
+                        not_found_details = ", ".join([
+                            f"{item['name']} ({item['quantity']} units)" 
+                            for item in not_found_items
+                        ])
+                        messages.warning(
+                            request, 
+                            f"Could not restore the following items (not found in any inventory): {not_found_details}"
+                        )
+                    
+                    if success_messages:
+                        messages.success(
+                            request, 
+                            f'Order {order_id} cancelled successfully. {" | ".join(success_messages)}'
+                        )
+                    else:
+                        messages.success(
+                            request, 
+                            f'Order {order_id} cancelled successfully. No inventory items to restore.'
+                        )
+                        
+                except Exception as e:
+                    messages.error(
+                        request, 
+                        f'Error processing cancellation: {str(e)}. Order status not updated.'
+                    )
+                    return redirect('order_detail', order_id=order_id)
+                    
+            else:
+                # Normal status update (not cancellation)
+                order.status = new_status
+                order.save()
+                
+                messages.success(
+                    request, 
+                    f'Order {order_id} status updated from "{old_status}" to "{new_status}" successfully.'
+                )
         else:
             messages.error(request, f'Invalid status selected: "{new_status}". Please select a valid status.')
             
         return redirect('order_detail', order_id=order_id)
     
+    return redirect('view_online_orders')
