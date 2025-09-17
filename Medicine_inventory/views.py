@@ -561,20 +561,39 @@ def order_detail(request, order_id):
 
 @pharmacist_required
 def update_order_status(request, order_id):
-    from onlineStore.models import Order  # Replace with actual app name
-    
-    order = get_object_or_404(Order, order_id=order_id)
+    """Update the status of an order"""
+    try:
+        from onlineStore.models import Order
+    except ImportError:
+        messages.error(request, "Order management is not available.")
+        return redirect('med_inventory_dash')
     
     if request.method == 'POST':
+        order = get_object_or_404(Order, order_id=order_id)
         new_status = request.POST.get('status')
-        # Validate status - adjust based on your model's status choices
-        valid_statuses = ['pending', 'processing', 'completed', 'cancelled']
-        if new_status in valid_statuses:
+        
+        # Define valid status choices - make sure these match your model
+        VALID_STATUSES = [
+            'Pending',
+            'Payment_Failed', 
+            'Paid',
+            'Processing',
+            'Shipped',
+            'Delivered',
+            'Cancelled'
+        ]
+        
+        if new_status in VALID_STATUSES:
+            old_status = order.status
             order.status = new_status
             order.save()
-            messages.success(request, f"Order {order.order_id} status updated to {new_status.title()}")
+            
+            messages.success(
+                request, 
+                f'Order {order_id} status updated from "{old_status}" to "{new_status}" successfully.'
+            )
         else:
-            messages.error(request, "Invalid status selected")
-        return redirect('order_detail', order_id=order.order_id)
+            messages.error(request, f'Invalid status selected: "{new_status}". Please select a valid status.')
+            
+        return redirect('order_detail', order_id=order_id)
     
-    return redirect('view_online_orders')

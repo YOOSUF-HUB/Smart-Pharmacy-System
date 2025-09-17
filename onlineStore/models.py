@@ -117,8 +117,9 @@ class CartItem(models.Model):
 class Order(models.Model):
     ORDER_STATUS = [
         ('Pending', 'Pending'),
-        ('Payment_Failed', 'Payment Failed'),
+        ('Payment Failed', 'Payment Failed'),
         ('Paid', 'Paid'),
+        ('Processing', 'Processing'),
         ('Shipped', 'Shipped'),
         ('Delivered', 'Delivered'),
         ('Cancelled', 'Cancelled'),
