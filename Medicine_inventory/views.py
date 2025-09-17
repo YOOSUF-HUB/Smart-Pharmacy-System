@@ -482,11 +482,12 @@ def view_online_orders(request):
     
     # Calculate statistics
     total_orders = orders.count()
-    pending_orders = orders.filter(status='pending').count()
-    processing_orders = orders.filter(status='processing').count()
-    completed_orders = orders.filter(status='completed').count()
-    cancelled_orders = orders.filter(status='cancelled').count()
-    
+    pending_orders = orders.filter(status='Pending').count()
+    processing_orders = orders.filter(status='Processing').count()
+    completed_orders = orders.filter(status='Completed').count()
+    cancelled_orders = orders.filter(status='Cancelled').count()
+    delivered_orders = orders.filter(status='Delivered').count()
+
     # Apply filters
     status_filter = request.GET.get('status')
     if status_filter:
@@ -497,12 +498,13 @@ def view_online_orders(request):
     if search_query:
         orders = orders.filter(
             Q(order_id__icontains=search_query) |
-            Q(customer__first_name__icontains=search_query) |
-            Q(customer__last_name__icontains=search_query) |
-            Q(customer__email__icontains=search_query) |
-            Q(customer__phone__icontains=search_query) |
+            Q(customer_user__first_name__icontains=search_query) |
+            Q(customer_user__last_name__icontains=search_query) |
+            Q(customer_user__email__icontains=search_query) |
+            Q(customer_user__phone__icontains=search_query) |
             Q(shipping_address__icontains=search_query)
         )
+    
     
     # Pagination
     paginator = Paginator(orders, 15)
@@ -524,6 +526,7 @@ def view_online_orders(request):
         'processing_orders': processing_orders,
         'completed_orders': completed_orders,
         'cancelled_orders': cancelled_orders,
+        'delivered_orders': delivered_orders,
     }
     return render(request, 'Medicine_inventory/onlineStoreOrder.html', context)
 
