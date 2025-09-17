@@ -227,7 +227,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
@@ -245,13 +245,35 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ order.customer_name }}</div>
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8">
+                                        <div class="h-8 w-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                                            <span class="text-xs font-medium text-white">
+                                                {{ order.customer_user.first_name|first|upper }}{{ order.customer_user.last_name|first|upper }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ order.customer_user.first_name }} {{ order.customer_user.last_name }}
+                                        </div>
+                                        {% if order.customer_user.username %}
+                                        <div class="text-sm text-gray-500">@{{ order.customer_user.username }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-500">{{ order.customer_email }}</div>
+                                <div class="text-sm text-gray-900">{{ order.customer_user.email }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-500">{{ order.customer_phone }}</div>
+                                <div class="text-sm text-gray-900">
+                                    {% if order.customer_user.phone %}
+                                        {{ order.customer_user.phone }}
+                                    {% else %}
+                                        <span class="text-gray-400 italic">Not provided</span>
+                                    {% endif %}
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-semibold text-green-600">${{ order.total_amount|floatformat:2 }}</div>

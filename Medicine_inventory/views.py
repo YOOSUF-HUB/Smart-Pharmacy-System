@@ -470,9 +470,15 @@ def medicine_update(request, pk):
 
 @pharmacist_required
 def view_online_orders(request):
-    from onlineStore.models import Order
+    """View and manage online orders"""
+    try:
+        from onlineStore.models import Order
+    except ImportError:
+        messages.error(request, "Order management is not available.")
+        return redirect('med_inventory_dash')
     
-    orders = Order.objects.all().order_by('-created_at')
+    # Use select_related to fetch customer data efficiently
+    orders = Order.objects.select_related('customer_user').all().order_by('-created_at')
     
     # Calculate statistics
     total_orders = orders.count()
@@ -481,23 +487,27 @@ def view_online_orders(request):
     completed_orders = orders.filter(status='completed').count()
     cancelled_orders = orders.filter(status='cancelled').count()
     
-    # Filter by status if specified
+    # Apply filters
     status_filter = request.GET.get('status')
     if status_filter:
         orders = orders.filter(status=status_filter)
     
-    # Search functionality
+    # Search functionality - enhanced to include customer fields
     search_query = request.GET.get('search')
     if search_query:
         orders = orders.filter(
             Q(order_id__icontains=search_query) |
-            Q(customer_name__icontains=search_query) |
-            Q(customer_email__icontains=search_query)
+            Q(customer__first_name__icontains=search_query) |
+            Q(customer__last_name__icontains=search_query) |
+            Q(customer__email__icontains=search_query) |
+            Q(customer__phone__icontains=search_query) |
+            Q(shipping_address__icontains=search_query)
         )
     
     # Pagination
     paginator = Paginator(orders, 15)
     page = request.GET.get('page', 1)
+    
     try:
         orders = paginator.page(page)
     except PageNotAnInteger:
@@ -517,22 +527,37 @@ def view_online_orders(request):
     }
     return render(request, 'Medicine_inventory/onlineStoreOrder.html', context)
 
+
 @pharmacist_required
 def order_detail(request, order_id):
-    from onlineStore.models import Order  # Replace with actual app name
+    """Display detailed view of an order with complete customer information"""
+    try:
+        from onlineStore.models import Order
+    except ImportError:
+        messages.error(request, "Order management is not available.")
+        return redirect('med_inventory_dash')
     
-    order = get_object_or_404(Order, order_id=order_id)
-    order_items = order.items.all().select_related('product')  # Changed from 'medicine' to 'product'
+    # Use select_related to fetch customer and order items data efficiently
+    order = get_object_or_404(
+        Order.objects.select_related('customer_user'), 
+        order_id=order_id
+    )
+    order_items = order.items.all().select_related('product')
     
     # Calculate totals for each item
     for item in order_items:
         item.total_price = item.quantity * item.price
     
+    # Get customer information
+    customer = order.customer_user
+    
     context = {
         'order': order,
         'order_items': order_items,
+        'customer': customer,
     }
     return render(request, 'Medicine_inventory/order_detail.html', context)
+
 
 @pharmacist_required
 def update_order_status(request, order_id):
