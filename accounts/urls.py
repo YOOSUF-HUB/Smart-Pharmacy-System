@@ -34,4 +34,11 @@ urlpatterns = [
     path('dashboard/admin/customers/<int:customer_id>/', views.customer_detail, name='customer_detail'),
     path('dashboard/admin/staff_detail/<int:staff_id>/', views.staff_detail, name='staff_detail'),
     path('customer-logout/', views.customer_logout_view, name='customer_logout'),
+
+    # Password Reset URLs - ADD THESE NEW LINES
+    path('test-reset/', views.test_password_reset, name='test_password_reset'),
+    path('password-reset/', views.StaffPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', views.StaffPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
 ]

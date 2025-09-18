@@ -170,3 +170,4 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'medisync30@gmail.com' # Your email address
 EMAIL_HOST_PASSWORD = "sgjc lmry uhbm tjiq"
 DEFAULT_FROM_EMAIL = 'medisync30@gmail.com'
+PASSWORD_RESET_TIMEOUT = 3600  # 1 hour (you can adjust this)

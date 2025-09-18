@@ -14,6 +14,9 @@ from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
+from django.urls import reverse_lazy
+from django.http import HttpResponse
 
 
 def inactive_account(request):
@@ -117,8 +120,12 @@ def create_staff(request):
     if request.method == "POST":
         form = StaffCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect("admin_dashboard")
+            user = form.save(commit=False)
+            user.is_staff = True  # Ensure this line exists
+            user.is_active = True  # Also ensure they're active
+            user.save()
+            messages.success(request, f'Staff member {user.username} created successfully.')
+            return redirect("staff_list")
     else:
         form = StaffCreationForm()
     return render(request, "accounts/create_staff.html", {"form": form})
@@ -292,3 +299,20 @@ def staff_detail(request, staff_id):
     }
     
     return render(request, 'accounts/staff_detail.html', context)
+
+
+def test_password_reset(request):
+    """Simple test view to verify URL configuration"""
+    return HttpResponse("Password reset URLs are configured correctly!")
+
+class StaffPasswordResetView(PasswordResetView):
+    """Custom password reset view"""
+    template_name = 'registration/password_reset.html'
+    email_template_name = 'registration/password_reset_email.html'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+
+class StaffPasswordResetConfirmView(PasswordResetConfirmView):
+    """Custom password reset confirm view"""
+    template_name = 'registration/password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
