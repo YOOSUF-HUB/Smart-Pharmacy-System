@@ -23,15 +23,10 @@ from weasyprint import HTML
 from datetime import datetime
 
 
-def inactive_account(request):
-    return render(request, 'accounts/inactive_account.html')
+# =============================================================================
+# DECORATORS
+# =============================================================================
 
-def protected_view(request):
-    if not some_condition:
-        raise PermissionDenied
-    # Rest of your view
-
-# Decorators
 def admin_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
@@ -72,55 +67,15 @@ def customer_required(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
-# dashboards
-@never_cache
-@customer_required
-@login_required
-def customer_dashboard(request):
-    if request.user.role != 'customer':
-        messages.error(request, "You don't have permission to access the customer dashboard.")
-        return redirect('login')
-    
-    # Create a context dictionary
-    context = {
-        'user': request.user,
-        # Add any other data you want to display in the dashboard
-    }
-    
-    # Rest of your customer dashboard code...
-    return render(request, 'accounts/customer_dashboard.html', context)
+
+# =============================================================================
+# ADMIN FUNCTIONS
+# =============================================================================
 
 @never_cache
 @admin_required
 def admin_dashboard(request):
     return render(request, "accounts/admin_dashboard.html")
-
-@never_cache
-@pharmacist_required
-def med_inventory_dash(request):
-    return render(request, "Medicine_inventory/med_inventory_dash.html")
-
-@never_cache
-@cashier_required
-def cashier_dashboard(request):
-    return render(request, "accounts/cashier_dashboard.html")
-
-@login_required
-def redirect_dashboard(request):
-    user = request.user
-    if user.role == "admin":
-        return redirect("admin_dashboard")
-    elif user.role == "pharmacist":
-        return redirect("med_inventory_dash")
-    elif user.role == "cashier":
-        return redirect("cashier_dashboard")
-    else:
-        return redirect("account_not_found")
-
-
-def account_not_found(request):
-    return render(request, "accounts/account_not_found.html")
-
 
 @admin_required
 def create_staff(request):
@@ -141,6 +96,17 @@ def create_staff(request):
 def staff_list(request):
     staff_users = User.objects.filter(role__in=["pharmacist", "cashier"])
     return render(request, "accounts/staff_list.html", {"staff_users": staff_users})
+
+@admin_required
+@never_cache
+def staff_detail(request, staff_id):
+    staff = get_object_or_404(User, id=staff_id, role__in=['admin', 'pharmacist', 'cashier'])
+    
+    context = {
+        'staff': staff,
+    }
+    
+    return render(request, 'accounts/staff_detail.html', context)
 
 @admin_required
 def edit_staff(request, staff_id):
@@ -173,21 +139,10 @@ def delete_staff(request, staff_id):
         return redirect("staff_list")
     return render(request, "accounts/delete_staff.html", {"staff_user": staff_user})
 
-@never_cache
-def logout_view(request):
-    logout(request)
-    response = redirect('login')
-    # Set cache control headers
-    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response['Pragma'] = 'no-cache'
-    response['Expires'] = '0'
-    return response
-
 @admin_required
 def customer_list(request):
     customers = User.objects.filter(role="customer")
     return render(request, "accounts/customer_list.html", {"customers": customers})
-
 
 @admin_required
 @never_cache
@@ -202,150 +157,7 @@ def customer_detail(request, customer_id):
     
     return render(request, 'accounts/customer_detail.html', context)
 
-
-
-#Customer View Sections
-
-@customer_required
-def edit_customer_profile(request):
-    try:
-        customer = request.user.customer
-    except Customer.DoesNotExist:
-        # Create customer profile if it doesn't exist
-        customer = Customer.objects.create(user=request.user)
-    
-    if request.method == 'POST':
-        form = CustomerProfileForm(request.POST, instance=customer)
-        print("Form data:", request.POST)
-        if form.is_valid():
-            print("Form is valid")
-            form.save()
-            messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('customer_dashboard')
-        else:
-            print("Form errors:", form.errors)
-    else:
-        form = CustomerProfileForm(instance=customer)
-    
-    return render(request, 'accounts/edit_customer_profile.html', {'form': form})
-
-
-# customer self registration
-def customer_register(request):
-    if request.method == "POST":
-        form = CustomerSignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # auto login after registration
-            return redirect("customer_dashboard")
-    else:
-        form = CustomerSignUpForm()
-    return render(request, "accounts/register.html", {"form": form})
-
-
-class CustomLoginView(LoginView):
-    template_name = 'registration/login.html'
-    form_class = CustomAuthenticationForm
-    
-    def form_invalid(self, form):
-        # Check if the specific inactive error is present
-        if any('inactive_account' == err.code for err in form.non_field_errors().data):
-            return redirect('inactive_account')
-        return super().form_invalid(form)
-
-class CustomerLoginView(LoginView):
-    template_name = 'accounts/customer_login.html'
-    redirect_authenticated_user = True
-    success_url = reverse_lazy('onlineStore:homepage')
-    
-    def form_valid(self, form):
-        """Check if the user is a customer before logging in"""
-        user = form.get_user()
-        if user.role != 'customer':
-            messages.error(self.request, "This login is for customers only. Please use the staff login page.")
-            return self.form_invalid(form)
-        return super().form_valid(form)
-        
-    def get_success_url(self):
-        return reverse_lazy('onlineStore:homepage')
-
-@never_cache
-def customer_logout_view(request):
-    """Custom logout view for customers with success message"""
-    if request.user.is_authenticated and request.user.role == 'customer':
-        username = request.user.first_name or request.user.username
-        logout(request)
-        messages.success(
-            request, f"Goodbye {username}! You have been successfully logged out.")
-    else:
-        logout(request)
-        messages.info(request, "You have been logged out.")
-
-    response = redirect('onlineStore:homepage')
-    # Set cache control headers
-    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response['Pragma'] = 'no-cache'
-    response['Expires'] = '0'
-    return response
-
-
-
-
-@admin_required
-@never_cache
-def staff_detail(request, staff_id):
-    staff = get_object_or_404(User, id=staff_id, role__in=['admin', 'pharmacist', 'cashier'])
-    
-    context = {
-        'staff': staff,
-    }
-    
-    return render(request, 'accounts/staff_detail.html', context)
-
-
-def test_password_reset(request):
-    """Simple test view to verify URL configuration"""
-    return HttpResponse("Password reset URLs are configured correctly!")
-
-class StaffPasswordResetView(PasswordResetView):
-    """Custom password reset view that only allows staff users to reset passwords"""
-    template_name = 'registration/password_reset.html'
-    email_template_name = 'registration/password_reset_email.html'
-    subject_template_name = 'registration/password_reset_subject.txt'
-    success_url = reverse_lazy('password_reset_done')
-    
-    def form_valid(self, form):
-        email = form.cleaned_data['email']
-        
-        # Check if any active staff user exists with this email
-        staff_users = User.objects.filter(email=email, is_staff=True, is_active=True)
-        
-        if not staff_users.exists():
-            # Check if any user exists with this email but is not staff
-            non_staff_users = User.objects.filter(email=email, is_active=True)
-            
-            if non_staff_users.exists():
-                # User exists but is not staff
-                messages.error(self.request, 'Password reset is only available for staff members. Please contact your administrator.')
-                return redirect('password_reset')
-            else:
-                # No user exists with this email (don't reveal this for security)
-                messages.error(self.request, 'If a staff account with this email exists, you will receive a password reset link.')
-                return redirect('password_reset')
-        
-        # If we get here, there are active staff users with this email
-        # Proceed with the normal password reset process
-        return super().form_valid(form)
-
-    def get_users(self, email):
-        """Override to only return active staff users"""
-        return User.objects.filter(
-            email__iexact=email,
-            is_active=True,
-            is_staff=True
-        )
-
-# CSV and PDF Export Functions
+# Admin Export Functions
 @login_required
 @admin_required
 def staff_list_csv(request):
@@ -404,3 +216,204 @@ def staff_list_pdf(request):
         # Fallback in case of any issues
         messages.error(request, f'Error generating PDF: {str(e)}')
         return redirect('staff_list')
+
+
+# =============================================================================
+# ROLE-BASED DASHBOARD FUNCTIONS
+# =============================================================================
+
+@never_cache
+@pharmacist_required
+def med_inventory_dash(request):
+    return render(request, "Medicine_inventory/med_inventory_dash.html")
+
+@never_cache
+@cashier_required
+def cashier_dashboard(request):
+    return render(request, "accounts/cashier_dashboard.html")
+
+@never_cache
+@customer_required
+@login_required
+def customer_dashboard(request):
+    if request.user.role != 'customer':
+        messages.error(request, "You don't have permission to access the customer dashboard.")
+        return redirect('login')
+    
+    # Create a context dictionary
+    context = {
+        'user': request.user,
+        # Add any other data you want to display in the dashboard
+    }
+    
+    # Rest of your customer dashboard code...
+    return render(request, 'accounts/customer_dashboard.html', context)
+
+@login_required
+def redirect_dashboard(request):
+    user = request.user
+    if user.role == "admin":
+        return redirect("admin_dashboard")
+    elif user.role == "pharmacist":
+        return redirect("med_inventory_dash")
+    elif user.role == "cashier":
+        return redirect("cashier_dashboard")
+    else:
+        return redirect("account_not_found")
+
+
+# =============================================================================
+# CUSTOMER FUNCTIONS
+# =============================================================================
+
+def customer_register(request):
+    if request.method == "POST":
+        form = CustomerSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # auto login after registration
+            return redirect("customer_dashboard")
+    else:
+        form = CustomerSignUpForm()
+    return render(request, "accounts/register.html", {"form": form})
+
+@customer_required
+def edit_customer_profile(request):
+    try:
+        customer = request.user.customer
+    except Customer.DoesNotExist:
+        # Create customer profile if it doesn't exist
+        customer = Customer.objects.create(user=request.user)
+    
+    if request.method == 'POST':
+        form = CustomerProfileForm(request.POST, instance=customer)
+        print("Form data:", request.POST)
+        if form.is_valid():
+            print("Form is valid")
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('customer_dashboard')
+        else:
+            print("Form errors:", form.errors)
+    else:
+        form = CustomerProfileForm(instance=customer)
+    
+    return render(request, 'accounts/edit_customer_profile.html', {'form': form})
+
+
+# =============================================================================
+# UTILITY FUNCTIONS
+# =============================================================================
+
+def inactive_account(request):
+    return render(request, 'accounts/inactive_account.html')
+
+def account_not_found(request):
+    return render(request, "accounts/account_not_found.html")
+
+def protected_view(request):
+    if not some_condition:
+        raise PermissionDenied
+    # Rest of your view
+
+def test_password_reset(request):
+    """Simple test view to verify URL configuration"""
+    return HttpResponse("Password reset URLs are configured correctly!")
+
+
+# =============================================================================
+# LOGIN/LOGOUT AND AUTHENTICATION FUNCTIONS
+# =============================================================================
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+    form_class = CustomAuthenticationForm
+    
+    def form_invalid(self, form):
+        # Check if the specific inactive error is present
+        if any('inactive_account' == err.code for err in form.non_field_errors().data):
+            return redirect('inactive_account')
+        return super().form_invalid(form)
+
+class CustomerLoginView(LoginView):
+    template_name = 'accounts/customer_login.html'
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('onlineStore:homepage')
+    
+    def form_valid(self, form):
+        """Check if the user is a customer before logging in"""
+        user = form.get_user()
+        if user.role != 'customer':
+            messages.error(self.request, "This login is for customers only. Please use the staff login page.")
+            return self.form_invalid(form)
+        return super().form_valid(form)
+        
+    def get_success_url(self):
+        return reverse_lazy('onlineStore:homepage')
+
+class StaffPasswordResetView(PasswordResetView):
+    """Custom password reset view that only allows staff users to reset passwords"""
+    template_name = 'registration/password_reset.html'
+    email_template_name = 'registration/password_reset_email.html'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+    
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        
+        # Check if any active staff user exists with this email
+        staff_users = User.objects.filter(email=email, is_staff=True, is_active=True)
+        
+        if not staff_users.exists():
+            # Check if any user exists with this email but is not staff
+            non_staff_users = User.objects.filter(email=email, is_active=True)
+            
+            if non_staff_users.exists():
+                # User exists but is not staff
+                messages.error(self.request, 'Password reset is only available for staff members. Please contact your administrator.')
+                return redirect('password_reset')
+            else:
+                # No user exists with this email (don't reveal this for security)
+                messages.error(self.request, 'If a staff account with this email exists, you will receive a password reset link.')
+                return redirect('password_reset')
+        
+        # If we get here, there are active staff users with this email
+        # Proceed with the normal password reset process
+        return super().form_valid(form)
+
+    def get_users(self, email):
+        """Override to only return active staff users"""
+        return User.objects.filter(
+            email__iexact=email,
+            is_active=True,
+            is_staff=True
+        )
+
+@never_cache
+def logout_view(request):
+    logout(request)
+    response = redirect('login')
+    # Set cache control headers
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
+
+@never_cache
+def customer_logout_view(request):
+    """Custom logout view for customers with success message"""
+    if request.user.is_authenticated and request.user.role == 'customer':
+        username = request.user.first_name or request.user.username
+        logout(request)
+        messages.success(
+            request, f"Goodbye {username}! You have been successfully logged out.")
+    else:
+        logout(request)
+        messages.info(request, "You have been logged out.")
+
+    response = redirect('onlineStore:homepage')
+    # Set cache control headers
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
