@@ -9,22 +9,132 @@
     </div>
 
     <div class="bg-white p-8 rounded-lg shadow-md">
+      
+      <!-- Error Messages -->
+      {% if form.errors or form.non_field_errors %}
+      <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">
+              Login Failed
+            </h3>
+            <div class="mt-2 text-sm text-red-700">
+              {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                  <p class="mb-1">{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+              
+              {% if form.username.errors %}
+                {% for error in form.username.errors %}
+                  <p class="mb-1">Username: {{ error }}</p>
+                {% endfor %}
+              {% endif %}
+              
+              {% if form.password.errors %}
+                {% for error in form.password.errors %}
+                  <p class="mb-1">Password: {{ error }}</p>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Django Messages -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="mb-6 {% if message.tags == 'error' %}bg-red-50 border-red-400 text-red-700{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-400 text-yellow-700{% elif message.tags == 'success' %}bg-green-50 border-green-400 text-green-700{% else %}bg-blue-50 border-blue-400 text-blue-700{% endif %} border-l-4 p-4 rounded-md">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                {% if message.tags == 'error' %}
+                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  </svg>
+                {% elif message.tags == 'warning' %}
+                  <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                {% else %}
+                  <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                {% endif %}
+              </div>
+              <div class="ml-3">
+                <p class="text-sm font-medium">{{ message }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+
       <form method="POST" action="{% url 'login' %}" class="space-y-6">
         {% csrf_token %}
 
         <div class="relative">
-          <input id="username" name="username" type="text" required placeholder=" " class="peer block w-full px-3 py-3 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-cyan-600 focus:ring focus:ring-cyan-200" />
-          <label for="username" class="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:-top-1 peer-focus:text-cyan-600 peer-focus:text-sm">
+          <input id="username" 
+                 name="username" 
+                 type="text" 
+                 required 
+                 placeholder=" " 
+                 value="{{ form.username.value|default:'' }}"
+                 class="peer block w-full px-3 py-3 border {% if form.username.errors %}border-red-300 focus:border-red-500 focus:ring-red-200{% else %}border-gray-300 focus:border-cyan-600 focus:ring-cyan-200{% endif %} rounded-md text-gray-900 focus:outline-none focus:ring" />
+          <label for="username" class="absolute left-3 top-3 text-{% if form.username.errors %}red-500{% else %}gray-500{% endif %} text-sm transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:-top-1 peer-focus:text-{% if form.username.errors %}red-600{% else %}cyan-600{% endif %} peer-focus:text-sm">
             Username
           </label>
+          {% if form.username.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+          {% endif %}
         </div>
 
         <div class="relative">
-          <input id="password" name="password" type="password" required placeholder=" " class="peer block w-full px-3 py-3 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-cyan-600 focus:ring focus:ring-cyan-200" />
-          <label for="password" class="absolute left-3 top-3 text-gray-500 text-sm transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:-top-1 peer-focus:text-cyan-600 peer-focus:text-sm">
+          <input id="password" 
+                 name="password" 
+                 type="password" 
+                 required 
+                 placeholder=" " 
+                 class="peer block w-full px-3 py-3 border {% if form.password.errors %}border-red-300 focus:border-red-500 focus:ring-red-200{% else %}border-gray-300 focus:border-cyan-600 focus:ring-cyan-200{% endif %} rounded-md text-gray-900 focus:outline-none focus:ring" />
+          <label for="password" class="absolute left-3 top-3 text-{% if form.password.errors %}red-500{% else %}gray-500{% endif %} text-sm transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:-top-1 peer-focus:text-{% if form.password.errors %}red-600{% else %}cyan-600{% endif %} peer-focus:text-sm">
             Password
           </label>
+          {% if form.password.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+          {% endif %}
         </div>
+
+        <!-- Account Status Helper -->
+        {% if form.non_field_errors %}
+          <div class="bg-gray-50 border border-gray-200 rounded-md p-4">
+            <h4 class="text-sm font-medium text-gray-900 mb-2">Troubleshooting Tips:</h4>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li class="flex items-center">
+                <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Check your username and password spelling
+              </li>
+              <li class="flex items-center">
+                <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Make sure Caps Lock is not enabled
+              </li>
+              <li class="flex items-center">
+                <svg class="w-4 h-4 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Try resetting your password if you forgot it
+              </li>
+            </ul>
+          </div>
+        {% endif %}
 
         <!-- Forgot Password Link -->
         <div class="text-right">
@@ -37,16 +147,6 @@
           Sign in
         </button>
       </form>
-
-      <!-- Reset Password Button -->
-      <!-- <div class="mt-4">
-        <a href="{% url 'password_reset' %}" class="w-full inline-flex justify-center items-center py-2 px-4 border border-cyan-600 text-cyan-600 font-medium rounded-md hover:bg-cyan-50 hover:border-purple-600 hover:text-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-cyan-600 transition duration-300">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-6 6H5l3-3m0 6l3-3h12a6 6 0 006-6m0 0a2 2 0 00-2-2m-2 0h-2m4 0a2 2 0 00-2-2m-2 0h-2"></path>
-          </svg>
-          Reset Password
-        </a>
-      </div> -->
 
       <p class="mt-4 text-center text-sm text-gray-600">
         Don't have an account? 
@@ -74,6 +174,12 @@
     padding: 0 0.25rem;
   }
 
+  /* Error state for floating labels */
+  input.border-red-300:focus + label,
+  input.border-red-300:not(:placeholder-shown) + label {
+    color: #dc2626; /* Red-600 */
+  }
+
   input {
     width: 100%;
     padding: 0.75rem;
@@ -88,7 +194,12 @@
     box-shadow: 0 0 0 1px #06b6d4;
   }
 
-    *, *::before, *::after {
+  input.border-red-300:focus {
+    border-color: #ef4444; /* Red-500 */
+    box-shadow: 0 0 0 1px #ef4444;
+  }
+
+  *, *::before, *::after {
     font-family: "Montserrat", sans-serif !important;
   }
   

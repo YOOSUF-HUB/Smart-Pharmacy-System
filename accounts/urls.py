@@ -35,6 +35,8 @@ urlpatterns = [
     path('dashboard/admin/staff_detail/<int:staff_id>/', views.staff_detail, name='staff_detail'),
     path('customer-logout/', views.customer_logout_view, name='customer_logout'),
 
+    #Account Not Found
+    path('account-not-found/', views.account_not_found, name='account_not_found'),
 
     # Staff Export URLs
     path('staff/export/csv/', views.staff_list_csv, name='staff_list_csv'),

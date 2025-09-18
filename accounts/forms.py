@@ -1,7 +1,8 @@
 # accounts/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
+from django.core.exceptions import ValidationError
 from .models import Customer  # Use your actual model name
 
 User = get_user_model()  # This gets your custom User model
@@ -142,19 +143,53 @@ class CustomerProfileForm(forms.ModelForm):
 
 
 class CustomAuthenticationForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Username'
+        })
+        self.fields['password'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Password'
+        })
+
     def clean(self):
         username = self.cleaned_data.get('username')
-        
-        # Check if user exists but is inactive
-        if username:
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            # Check if user exists
             try:
                 user = User.objects.get(username=username)
-                if not user.is_active:
-                    raise forms.ValidationError(
-                        "This account is inactive.",
-                        code='inactive_account'
-                    )
-            except User.DoesNotExist:
-                pass
                 
-        return super().clean()
+                # Check if user is active
+                if not user.is_active:
+                    self.add_error(None, ValidationError(
+                        "This account has been deactivated. Please contact your administrator.",
+                        code='inactive_account'
+                    ))
+                    return self.cleaned_data
+                
+                # Try to authenticate
+                self.user_cache = authenticate(
+                    self.request, 
+                    username=username, 
+                    password=password
+                )
+                
+                if self.user_cache is None:
+                    # User exists but wrong password
+                    raise ValidationError(
+                        "Invalid password. Please check your password and try again.",
+                        code='invalid_password'
+                    )
+                
+            except User.DoesNotExist:
+                # User doesn't exist
+                raise ValidationError(
+                    "No account found with this username. Please check your username or create a new account.",
+                    code='user_not_found'
+                )
+        
+        return self.cleaned_data

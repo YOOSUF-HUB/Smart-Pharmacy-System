@@ -108,15 +108,18 @@ def cashier_dashboard(request):
 @login_required
 def redirect_dashboard(request):
     user = request.user
-    if user.role == "customer":
-        return redirect("customer_dashboard")
-    elif user.role == "admin":
+    if user.role == "admin":
         return redirect("admin_dashboard")
     elif user.role == "pharmacist":
         return redirect("med_inventory_dash")
     elif user.role == "cashier":
         return redirect("cashier_dashboard")
+    else:
+        return redirect("account_not_found")
 
+
+def account_not_found(request):
+    return render(request, "accounts/account_not_found.html")
 
 
 @admin_required
