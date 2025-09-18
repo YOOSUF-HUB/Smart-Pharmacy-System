@@ -17,6 +17,10 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
 from django.http import HttpResponse
+import csv
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from datetime import datetime
 
 
 def inactive_account(request):
@@ -197,8 +201,6 @@ def customer_detail(request, customer_id):
 
 
 
-
-
 #Customer View Sections
 
 @customer_required
@@ -236,9 +238,6 @@ def customer_register(request):
     else:
         form = CustomerSignUpForm()
     return render(request, "accounts/register.html", {"form": form})
-
-
-
 
 
 class CustomLoginView(LoginView):
@@ -306,13 +305,99 @@ def test_password_reset(request):
     return HttpResponse("Password reset URLs are configured correctly!")
 
 class StaffPasswordResetView(PasswordResetView):
-    """Custom password reset view"""
+    """Custom password reset view that only allows staff users to reset passwords"""
     template_name = 'registration/password_reset.html'
     email_template_name = 'registration/password_reset_email.html'
     subject_template_name = 'registration/password_reset_subject.txt'
     success_url = reverse_lazy('password_reset_done')
+    
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        
+        # Check if any active staff user exists with this email
+        staff_users = User.objects.filter(email=email, is_staff=True, is_active=True)
+        
+        if not staff_users.exists():
+            # Check if any user exists with this email but is not staff
+            non_staff_users = User.objects.filter(email=email, is_active=True)
+            
+            if non_staff_users.exists():
+                # User exists but is not staff
+                messages.error(self.request, 'Password reset is only available for staff members. Please contact your administrator.')
+                return redirect('password_reset')
+            else:
+                # No user exists with this email (don't reveal this for security)
+                messages.error(self.request, 'If a staff account with this email exists, you will receive a password reset link.')
+                return redirect('password_reset')
+        
+        # If we get here, there are active staff users with this email
+        # Proceed with the normal password reset process
+        return super().form_valid(form)
 
-class StaffPasswordResetConfirmView(PasswordResetConfirmView):
-    """Custom password reset confirm view"""
-    template_name = 'registration/password_reset_confirm.html'
-    success_url = reverse_lazy('password_reset_complete')
+    def get_users(self, email):
+        """Override to only return active staff users"""
+        return User.objects.filter(
+            email__iexact=email,
+            is_active=True,
+            is_staff=True
+        )
+
+# CSV and PDF Export Functions
+@login_required
+@admin_required
+def staff_list_csv(request):
+    """Export staff list as CSV"""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="staff_list.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Username', 'Email', 'Role', 'Status', 'Last Login', 'Date Joined'])
+    
+    staff_users = User.objects.filter(role__in=["pharmacist", "cashier"]).order_by('-date_joined')
+    
+    for staff in staff_users:
+        last_login = staff.last_login.strftime('%Y-%m-%d %H:%M:%S') if staff.last_login else 'Never'
+        date_joined = staff.date_joined.strftime('%Y-%m-%d %H:%M:%S')
+        status = 'Active' if staff.is_active else 'Inactive'
+        
+        writer.writerow([
+            staff.username,
+            staff.email,
+            staff.get_role_display() if hasattr(staff, 'get_role_display') else staff.role.title(),
+            status,
+            last_login,
+            date_joined
+        ])
+    
+    return response
+
+@login_required
+@admin_required
+def staff_list_pdf(request):
+    """Export staff list as PDF using WeasyPrint"""
+    staff_users = User.objects.filter(role__in=["pharmacist", "cashier"]).order_by('-date_joined')
+    
+    context = {
+        'staff_users': staff_users,
+        'generated_date': datetime.now().strftime('%B %d, %Y'),
+        'generated_time': datetime.now().strftime('%I:%M %p'),
+        'total_staff': staff_users.count(),
+    }
+    
+    # Render the HTML template
+    html_string = render_to_string('accounts/staff_list_pdf.html', context)
+    
+    # Create PDF with minimal configuration
+    try:
+        html = HTML(string=html_string)
+        pdf = html.write_pdf()
+        
+        # Create response
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="staff_list.pdf"'
+        
+        return response
+    except Exception as e:
+        # Fallback in case of any issues
+        messages.error(request, f'Error generating PDF: {str(e)}')
+        return redirect('staff_list')

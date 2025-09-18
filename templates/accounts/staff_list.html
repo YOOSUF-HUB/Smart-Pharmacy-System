@@ -31,12 +31,30 @@
     background: linear-gradient(135deg, #0891b2, #2563eb);
   }
 
-    @media (min-width: 1280px) {
+  @media (min-width: 1280px) {
     .table-container-wide {
       max-width: 95vw;
       margin-left: calc(50% - 47.5vw);
       margin-right: calc(50% - 47.5vw);
     }
+  }
+
+  /* Download buttons styling */
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+  
+  .download-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 </style>
 
@@ -44,13 +62,35 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
     <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Staff Members</h2>
-    <a href="{% url 'admin_dashboard' %}"
-       class="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl shadow-lg transition-all duration-300 ease-in-out hover:scale-[1.02]">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-      </svg>
-      Back to Dashboard
-    </a>
+    
+    <!-- Action buttons -->
+    <div class="flex flex-wrap gap-3">
+      <!-- Download buttons -->
+      <a href="{% url 'staff_list_pdf' %}" 
+         class="download-btn bg-red-100 text-red-700 hover:bg-red-200">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Download PDF
+      </a>
+      
+      <a href="{% url 'staff_list_csv' %}" 
+         class="download-btn bg-green-100 text-green-700 hover:bg-green-200">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2h6v2a2 2 0 01-2 2h-2a2 2 0 01-2-2zM9 7V5h6v2m0 0v6H9V7h6z"></path>
+        </svg>
+        Download CSV
+      </a>
+      
+      <!-- Back to Dashboard button -->
+      <a href="{% url 'admin_dashboard' %}"
+         class="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl shadow-lg transition-all duration-300 ease-in-out hover:scale-[1.02]">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Dashboard
+      </a>
+    </div>
   </div>
 
   <!-- Search -->
@@ -169,7 +209,7 @@
 </div>
 
 <!-- Floating Action Button -->
-<a href="#" class="fab">
+<a href="{% url 'create_staff' %}" class="fab">
   <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
   </svg>

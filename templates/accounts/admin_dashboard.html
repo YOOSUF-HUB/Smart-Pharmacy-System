@@ -7,83 +7,203 @@
   }
   
   body {
-    background: linear-gradient(to bottom right, #e0f2fe, #f8fafc);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+    min-height: 100vh;
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(226, 232, 240, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .action-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .action-card:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(248, 250, 252, 0.95));
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stats-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.8));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   }
 </style>
 
-<div class="min-h-screen py-10 px-6">
-    <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row items-center justify-between mb-10">
-            <div>
-                <h1 class="text-4xl font-extrabold text-blue-700">Admin Dashboard</h1>
-            </div>
-        <div class="flex items-center gap-4 bg-white shadow-sm px-4 py-3 rounded-lg border border-gray-200">
-            {% if user.is_authenticated %}
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                        {{ user.username|first|upper }}
-                    </div>
-                    <span class="text-sm sm:text-base text-gray-700 font-medium">
-                        Welcome, <span class="font-semibold">{{ user.username }}</span>
-                    </span>
+<div class="min-h-screen py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Enhanced Header with Glass Effect -->
+        <div class="glass-card rounded-3xl p-6 mb-8 shadow-2xl">
+            <div class="flex flex-col lg:flex-row items-center justify-between">
+                <div class="text-center lg:text-left mb-4 lg:mb-0">
+                    <h1 class="text-5xl font-black text-slate-800 mb-2">
+                        Admin <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Dashboard</span>
+                    </h1>
+                    <p class="text-slate-600 text-lg">Manage your pharmacy system with powerful admin tools</p>
                 </div>
-                <a href="{% url 'logout' %}"
-                class="px-4 py-2 text-sm font-medium rounded-md bg-red-500 text-white shadow-sm
-                        hover:bg-red-600 transition-colors duration-300 ease-in-out">
-                    Logout
-                </a>
-            {% else %}
-                <a href="{% url 'login' %}"
-                class="px-4 py-2 text-sm font-medium rounded-md bg-green-600 text-white shadow-sm
-                        hover:bg-green-700 transition-colors duration-300 ease-in-out">
-                    Login
-                </a>
-            {% endif %}
-        </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
-            <a href="{% url 'create_staff' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 px-4 rounded-2xl shadow-lg flex flex-col items-center justify-center transition duration-300 transform hover:-translate-y-1 hover:scale-105">
-                <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
-                </svg>
-                <span>Create New Staff</span>
-            </a>
-
-            <a href="{% url 'staff_list' %}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-6 px-4 rounded-2xl shadow-lg flex flex-col items-center justify-center transition duration-300 transform hover:-translate-y-1 hover:scale-105">
-                <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"></path>
-                </svg>
-                <span>Manage Staff</span>
-            </a>
-
-            <a href="{% url 'customer_list' %}" 
-            class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-6 px-4 rounded-2xl shadow-lg 
-                    flex flex-col items-center justify-center transition-transform duration-300 
-                    transform hover:-translate-y-1 hover:scale-105">
                 
-                <!-- User Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 mb-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" 
-                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                </svg>
-
-                <!-- Button Label -->
-                <span>Manage Customer</span>
-            </a>
-
+                <div class="flex items-center gap-4 bg-gradient-to-r from-blue-50 to-purple-50 backdrop-blur-md px-6 py-3 rounded-2xl border border-blue-200">
+                    {% if user.is_authenticated %}
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                {{ user.username|first|upper }}
+                            </div>
+                            <div class="text-slate-700">
+                                <p class="text-sm opacity-80">Welcome back,</p>
+                                <p class="font-semibold text-lg">{{ user.username }}</p>
+                            </div>
+                        </div>
+                        <a href="{% url 'logout' %}"
+                        class="px-6 py-3 text-sm font-medium rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg
+                                hover:from-red-600 hover:to-red-700 transition-all duration-300 ease-in-out transform hover:scale-105">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}"
+                        class="px-6 py-3 text-sm font-medium rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg
+                                hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out transform hover:scale-105">
+                            Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
-        <!-- Info Panel -->
-        <div class="bg-white shadow-lg rounded-2xl border border-gray-200 p-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Overview</h2>
-            <p class="text-gray-700 leading-relaxed">
-                This is your admin dashboard where you can manage staff accounts, monitor system activities, and oversee operations. Use the quick action cards above to perform tasks efficiently.
-            </p>
+        <!-- Stats Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="stats-card rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-600 text-sm font-medium">Total Staff</p>
+                        <p class="text-3xl font-bold text-slate-800">{{ staff_count|default:0 }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-600 text-sm font-medium">Total Customers</p>
+                        <p class="text-3xl font-bold text-slate-800">{{ customer_count|default:0 }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-600 text-sm font-medium">System Status</p>
+                        <p class="text-lg font-semibold text-emerald-600">Online</p>
+                    </div>
+                    <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Quick Actions -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Quick Actions</span>
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <a href="{% url 'create_staff' %}" class="action-card rounded-2xl shadow-2xl p-8 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Create New Staff</h3>
+                    <p class="text-slate-600 text-sm">Add new staff members to your team</p>
+                </a>
+
+                <a href="{% url 'staff_list' %}" class="action-card rounded-2xl shadow-2xl p-8 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Manage Staff</h3>
+                    <p class="text-slate-600 text-sm">View and manage existing staff accounts</p>
+                </a>
+
+                <a href="{% url 'customer_list' %}" class="action-card rounded-2xl shadow-2xl p-8 text-center group">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-white">
+                            <path stroke-linecap="round" stroke-linejoin="round" 
+                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Manage Customers</h3>
+                    <p class="text-slate-600 text-sm">View and manage customer accounts</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Enhanced Info Panel -->
+        <div class="glass-card rounded-3xl p-8 shadow-2xl">
+            <div class="flex items-start gap-6">
+                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-800 mb-4">
+                        System <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Overview</span>
+                    </h2>
+                    <p class="text-slate-600 leading-relaxed text-lg">
+                        Welcome to your comprehensive admin dashboard. Here you can efficiently manage staff accounts, 
+                        monitor customer activities, and oversee all pharmacy operations. Use the quick action cards above 
+                        to navigate through different management modules and maintain optimal system performance.
+                    </p>
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <span class="px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 backdrop-blur-md rounded-full text-blue-700 text-sm font-medium border border-blue-200">
+                            Staff Management
+                        </span>
+                        <span class="px-4 py-2 bg-gradient-to-r from-emerald-50 to-emerald-100 backdrop-blur-md rounded-full text-emerald-700 text-sm font-medium border border-emerald-200">
+                            Customer Oversight
+                        </span>
+                        <span class="px-4 py-2 bg-gradient-to-r from-purple-50 to-purple-100 backdrop-blur-md rounded-full text-purple-700 text-sm font-medium border border-purple-200">
+                            System Monitoring
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
 </div>
 {% endblock %}

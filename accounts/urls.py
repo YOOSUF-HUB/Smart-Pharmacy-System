@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
-from .views import CustomLoginView
+from .views import CustomLoginView, StaffPasswordResetView
 
 urlpatterns = [
     # auth
@@ -35,10 +35,32 @@ urlpatterns = [
     path('dashboard/admin/staff_detail/<int:staff_id>/', views.staff_detail, name='staff_detail'),
     path('customer-logout/', views.customer_logout_view, name='customer_logout'),
 
-    # Password Reset URLs - ADD THESE NEW LINES
-    path('test-reset/', views.test_password_reset, name='test_password_reset'),
-    path('password-reset/', views.StaffPasswordResetView.as_view(), name='password_reset'),
-    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
-    path('password-reset-confirm/<uidb64>/<token>/', views.StaffPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
+
+    # Staff Export URLs
+    path('staff/export/csv/', views.staff_list_csv, name='staff_list_csv'),
+    path('staff/export/pdf/', views.staff_list_pdf, name='staff_list_pdf'),
+
+    # Password Reset URLs - using custom staff-only views
+    path('password-reset/', 
+         StaffPasswordResetView.as_view(), 
+         name='password_reset'),
+    
+    path('password-reset/done/', 
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='registration/password_reset_done.html'
+         ), 
+         name='password_reset_done'),
+    
+    path('password-reset-confirm/<uidb64>/<token>/', 
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='registration/password_reset_confirm.html',
+             success_url='/accounts/password-reset-complete/'
+         ), 
+         name='password_reset_confirm'),
+    
+    path('password-reset-complete/', 
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='registration/password_reset_complete.html'
+         ), 
+         name='password_reset_complete'),
 ]

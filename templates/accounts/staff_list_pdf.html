@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Staff Members Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.2cm;
+            @top-left {
+                content: "MediSync Pharmacy";
+                font-size: 9px;
+                color: #64748b;
+                font-weight: bold;
+            }
+            @top-right {
+                content: "Confidential Report";
+                font-size: 9px;
+                color: #64748b;
+                font-style: italic;
+            }
+            @bottom-center {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 10px;
+                color: #475569;
+                background: #e2e8f0;
+                padding: 4px 12px;
+                border-radius: 8px;
+                margin-top: 8px;
+            }
+            @bottom-left {
+                content: "Generated: {{ generated_date }}";
+                font-size: 8px;
+                color: #64748b;
+            }
+        }
+        
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.4;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+            background: #f8fafc;
+            font-size: 11px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            background: #3b82f6;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin: 0 0 6px 0;
+            font-weight: bold;
+        }
+        
+        .header .subtitle {
+            font-size: 14px;
+            margin: 3px 0;
+            font-weight: normal;
+        }
+        
+        .header .company-info {
+            font-size: 10px;
+            margin-top: 8px;
+        }
+        
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .meta-info div {
+            font-size: 11px;
+            padding: 8px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 3px solid #3b82f6;
+            flex: 1;
+            margin: 0 3px;
+        }
+        
+        .meta-info strong {
+            color: #1e40af;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+            font-size: 10px;
+        }
+        
+        .meta-info span {
+            color: #475569;
+            font-size: 10px;
+        }
+        
+        .summary {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3b82f6;
+            page-break-inside: avoid;
+        }
+        
+        .summary h3 {
+            margin: 0 0 8px 0;
+            color: #1e40af;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .summary p {
+            margin: 0;
+            color: #475569;
+            line-height: 1.4;
+            font-size: 10px;
+        }
+        
+        .stats-grid {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 3px;
+        }
+        
+        .stat-label {
+            font-size: 9px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            page-break-inside: auto;
+        }
+        
+        thead {
+            display: table-header-group;
+        }
+        
+        tbody {
+            display: table-row-group;
+        }
+        
+        th {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 6px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            page-break-after: avoid;
+        }
+        
+        td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 9px;
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+        
+        tr {
+            page-break-inside: avoid;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 8px;
+            font-weight: bold;
+            text-align: center;
+            display: inline-block;
+            min-width: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        
+        .role-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 8px;
+            font-weight: bold;
+            text-align: center;
+            display: inline-block;
+            min-width: 55px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .role-pharmacist {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        
+        .role-cashier {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+        
+        .role-admin {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        
+        .username-cell {
+            font-weight: bold;
+            color: #1e40af;
+            max-width: 80px;
+            word-break: break-word;
+        }
+        
+        .email-cell {
+            color: #475569;
+            font-family: monospace;
+            font-size: 8px;
+            max-width: 120px;
+            word-break: break-all;
+        }
+        
+        .date-cell {
+            color: #64748b;
+            font-size: 8px;
+            white-space: nowrap;
+        }
+        
+        .date-cell small {
+            color: #94a3b8;
+            font-size: 7px;
+            display: block;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #64748b;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-top: 2px solid #3b82f6;
+            page-break-inside: avoid;
+        }
+        
+        .footer .disclaimer {
+            margin-top: 8px;
+            font-size: 8px;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        /* Responsive table columns */
+        .col-username { width: 18%; }
+        .col-email { width: 28%; }
+        .col-role { width: 14%; }
+        .col-status { width: 12%; }
+        .col-login { width: 16%; }
+        .col-joined { width: 12%; }
+
+        /* Page break handling */
+        .page-break {
+            page-break-before: always;
+        }
+        
+        .no-break {
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+    <div class="header no-break">
+        <h1>Staff Members Report</h1>
+        <div class="subtitle">Pharmacy Management System</div>
+        <div class="company-info">MediSync Pharmacy Solutions - Professional Staff Directory</div>
+    </div>
+    
+    <div class="meta-info no-break">
+        <div>
+            <strong>Generated on:</strong>
+            <span>{{ generated_date }} at {{ generated_time }}</span>
+        </div>
+        <div>
+            <strong>Total Staff:</strong>
+            <span>{{ total_staff }} member{{ total_staff|pluralize }}</span>
+        </div>
+        <div>
+            <strong>Report Type:</strong>
+            <span>Complete Staff List</span>
+        </div>
+    </div>
+    
+    <div class="stats-grid no-break">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_staff }}</div>
+            <div class="stat-label">Total Members</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ staff_users|length }}</div>
+            <div class="stat-label">Active Profiles</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Compliance</div>
+        </div>
+    </div>
+    
+    <div class="summary no-break">
+        <h3>Executive Summary</h3>
+        <p>This comprehensive report presents a detailed overview of all staff members within the MediSync Pharmacy Management System. It includes essential information such as contact details, assigned roles, current employment status, and recent activity logs.</p>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th class="col-username">Username</th>
+                <th class="col-email">Email</th>
+                <th class="col-role">Role</th>
+                <th class="col-status">Status</th>
+                <th class="col-login">Last Login</th>
+                <th class="col-joined">Joined</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for staff in staff_users %}
+            <tr>
+                <td class="username-cell col-username">{{ staff.username }}</td>
+                <td class="email-cell col-email">{{ staff.email }}</td>
+                <td class="col-role">
+                    <span class="role-badge role-{{ staff.role }}">
+                        {{ staff.role|title }}
+                    </span>
+                </td>
+                <td class="col-status">
+                    <span class="status-badge status-{% if staff.is_active %}active{% else %}inactive{% endif %}">
+                        {% if staff.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </td>
+                <td class="date-cell col-login">
+                    {% if staff.last_login %}
+                        {{ staff.last_login|date:"M d, Y" }}
+                        <small>{{ staff.last_login|date:"h:i A" }}</small>
+                    {% else %}
+                        <span style="color: #9ca3af;">Never</span>
+                    {% endif %}
+                </td>
+                <td class="date-cell col-joined">{{ staff.date_joined|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 30px; color: #64748b;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">No staff members found</div>
+                    <div style="font-size: 10px; margin-top: 4px;">Please add staff members to generate this report</div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer no-break">
+        <p><strong>MediSync Pharmacy Management System</strong><br>
+        This report was automatically generated and contains confidential information.</p>
+        <div class="disclaimer">
+            For questions regarding this report, contact the system administrator.<br>
+            Document generated on {{ generated_date }} - All rights reserved - Internal use only
+        </div>
+    </div>
+</body>
+</html>
