@@ -4,6 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import handler403
 from accounts.views import CustomLoginView
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     # Make login the root URL
