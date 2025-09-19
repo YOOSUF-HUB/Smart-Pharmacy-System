@@ -11,12 +11,12 @@ urlpatterns = [
     # Make login the root URL
     path('', CustomLoginView.as_view(), name='login'),
     
-    # Other URLs
+    # Account URLs
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),  # This includes all URLs from accounts app
     
     # Medicine inventory URLs
-    path('medicine/', include('Medicine_inventory.urls')),
+    path('medical/', include('Medicine_inventory.urls')),
     path('prescriptions/', include('prescriptions.prescription_urls')),
     path('non-medical/', include('Non_Medicine_inventory.urls', namespace='non_medicine')),
     path('payments/' , include('payments.payments_urls')),
