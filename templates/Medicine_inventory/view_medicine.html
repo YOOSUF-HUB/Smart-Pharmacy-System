@@ -102,6 +102,15 @@
         Register New Medication
       </a>
 
+      <!-- Bulk Upload Button -->
+      <button onclick="toggleBulkUploadModal()" 
+              class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-medium rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        Bulk Upload
+      </button>
+
       <div class="relative">
         <button onclick="toggleExportMenu()" 
                 class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
@@ -127,6 +136,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
               Export as CSV
+            </a>
+            <div class="border-t border-slate-200 my-2"></div>
+            <a href="#" onclick="downloadTemplate()" class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-100/70 transition-colors duration-200">
+              <svg class="w-4 h-4 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Download Template
             </a>
           </div>
         </div>
@@ -241,7 +257,8 @@
           {% if med.image %}
           <div class="relative w-full" style="padding-bottom: 75%;">
             <img src="{{ med.image.url }}" alt="{{ med.name }}" 
-                 class="absolute top-0 left-0 w-full h-full object-cover">
+                 class="absolute top-0 left-0 w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                 onclick="showImageModal('{{ med.image.url }}', '{{ med.name|escapejs }}')">
             <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
           </div>
           {% else %}
@@ -458,7 +475,178 @@
   </div>
 </div>
 
+<!-- Image Modal -->
+<div id="imageModal" class="modal fixed inset-0 bg-black bg-opacity-80 overflow-y-auto h-full w-full z-50 hidden">
+  <div class="relative min-h-screen flex items-center justify-center p-4">
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h3 id="imageModalTitle" class="text-xl font-bold text-slate-900">Medicine Image</h3>
+        <button type="button" onclick="closeImageModal()" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="p-6 flex justify-center">
+        <img id="imageModalImg" src="" alt="" class="max-w-full max-h-[60vh] object-contain rounded-xl shadow-lg">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Upload Modal -->
+<div id="bulkUploadModal" class="modal fixed inset-0 bg-black bg-opacity-60 overflow-y-auto h-full w-full z-50 hidden">
+  <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-xl rounded-2xl bg-white">
+    <div class="mt-3">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <div class="flex items-center">
+          <div class="p-3 rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white shadow-lg mr-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-slate-900">Bulk Upload Medicines</h3>
+            <p class="text-sm text-slate-600">Upload multiple medicines at once using CSV file</p>
+          </div>
+        </div>
+        <button type="button" class="close-modal-button text-gray-400 hover:text-gray-600 transition-colors duration-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6">
+        <form id="bulkUploadForm" method="post" enctype="multipart/form-data" action="#">
+          {% csrf_token %}
+          
+          <!-- Instructions -->
+          <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <h4 class="text-sm font-semibold text-blue-800 mb-2">Upload Instructions:</h4>
+            <ul class="text-sm text-blue-700 space-y-1">
+              <li>• Use the provided CSV template for correct format</li>
+              <li>• Ensure all required fields are filled</li>
+              <li>• Date format should be YYYY-MM-DD</li>
+              <li>• File size should not exceed 5MB</li>
+            </ul>
+          </div>
+
+          <!-- File Upload Area -->
+          <div class="mb-6">
+            <label for="csv_file" class="block text-sm font-medium text-slate-700 mb-3">Select CSV File</label>
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-gray-400 transition-colors duration-200">
+              <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+              <div class="text-sm text-gray-600">
+                <label for="csv_file" class="cursor-pointer">
+                  <span class="font-medium text-indigo-600 hover:text-indigo-500">Click to upload</span>
+                  or drag and drop
+                </label>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">CSV files only, up to 5MB</p>
+              <input id="csv_file" name="csv_file" type="file" accept=".csv" class="hidden" required>
+            </div>
+            <div id="fileName" class="mt-2 text-sm text-gray-600 hidden"></div>
+          </div>
+
+          <!-- Download Template -->
+          <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-sm font-semibold text-amber-800 mb-1">Need a template?</h4>
+                <p class="text-sm text-amber-700">Download our CSV template with proper formatting</p>
+              </div>
+              <a href="#" onclick="downloadTemplate()" 
+                 class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-lg hover:bg-amber-200 transition-all duration-200 shadow-sm hover:shadow-md">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Download Template
+              </a>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end space-x-4">
+            <button type="button" class="close-modal-button px-6 py-3 bg-slate-200 text-slate-800 rounded-xl hover:bg-slate-300 transition-all duration-200 font-medium">
+              Cancel
+            </button>
+            <button type="submit" 
+                    class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium">
+              <span class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                Upload Medicines
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+  // Image Modal Functions
+  function showImageModal(imageUrl, medicineName) {
+    const modal = document.getElementById('imageModal');
+    const img = document.getElementById('imageModalImg');
+    const title = document.getElementById('imageModalTitle');
+    
+    img.src = imageUrl;
+    img.alt = medicineName;
+    title.textContent = medicineName + ' - Image';
+    modal.classList.remove('hidden');
+  }
+
+  function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.classList.add('hidden');
+  }
+
+  // Bulk Upload Modal Functions
+  function toggleBulkUploadModal() {
+    const modal = document.getElementById('bulkUploadModal');
+    modal.classList.toggle('hidden');
+  }
+
+  // File input handling
+  document.getElementById('csv_file').addEventListener('change', function(e) {
+    const fileName = document.getElementById('fileName');
+    if (e.target.files[0]) {
+      fileName.textContent = `Selected: ${e.target.files[0].name}`;
+      fileName.classList.remove('hidden');
+    } else {
+      fileName.classList.add('hidden');
+    }
+  });
+
+  // Download template function
+  function downloadTemplate() {
+    // Create a CSV template with image field included and sample image URLs
+    const csvContent = `name,category,medicine_type,dosage,batch_number,manufacturing_date,expiry_date,selling_price,cost_price,quantity_in_stock,reorder_level,brand,supplier,description,image_url
+Paracetamol 500mg,Pain Relief,Tablet,500mg,BATCH001,2024-01-15,2026-01-15,5.50,3.20,100,20,PharmaCorp,MediSupply Ltd,Pain and fever relief medicine,https://example.com/images/paracetamol.jpg
+Amoxicillin 250mg,Antibiotic,Capsule,250mg,BATCH002,2024-02-10,2025-02-10,12.75,8.50,50,10,AntiBio Pharma,HealthCare Distributors,Broad spectrum antibiotic,https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400
+Aspirin 100mg,Pain Relief,Tablet,100mg,BATCH003,2024-03-05,2026-03-05,3.25,2.10,75,15,AspiroCorp,Global Medical Supply,Low-dose aspirin for cardiovascular health,/static/images/medicines/aspirin.png`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'medicine_bulk_upload_template.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   // Export menu toggle
   function toggleExportMenu() {
     const menu = document.getElementById('exportMenu');
@@ -480,13 +668,7 @@
     const openModal = (modal) => modal && modal.classList.remove('hidden');
     const closeModal = (modal) => modal && modal.classList.add('hidden');
 
-    document.querySelectorAll('.open-modal-button').forEach(button => {
-      button.addEventListener('click', () => {
-        const modal = document.querySelector(button.dataset.modalTarget);
-        openModal(modal);
-      });
-    });
-
+    // Bulk upload modal
     document.querySelectorAll('.close-modal-button').forEach(button => {
       button.addEventListener('click', () => {
         const modal = button.closest('.modal');
@@ -494,15 +676,27 @@
       });
     });
 
+    // Delete modals
+    document.querySelectorAll('.open-modal-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const modal = document.querySelector(button.dataset.modalTarget);
+        openModal(modal);
+      });
+    });
+
+    // Close modals when clicking outside or pressing escape
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('click', (event) => {
         if (event.target === modal) closeModal(modal);
       });
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        document.querySelectorAll('.modal:not(.hidden)').forEach(modal => {
           closeModal(modal);
-        }
-      });
+        });
+      }
     });
   });
 </script>

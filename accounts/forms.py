@@ -3,11 +3,16 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
-from .models import Customer  # Use your actual model name
+from .models import Customer
 
 User = get_user_model()  # This gets your custom User model
 
+
 class CustomerSignUpForm(UserCreationForm):
+    """
+    Form for customer registration with both User and Customer profile fields.
+    Creates a new User with 'customer' role and associated Customer profile.
+    """
     # User fields
     email = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=30, required=False)
@@ -15,10 +20,13 @@ class CustomerSignUpForm(UserCreationForm):
     
     # Customer profile fields
     phone = forms.CharField(max_length=15, required=False)
-    address = forms.CharField(widget=forms.Textarea(attrs={
-    'rows': 3, 
-    'class': 'mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-cyan-500 focus:ring-cyan-500'
-}), required=False)
+    address = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'rows': 3, 
+            'class': 'mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-cyan-500 focus:ring-cyan-500'
+        }), 
+        required=False
+    )
     city = forms.CharField(max_length=100, required=False)
     postal_code = forms.CharField(max_length=20, required=False)
     country = forms.CharField(max_length=100, required=False)
@@ -29,6 +37,7 @@ class CustomerSignUpForm(UserCreationForm):
         fields = ("username", "email", "password1", "password2", "first_name", "last_name")
 
     def save(self, commit=True):
+        """Save user and create associated customer profile."""
         user = super().save(commit=False)
         user.role = "customer"
         user.email = self.cleaned_data.get('email')
@@ -51,6 +60,10 @@ class CustomerSignUpForm(UserCreationForm):
 
 
 class StaffCreationForm(forms.ModelForm):
+    """
+    Form for creating staff members (admin, pharmacist, cashier).
+    Includes password confirmation and role selection.
+    """
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm password', widget=forms.PasswordInput)
     
@@ -62,6 +75,7 @@ class StaffCreationForm(forms.ModelForm):
         }
     
     def clean_password2(self):
+        """Validate that password confirmation matches."""
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
@@ -69,6 +83,7 @@ class StaffCreationForm(forms.ModelForm):
         return password2
     
     def save(self, commit=True):
+        """Save user with hashed password."""
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         if commit:
@@ -77,6 +92,10 @@ class StaffCreationForm(forms.ModelForm):
 
 
 class StaffEditForm(forms.ModelForm):
+    """
+    Form for editing existing staff members.
+    Does not include password fields - use separate password change form.
+    """
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'role', 'phone', 'date_hired', 'is_active')
@@ -85,7 +104,7 @@ class StaffEditForm(forms.ModelForm):
         }
 
     def clean_date_hired(self):
-        # Handle empty date strings
+        """Handle empty date strings."""
         date_hired = self.cleaned_data.get('date_hired')
         if date_hired == '':
             return None
@@ -93,6 +112,11 @@ class StaffEditForm(forms.ModelForm):
 
 
 class CustomerProfileForm(forms.ModelForm):
+    """
+    Form for customers to edit their profile information.
+    Includes both User fields and Customer profile fields.
+    """
+    # User fields
     username = forms.CharField(max_length=150, required=True)
     email = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=30, required=False)
@@ -102,8 +126,8 @@ class CustomerProfileForm(forms.ModelForm):
         model = Customer
         fields = ['phone', 'address', 'city', 'postal_code', 'country', 'nic']
     
-    # Make sure initialization includes all fields
     def __init__(self, *args, **kwargs):
+        """Initialize form with current user data."""
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.user:
             self.fields['username'].initial = self.instance.user.username
@@ -112,13 +136,14 @@ class CustomerProfileForm(forms.ModelForm):
             self.fields['last_name'].initial = self.instance.user.last_name
 
     def clean_username(self):
+        """Validate username uniqueness (excluding current user)."""
         username = self.cleaned_data['username']
-        # Using the custom User model via get_user_model()
         if User.objects.exclude(pk=self.instance.user.pk).filter(username=username).exists():
             raise forms.ValidationError("This username is already taken.")
         return username
 
     def save(self, commit=True):
+        """Save both User and Customer profile data."""
         profile = super().save(commit=False)
         user = profile.user
         
@@ -143,7 +168,12 @@ class CustomerProfileForm(forms.ModelForm):
 
 
 class CustomAuthenticationForm(AuthenticationForm):
+    """
+    Custom login form with enhanced validation and user feedback.
+    Provides specific error messages for different failure scenarios.
+    """
     def __init__(self, *args, **kwargs):
+        """Initialize form with custom styling."""
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({
             'class': 'form-control',
@@ -155,12 +185,13 @@ class CustomAuthenticationForm(AuthenticationForm):
         })
 
     def clean(self):
+        """Enhanced authentication validation with specific error messages."""
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
 
         if username and password:
-            # Check if user exists
             try:
+                # Check if user exists
                 user = User.objects.get(username=username)
                 
                 # Check if user is active
