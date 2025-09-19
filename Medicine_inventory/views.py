@@ -304,7 +304,7 @@ def export_medicine_pdf(request):
 @pharmacist_required
 def med_inventory_dash(request):
     today = timezone.now().date()
-    expiry_threshold = today + timezone.timedelta(days=30)
+    expiry_threshold = today + timezone.timedelta(days=8)
 
     total_medicines = Medicine.objects.count()
     low_stock_count = Medicine.objects.filter(quantity_in_stock__lt=F('reorder_level')).count()
