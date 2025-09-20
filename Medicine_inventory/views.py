@@ -316,11 +316,12 @@ def med_inventory_dash(request):
     nonmedical_active_count = NonMedicalProduct.objects.filter(is_active=True).count()
     nonmedical_categories_count = NonMedicalProduct.objects.values('category').distinct().count()
 
+
     # Add online orders statistics
     try:
-        from your_app.models import Order  # Replace with actual app name
-        pending_orders_count = Order.objects.filter(status='pending').count()
-        processing_orders_count = Order.objects.filter(status='processing').count()
+        from onlineStore.models import Order
+        pending_orders_count = Order.objects.filter(status='Pending').count()
+        processing_orders_count = Order.objects.filter(status='Processing').count()
         total_orders_today = Order.objects.filter(created_at__date=today).count()
         recent_orders = Order.objects.all().order_by('-created_at')[:5]
     except ImportError:
