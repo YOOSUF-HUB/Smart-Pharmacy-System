@@ -323,12 +323,14 @@ def med_inventory_dash(request):
         pending_orders_count = Order.objects.filter(status='Pending').count()
         processing_orders_count = Order.objects.filter(status='Processing').count()
         total_orders_today = Order.objects.filter(created_at__date=today).count()
+        total_orders = Order.objects.count()
         recent_orders = Order.objects.all().order_by('-created_at')[:5]
     except ImportError:
         # Fallback if Order model not found
         pending_orders_count = 0
         processing_orders_count = 0
         total_orders_today = 0
+        total_orders = 0
         recent_orders = []
 
     category_data = Medicine.objects.values('category').annotate(count=Count('id')).order_by('-count')
@@ -370,6 +372,7 @@ def med_inventory_dash(request):
         'pending_orders_count': pending_orders_count,
         'processing_orders_count': processing_orders_count,
         'total_orders_today': total_orders_today,
+        'total_orders': total_orders,
         'recent_orders': recent_orders,
     }
     return render(request, 'Medicine_inventory/med_inventory_dash.html', context)
