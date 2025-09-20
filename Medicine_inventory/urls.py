@@ -20,7 +20,9 @@ urlpatterns = [
     path('export/csv/', views.export_medicine_csv, name='export_medicine_csv'),
     path('export/pdf/', views.export_medicine_pdf, name='export_medicine_pdf'),
     path('medicine/<int:id>/', views.medicine_detail, name='medicine_detail'),
-    # Remove this line: path('accounts/', include('accounts.urls')),
+
+
+    path('toggle-status/<int:id>/', views.toggle_medicine_status, name='toggle_medicine_status'),
 
     path('online-orders/', views.view_online_orders, name='view_online_orders'),
     path('order/<str:order_id>/', views.order_detail, name='order_detail'),

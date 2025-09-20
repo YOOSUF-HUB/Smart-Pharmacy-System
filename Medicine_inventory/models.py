@@ -54,6 +54,7 @@ class Medicine(models.Model):
     selling_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     image = models.ImageField(upload_to='medical_products/', blank=True, null=True)
     quantity_in_stock = models.PositiveIntegerField()
+    is_active = models.BooleanField(default=True)
     reorder_level = models.PositiveIntegerField(default=10)
     manufacture_date = models.DateField()
     expiry_date = models.DateField()
@@ -61,7 +62,7 @@ class Medicine(models.Model):
     
     # supplier = models.CharField(max_length=100)
     supplier = models.ForeignKey(
-        'supplierManagement.Supplier',  # Use string reference
+        'supplierManagement.Supplier',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

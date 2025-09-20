@@ -5,7 +5,7 @@ from Medicine_inventory.models import Medicine
 class MedicineAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'brand', 'category', 'dosage', 'cost_price', 'selling_price', 'medicine_type',
-        'quantity_in_stock', 'reorder_level', 'manufacture_date',
+        'quantity_in_stock', 'reorder_level', 'manufacture_date', 'is_active',
         'expiry_date', 'batch_number', 'supplier'
     ]
     search_fields = ['name', 'brand', 'category', 'batch_number', 'supplier']

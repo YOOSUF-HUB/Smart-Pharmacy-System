@@ -588,3 +588,46 @@ def order_confirmation(request, order_id):
 
 
 # onlineStore/views.py
+
+
+
+# In your online store views (e.g., views.py)
+from django.shortcuts import render
+from .models import Medicine
+
+def online_store_view(request):
+    # Only show active medicines in the online store
+    active_medicines = Medicine.objects.filter(is_active=True)
+    
+    context = {
+        'medicines': active_medicines,
+    }
+    return render(request, 'online_store/medicine_list.html', context)
+
+def medicine_search_view(request):
+    query = request.GET.get('q', '')
+    
+    # Filter by active medicines and search query
+    medicines = Medicine.objects.filter(
+        is_active=True,
+        name__icontains=query
+    )
+    
+    context = {
+        'medicines': medicines,
+        'query': query,
+    }
+    return render(request, 'online_store/search_results.html', context)
+
+def medicine_category_view(request, category):
+    # Filter by active medicines and category
+    medicines = Medicine.objects.filter(
+        is_active=True,
+        category=category
+    )
+    
+    context = {
+        'medicines': medicines,
+        'category': category,
+    }
+    return render(request, 'online_store/category.html', context)

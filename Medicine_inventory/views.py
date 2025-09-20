@@ -799,3 +799,35 @@ def update_order_status(request, order_id):
         return redirect('order_detail', order_id=order_id)
     
     return redirect('view_online_orders')
+
+
+@pharmacist_required
+def toggle_medicine_status(request, id):
+    """Toggle the active status of a medicine for online store visibility"""
+    if request.method == 'POST':
+        medicine = get_object_or_404(Medicine, id=id)
+        
+        # Toggle the is_active status
+        medicine.is_active = not medicine.is_active
+        medicine.save()
+        
+        # Log the action
+        action_text = "Activated" if medicine.is_active else "Deactivated"
+        MedicineAction.objects.create(
+            medicine=medicine,
+            medicine_name=medicine.name,
+            batch_number=medicine.batch_number,
+            action='Updated',
+            user=request.user,
+            details=f'{action_text} medicine for online store - Status: {"Active" if medicine.is_active else "Inactive"}'
+        )
+        
+        # Success message
+        status_text = "shown in" if medicine.is_active else "hidden from"
+        messages.success(request, f'{medicine.name} is now {status_text} the online store.')
+        
+        # Redirect back to the referring page or cards view
+        return redirect(request.META.get('HTTP_REFERER', 'medicine_cards'))
+    
+    # If not POST, redirect to cards view
+    return redirect('medicine_cards')
