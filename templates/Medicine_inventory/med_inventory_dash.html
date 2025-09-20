@@ -69,21 +69,23 @@
 <!-- Top Navigation Bar -->
 <div class="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border-b border-slate-700/50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-0 sm:h-20 space-y-3 sm:space-y-0">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:py-0 sm:h-20 space-y-4 sm:space-y-0">
+      
       <!-- Logo & Title -->
       <div class="flex items-center space-x-3 sm:space-x-4">
         <div class="relative">
-          <img src="{% static 'MediSyn_Logo/1.png' %}" alt="MediSyn" class="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-white/10 p-1 sm:p-2 backdrop-blur-sm shadow-lg">
-          <div class="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+          <img src="{% static 'MediSyn_Logo/1.png' %}" alt="MediSyn" class="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-white/10 p-2 backdrop-blur-sm shadow-lg">
+          <div class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-pulse border-2 border-slate-900"></div>
         </div>
         <div class="flex-1">
-          <h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight">Operations Dashboard</h1>
-          <p class="text-xs text-slate-300 hidden sm:block">Real-time Operational Management</p>
+          <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Operations Dashboard</h1>
+          <p class="text-sm text-slate-300 hidden sm:block">Real-time Operational Management</p>
         </div>
       </div>
 
       <!-- Clock & User Section -->
-      <div class="flex items-center justify-between sm:justify-end space-x-3 sm:space-x-4">
+      <div class="flex items-center justify-between sm:justify-end space-x-3 sm:space-x-4 w-full sm:w-auto">
+        
         <!-- Mobile Clock -->
         <div class="flex sm:hidden items-center space-x-2 bg-white/10 backdrop-blur-md rounded-lg px-3 py-2 border border-white/20">
           <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,35 +95,35 @@
         </div>
 
         <!-- Desktop Clock -->
-        <div class="hidden sm:flex items-center space-x-3 bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20">
-          <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/20">
-            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="hidden sm:flex items-center space-x-3 bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-lg">
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-white/20">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </div>
+            </svg>
           </div>
           <div class="text-right">
-            <div id="clock" class="text-white text-sm font-mono font-bold">--:--:--</div>
+            <div id="clock" class="text-white text-base font-mono font-bold">--:--:--</div>
             <div id="date" class="text-slate-300 text-xs">Loading...</div>
           </div>
         </div>
 
         <!-- User Profile -->
         {% if user.is_authenticated %}
-        <div class="flex items-center space-x-2 sm:space-x-3 bg-white/10 backdrop-blur-md rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 border border-white/20 flex-1 sm:flex-none">
-          <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center text-white text-xs sm:text-sm font-bold">
+        <div class="flex items-center space-x-3 bg-white/10 backdrop-blur-md rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 border border-white/20 shadow-lg flex-1 sm:flex-none min-w-0">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center text-white text-sm sm:text-base font-bold shadow-lg">
             {{ user.username|first|upper }}
           </div>
-          <div class="flex-1 sm:flex-none">
-            <div class="hidden sm:block text-white text-sm">
-              <p class="font-medium">{{ user.username }}</p>
+          <div class="flex-1 sm:flex-none min-w-0">
+            <div class="hidden sm:block text-white">
+              <p class="font-semibold text-sm truncate">{{ user.username }}</p>
               <p class="text-xs text-slate-300">Pharmacist</p>
             </div>
             <div class="sm:hidden text-white">
-              <p class="font-medium text-xs">{{ user.username }}</p>
+              <p class="font-semibold text-sm truncate">{{ user.username }}</p>
             </div>
           </div>
-          <a href="{% url 'logout' %}" class="inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-medium text-white bg-red-500/80 hover:bg-red-500 rounded-md sm:rounded-lg transition-all duration-200 hover:scale-105 ml-auto">
-            <svg class="w-3 h-3 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <a href="{% url 'logout' %}" class="inline-flex items-center px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-medium text-white bg-red-500/80 hover:bg-red-500 rounded-md sm:rounded-lg transition-all duration-200 hover:scale-105 shadow-md">
+            <svg class="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"/>
             </svg>
             <span class="hidden sm:inline">Logout</span>
@@ -132,40 +134,43 @@
     </div>
 
     <!-- Quick Navigation -->
-    <div class="pb-4 sm:pb-6">
-      <nav class="flex flex-col sm:flex-row gap-2 sm:gap-3" aria-label="Quick navigation">
-        <a href="{% url 'medicine_table' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 transition-all duration-200 hover:scale-105 backdrop-blur-sm">
-          <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="pb-6">
+      <nav class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3" aria-label="Quick navigation">
+        
+        <a href="{% url 'medicine_table' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 transition-all duration-200 hover:scale-105 backdrop-blur-sm shadow-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
           </svg>
-          Medicines
+          <span>Medicines</span>
         </a>
         
-        <!-- NEW PRESCRIPTION BUTTON - HIGHLIGHTED -->
-        <a href="{% url 'prescription_list' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg border border-emerald-500/20 transition-all duration-200 hover:scale-105 backdrop-blur-sm shadow-lg">
-          <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- PRESCRIPTION BUTTON - HIGHLIGHTED -->
+        <a href="{% url 'prescription_list' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg border border-emerald-500/30 transition-all duration-200 hover:scale-105 backdrop-blur-sm shadow-lg col-span-2 sm:col-span-1">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          <span class="font-semibold">Prescriptions</span>
+          <span>Prescriptions</span>
         </a>
         
-        <a href="{% url 'non_medicine:product_list' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 transition-all duration-200 hover:scale-105 backdrop-blur-sm">
-          <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="{% url 'non_medicine:product_list' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 transition-all duration-200 hover:scale-105 backdrop-blur-sm shadow-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
           </svg>
-          Non-Medical
+          <span>Non-Medical</span>
         </a>
-        <a href="{% url 'view_online_orders' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 transition-all duration-200 hover:scale-105 backdrop-blur-sm">
-          <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        
+        <a href="{% url 'view_online_orders' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 transition-all duration-200 hover:scale-105 backdrop-blur-sm shadow-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
           </svg>
-          Orders
+          <span>Orders</span>
         </a>
-        <a href="{% url 'suppliers:list' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 transition-all duration-200 hover:scale-105 backdrop-blur-sm">
-          <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        
+        <a href="{% url 'suppliers:list' %}" class="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 transition-all duration-200 hover:scale-105 backdrop-blur-sm shadow-sm col-span-2 sm:col-span-1">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
           </svg>
-          Suppliers
+          <span>Suppliers</span>
         </a>
       </nav>
     </div>
