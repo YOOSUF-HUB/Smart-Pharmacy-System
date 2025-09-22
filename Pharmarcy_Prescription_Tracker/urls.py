@@ -20,7 +20,7 @@ urlpatterns = [
     path('prescriptions/', include('prescriptions.prescription_urls')),
     path('non-medical/', include('Non_Medicine_inventory.urls', namespace='non_medicine')),
     path('payments/' , include('payments.payments_urls')),
-    path('online-store/', include('onlineStore.urls')),
+    path('MediSync/', include('onlineStore.urls')),
 
     # Supplier management URLs
     path('suppliers/', include('supplierManagement.urls', namespace='suppliers')),
