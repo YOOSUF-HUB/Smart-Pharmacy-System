@@ -72,19 +72,22 @@ def customer_required(view_func):
 # ADMIN FUNCTIONS
 # =============================================================================
 
+# Admin dashboard view - displays main admin interface
 @never_cache
 @admin_required
 def admin_dashboard(request):
     return render(request, "accounts/admin_dashboard.html")
 
+# Create new staff member (pharmacist or cashier)
 @admin_required
 def create_staff(request):
     if request.method == "POST":
         form = StaffCreationForm(request.POST)
         if form.is_valid():
+            # Save user and set staff permissions
             user = form.save(commit=False)
-            user.is_staff = True  # Ensure this line exists
-            user.is_active = True  # Also ensure they're active
+            user.is_staff = True
+            user.is_active = True
             user.save()
             messages.success(request, f'Staff member {user.username} created successfully.')
             return redirect("staff_list")
@@ -92,14 +95,18 @@ def create_staff(request):
         form = StaffCreationForm()
     return render(request, "accounts/create_staff.html", {"form": form})
 
+# Display list of all staff members
 @admin_required
 def staff_list(request):
+    # Get only pharmacists and cashiers
     staff_users = User.objects.filter(role__in=["pharmacist", "cashier"])
     return render(request, "accounts/staff_list.html", {"staff_users": staff_users})
 
+# Show detailed view of individual staff member
 @admin_required
 @never_cache
 def staff_detail(request, staff_id):
+    # Get staff member or return 404 if not found
     staff = get_object_or_404(User, id=staff_id, role__in=['admin', 'pharmacist', 'cashier'])
     
     context = {
@@ -108,6 +115,7 @@ def staff_detail(request, staff_id):
     
     return render(request, 'accounts/staff_detail.html', context)
 
+# Edit existing staff member details
 @admin_required
 def edit_staff(request, staff_id):
     staff = get_object_or_404(User, id=staff_id)
@@ -118,7 +126,7 @@ def edit_staff(request, staff_id):
         if form.is_valid():
             print("Form is valid")
             staff = form.save(commit=False)
-            # Make sure is_active is properly handled since it's a checkbox
+            # Handle checkbox field for active status
             staff.is_active = 'is_active' in request.POST
             staff.save()
             messages.success(request, 'Staff account updated successfully')
@@ -126,27 +134,34 @@ def edit_staff(request, staff_id):
         else:
             print("Form errors:", form.errors)
     else:
+        # Load existing staff data into form
         form = StaffEditForm(instance=staff)
     
     return render(request, 'accounts/edit_staff.html', {'form': form})
 
+# Delete staff member with confirmation
 @admin_required
 def delete_staff(request, staff_id):
+    # Only allow deletion of pharmacists and cashiers
     staff_user = get_object_or_404(User, id=staff_id, role__in=["pharmacist", "cashier"])
     if request.method == "POST":
+        # Confirm deletion
         staff_user.delete()
         messages.success(request, "Staff deleted successfully.")
         return redirect("staff_list")
     return render(request, "accounts/delete_staff.html", {"staff_user": staff_user})
 
+# Display list of all customers
 @admin_required
 def customer_list(request):
     customers = User.objects.filter(role="customer")
     return render(request, "accounts/customer_list.html", {"customers": customers})
 
+# Show detailed view of individual customer
 @admin_required
 @never_cache
 def customer_detail(request, customer_id):
+    # Get both user and customer profile data
     customer_user = get_object_or_404(User, id=customer_id, role='customer')
     customer = get_object_or_404(Customer, user=customer_user)
     
@@ -162,15 +177,20 @@ def customer_detail(request, customer_id):
 @admin_required
 def staff_list_csv(request):
     """Export staff list as CSV"""
+    # Set up CSV response headers
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="staff_list.csv"'
     
     writer = csv.writer(response)
+    # Write CSV header row
     writer.writerow(['Username', 'Email', 'Role', 'Status', 'Last Login', 'Date Joined'])
     
+    # Get all staff users ordered by join date
     staff_users = User.objects.filter(role__in=["pharmacist", "cashier"]).order_by('-date_joined')
     
+    # Write each staff member's data
     for staff in staff_users:
+        # Format dates for display
         last_login = staff.last_login.strftime('%Y-%m-%d %H:%M:%S') if staff.last_login else 'Never'
         date_joined = staff.date_joined.strftime('%Y-%m-%d %H:%M:%S')
         status = 'Active' if staff.is_active else 'Inactive'
@@ -186,12 +206,15 @@ def staff_list_csv(request):
     
     return response
 
+# Export staff list as PDF file
 @login_required
 @admin_required
 def staff_list_pdf(request):
     """Export staff list as PDF using WeasyPrint"""
+    # Get all staff users for PDF
     staff_users = User.objects.filter(role__in=["pharmacist", "cashier"]).order_by('-date_joined')
     
+    # Prepare context data for PDF template
     context = {
         'staff_users': staff_users,
         'generated_date': datetime.now().strftime('%B %d, %Y'),
@@ -199,21 +222,21 @@ def staff_list_pdf(request):
         'total_staff': staff_users.count(),
     }
     
-    # Render the HTML template
+    # Generate HTML from template
     html_string = render_to_string('accounts/staff_list_pdf.html', context)
     
-    # Create PDF with minimal configuration
+    # Convert HTML to PDF
     try:
         html = HTML(string=html_string)
         pdf = html.write_pdf()
         
-        # Create response
+        # Return PDF as downloadable file
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="staff_list.pdf"'
         
         return response
     except Exception as e:
-        # Fallback in case of any issues
+        # Handle PDF generation errors
         messages.error(request, f'Error generating PDF: {str(e)}')
         return redirect('staff_list')
 
