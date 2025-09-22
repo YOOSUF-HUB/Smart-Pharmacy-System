@@ -289,36 +289,46 @@ def redirect_dashboard(request):
 # CUSTOMER FUNCTIONS
 # =============================================================================
 
+# Handle customer registration process
 def customer_register(request):
     if request.method == "POST":
+        # Process registration form submission
         form = CustomerSignUpForm(request.POST)
         if form.is_valid():
+            # Save new customer user
             user = form.save()
-            login(request, user)  # auto login after registration
+            # Automatically log in the user after successful registration
+            login(request, user)
             return redirect("customer_dashboard")
     else:
+        # Display empty registration form for GET request
         form = CustomerSignUpForm()
     return render(request, "accounts/register.html", {"form": form})
 
+# Allow customers to edit their profile information
 @customer_required
 def edit_customer_profile(request):
     try:
+        # Try to get existing customer profile
         customer = request.user.customer
     except Customer.DoesNotExist:
         # Create customer profile if it doesn't exist
         customer = Customer.objects.create(user=request.user)
     
     if request.method == 'POST':
+        # Process profile update form submission
         form = CustomerProfileForm(request.POST, instance=customer)
-        print("Form data:", request.POST)
+        print("Form data:", request.POST)  # Debug: log form data
         if form.is_valid():
-            print("Form is valid")
+            print("Form is valid")  # Debug: confirm form validation
+            # Save the updated profile
             form.save()
             messages.success(request, 'Your profile has been updated successfully!')
             return redirect('customer_dashboard')
         else:
-            print("Form errors:", form.errors)
+            print("Form errors:", form.errors)  # Debug: log any form errors
     else:
+        # Load existing customer data into form for GET request
         form = CustomerProfileForm(instance=customer)
     
     return render(request, 'accounts/edit_customer_profile.html', {'form': form})
