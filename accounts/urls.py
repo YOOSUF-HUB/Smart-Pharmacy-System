@@ -43,26 +43,11 @@ urlpatterns = [
     path('staff/export/pdf/', views.staff_list_pdf, name='staff_list_pdf'),
 
     # Password Reset URLs - using custom staff-only views
-    path('password-reset/', 
-         StaffPasswordResetView.as_view(), 
-         name='password_reset'),
-    
-    path('password-reset/done/', 
-         auth_views.PasswordResetDoneView.as_view(
-             template_name='registration/password_reset_done.html'
-         ), 
-         name='password_reset_done'),
-    
-    path('password-reset-confirm/<uidb64>/<token>/', 
-         auth_views.PasswordResetConfirmView.as_view(
-             template_name='registration/password_reset_confirm.html',
-             success_url='/accounts/password-reset-complete/'
-         ), 
-         name='password_reset_confirm'),
-    
-    path('password-reset-complete/', 
-         auth_views.PasswordResetCompleteView.as_view(
-             template_name='registration/password_reset_complete.html'
-         ), 
-         name='password_reset_complete'),
+    path('password-reset/', StaffPasswordResetView.as_view(), name='password_reset'),
+
+    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
+
+    path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html',success_url='/accounts/password-reset-complete/'), name='password_reset_confirm'),
+
+    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
 ]
