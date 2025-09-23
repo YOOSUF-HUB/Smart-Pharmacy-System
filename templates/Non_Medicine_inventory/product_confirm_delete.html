@@ -30,7 +30,7 @@
             <a href="{% url 'non_medicine:product_detail' slug=product.slug %}" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium py-2 px-4 rounded-md">
                 Cancel
             </a>
-            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md">
+            <button type="submit" name="confirm" value="yes" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md">
                 Delete
             </button>
         </form>

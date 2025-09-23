@@ -107,7 +107,9 @@ def product_delete(request, slug):
         if request.POST.get('confirm') == 'true':
             product.delete()
             messages.success(request, f'Product "{product_name}" has been deleted successfully.')
-            return JsonResponse({'status': 'ok', 'redirect': redirect('non_medicine:product_list').url})
+            # Return the current page URL for redirect
+            redirect_url = request.META.get('HTTP_REFERER', '/non-medicine/table/')
+            return JsonResponse({'status': 'ok', 'redirect': redirect_url})
         return JsonResponse({'status': 'cancelled'})
 
     # Standard (non-AJAX) POST (e.g. fallback form)

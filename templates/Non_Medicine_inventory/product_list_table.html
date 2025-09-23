@@ -315,12 +315,13 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
                                     </a>
-                                    <a href="{% url 'non_medicine:product_delete' slug=product.slug %}" 
-                                       class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
+                                    <button type="button" 
+                                            onclick="showDeleteModal('{{ product.slug }}', '{{ product.name }}', '{{ product.id }}')"
+                                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
-                                    </a>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -350,4 +351,104 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Delete Product</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500" id="deleteMessage">
+                    <!-- Dynamic message will be inserted here -->
+                </p>
+            </div>
+            <div class="items-center px-4 py-3">
+                <button id="confirmDelete" 
+                        class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-24 mr-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                    Delete
+                </button>
+                <button id="cancelDelete" 
+                        class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-24 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentDeleteUrl = '';
+
+function showDeleteModal(slug, productName, productId) {
+    currentDeleteUrl = "{% url 'non_medicine:product_delete' slug='PLACEHOLDER' %}".replace('PLACEHOLDER', slug);
+    document.getElementById('deleteMessage').innerHTML = 
+        `Are you sure you want to delete the product <strong>${productName} (ID: ${productId})</strong>?<br>This action cannot be undone.`;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function hideDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+    currentDeleteUrl = '';
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (currentDeleteUrl) {
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value || 
+                         document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        fetch(currentDeleteUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+            },
+            body: 'confirm=true'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                hideDeleteModal();
+                window.location.reload(); // Reload to show updated list and success message
+            } else {
+                hideDeleteModal();
+                alert('Delete cancelled');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            hideDeleteModal();
+            alert('An error occurred while deleting the product');
+        });
+    }
+});
+
+document.getElementById('cancelDelete').addEventListener('click', hideDeleteModal);
+
+// Close modal when clicking outside
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideDeleteModal();
+    }
+});
+</script>
+
+<!-- Add CSRF token meta tag if not present -->
+{% csrf_token %}
+<script>
+// Ensure CSRF token is available for AJAX requests
+if (!document.querySelector('meta[name="csrf-token"]')) {
+    const meta = document.createElement('meta');
+    meta.name = 'csrf-token';
+    meta.content = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    document.getElementsByTagName('head')[0].appendChild(meta);
+}
+</script>
+
 {% endblock %}
