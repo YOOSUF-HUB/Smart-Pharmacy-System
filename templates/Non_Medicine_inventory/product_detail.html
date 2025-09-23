@@ -60,15 +60,15 @@
         
         <!-- Status Badges -->
         <div class="flex flex-wrap items-center gap-3">
-          {% if product.is_active %}
+          {% if product.available_online %}
             <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 rounded-full">
               <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-              Active
+              Available Online
             </span>
           {% else %}
             <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-700 rounded-full">
               <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
-              Inactive
+              Offline
             </span>
           {% endif %}
           

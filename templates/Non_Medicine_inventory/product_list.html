@@ -210,10 +210,16 @@ body {
                     {% endif %}
                     
                     <!-- Status Badge Overlay -->
-                    {% if not product.is_active %}
+                    {% if product.available_online %}
+                    <div class="absolute top-4 left-4">
+                        <span class="px-3 py-1 text-xs font-bold rounded-full bg-green-500 text-white shadow-lg">
+                            Available Online
+                        </span>
+                    </div>
+                    {% else %}
                     <div class="absolute top-4 left-4">
                         <span class="px-3 py-1 text-xs font-bold rounded-full bg-red-500 text-white shadow-lg">
-                            Inactive
+                            Offline
                         </span>
                     </div>
                     {% endif %}
