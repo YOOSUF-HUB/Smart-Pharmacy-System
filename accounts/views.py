@@ -1,26 +1,33 @@
+# Django core imports
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView
 from django.views.decorators.cache import never_cache
-from django.contrib.auth.views import LoginView
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
-from functools import wraps
-from django.core.exceptions import PermissionDenied
-from .forms import CustomerSignUpForm, StaffCreationForm, CustomerProfileForm, StaffEditForm, CustomAuthenticationForm
-from .models import User, Customer
-from django.contrib.auth.views import LoginView
-from django.shortcuts import redirect
-from django.contrib import messages
-from django.urls import reverse_lazy
-from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
 from django.http import HttpResponse
-import csv
 from django.template.loader import render_to_string
-from weasyprint import HTML
+
+# Python standard library imports
+import csv
 from datetime import datetime
+from functools import wraps
+
+# Third-party library imports
+from weasyprint import HTML
+
+# Local app imports
+from .forms import (
+    CustomerSignUpForm, 
+    StaffCreationForm, 
+    CustomerProfileForm, 
+    StaffEditForm, 
+    CustomAuthenticationForm
+)
+from .models import User, Customer
 
 
 # =============================================================================
