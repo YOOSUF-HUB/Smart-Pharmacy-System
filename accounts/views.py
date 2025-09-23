@@ -1,6 +1,6 @@
 # Django core imports
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView
@@ -395,7 +395,16 @@ class CustomerLoginView(LoginView):
         if user.role != 'customer':
             messages.error(self.request, "This login is for customers only. Please use the staff login page.")
             return self.form_invalid(form)
+        
+        messages.success(self.request, 'Login successful!')
         return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        """Handle invalid login attempts"""
+        # Add a custom error message for invalid credentials
+        if form.errors:
+            messages.error(self.request, 'Invalid username or password. Please try again.')
+        return super().form_invalid(form)
         
     def get_success_url(self):
         return reverse_lazy('onlineStore:homepage')
@@ -466,3 +475,4 @@ def customer_logout_view(request):
     response['Pragma'] = 'no-cache'
     response['Expires'] = '0'
     return response
+
