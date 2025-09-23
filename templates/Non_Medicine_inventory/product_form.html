@@ -184,6 +184,21 @@
               <p class="mt-1 text-xs text-red-600">{{ form.description.errors.0 }}</p>
               {% endif %}
             </div>
+
+            <!-- Available Online -->
+            <div class="md:col-span-2">
+              <label for="{{ form.available_online.id_for_label }}" class="mb-1 block text-sm font-medium text-gray-700">
+                Available Online
+              </label>
+              <div class="mt-1">
+                {% render_field form.available_online class+="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" %}
+              </div>
+              {% if form.available_online.errors %}
+              <p class="mt-1 text-xs text-red-600">{{ form.available_online.errors.0 }}</p>
+              {% else %}
+              <p class="mt-1 text-xs text-gray-400">Indicates if the product is available for online purchase.</p>
+              {% endif %}
+            </div>
           </div>
 
           <!-- Actions -->

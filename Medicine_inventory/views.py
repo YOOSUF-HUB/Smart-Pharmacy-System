@@ -313,7 +313,7 @@ def med_inventory_dash(request):
 
     total_nonmedical = NonMedicalProduct.objects.count()
     nonmedical_low_stock_count = NonMedicalProduct.objects.filter(stock__lt=F('reorder_level')).count()
-    nonmedical_active_count = NonMedicalProduct.objects.filter(is_active=True).count()
+    nonmedical_active_count = NonMedicalProduct.objects.filter(available_online=True).count()
     nonmedical_categories_count = NonMedicalProduct.objects.values('category').distinct().count()
 
 

@@ -21,7 +21,7 @@ class NonMedicalProduct(models.Model):
     selling_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     stock = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to='non_medical_products/', blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    available_online = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     reorder_level = models.PositiveIntegerField(default=5)
