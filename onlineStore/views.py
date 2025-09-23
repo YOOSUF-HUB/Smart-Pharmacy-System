@@ -29,6 +29,9 @@ def online_store_homepage(request):
     featured_products = Product.objects.filter(
         featured=True, 
         available_online=True
+    ).filter(
+        Q(medicine__isnull=False) |  # Medicine products
+        Q(non_medical_product__available_online=True)  # NonMedicalProduct must be available_online
     ).select_related('medicine', 'non_medical_product')[:6]
     
     context = {
@@ -38,8 +41,15 @@ def online_store_homepage(request):
 
 # Product listing view
 def products(request):
+    # Only show products that are available online AND their source inventory is available online
     products = Product.objects.filter(available_online=True).select_related(
         'medicine', 'non_medical_product'
+    )
+    
+    # Additional filter: ensure NonMedicalProduct items are also available_online
+    products = products.filter(
+        Q(medicine__isnull=False) |  # Medicine products (no additional filter needed)
+        Q(non_medical_product__available_online=True)  # NonMedicalProduct must be available_online
     )
     
     product_type = request.GET.get('type', '')
@@ -84,29 +94,32 @@ def products(request):
 
 # Product detail view 
 def product_detail(request, pk):
+    # First get the product
     product = get_object_or_404(
         Product.objects.select_related('medicine', 'non_medical_product'), 
         pk=pk, 
         available_online=True
     )
     
+    # Additional check: if it's a NonMedicalProduct, ensure it's available_online
+    if product.non_medical_product and not product.non_medical_product.available_online:
+        # Redirect to products page or show 404
+        messages.error(request, "This product is currently not available online.")
+        return redirect('onlineStore:products')
+    
     related_products = []
-    # Get the actual linked inventory item to find its category
     inventory_item = product.medicine or product.non_medical_product
 
     if inventory_item:
-        # We need to use the lowercase field name ('medicine' or 'non_medical_product')
-        # for the database query. The model's product_type field has the wrong case.
-        
-        # FIX: Explicitly use the lowercase field name for the query lookup.
-        # We also need to map the model's Choice value to the field name.
         product_type_field_name = 'medicine' if product.product_type == 'Medicine' else 'non_medical_product'
 
         related_products = Product.objects.filter(
             available_online=True,
             product_type=product.product_type,
-            # This is the corrected dynamic filter
             **{f'{product_type_field_name}__category': inventory_item.category}
+        ).filter(
+            Q(medicine__isnull=False) |  # Medicine products
+            Q(non_medical_product__available_online=True)  # NonMedicalProduct must be available_online
         ).exclude(pk=pk)[:4]
 
     context = {
@@ -122,6 +135,12 @@ def product_detail(request, pk):
 def add_to_cart(request, pk):
     if request.method == 'POST':
         product = get_object_or_404(Product, pk=pk, available_online=True)
+        
+        # Additional check for NonMedicalProduct
+        if product.non_medical_product and not product.non_medical_product.available_online:
+            messages.error(request, "This product is not available for online purchase.")
+            return redirect('onlineStore:products')
+        
         quantity = int(request.POST.get('quantity'))
         
         if quantity <= 0:
