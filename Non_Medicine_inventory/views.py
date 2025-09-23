@@ -68,8 +68,8 @@ def product_create(request):
         if form.is_valid():
             product = form.save(commit=False)
             # Set default value if not provided
-            if not hasattr(product, 'available_online') or product.available_online is None:
-                product.available_online = True
+            # if not hasattr(product, 'available_online') or product.available_online is None:
+            #     product.available_online = True
             product.save()
             messages.success(request, f'Product "{product.name}" has been created successfully.')
             return redirect('non_medicine:product_list')
