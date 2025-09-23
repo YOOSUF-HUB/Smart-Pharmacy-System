@@ -302,11 +302,20 @@ def customer_register(request):
         # Process registration form submission
         form = CustomerSignUpForm(request.POST)
         if form.is_valid():
-            # Save new customer user
-            user = form.save()
-            # Automatically log in the user after successful registration
-            login(request, user)
-            return redirect("customer_dashboard")
+            try:
+                # Save new customer user
+                user = form.save()
+                # Automatically log in the user after successful registration
+                login(request, user)
+                messages.success(request, 'Account created successfully!')
+                return redirect("customer_dashboard")
+            except ValidationError as e:
+                messages.error(request, str(e))
+        else:
+            # Display form errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         # Display empty registration form for GET request
         form = CustomerSignUpForm()

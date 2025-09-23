@@ -18,6 +18,9 @@ class User(AbstractUser):
         ('cashier', 'Cashier'),        # Staff who handle sales transactions
     )
     
+    # Make email unique across all users
+    email = models.EmailField(unique=True)
+    
     # Role field to determine user permissions and dashboard access
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
     

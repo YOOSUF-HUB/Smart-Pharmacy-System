@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
-from .models import Customer
+from .models import Customer, User
 
 User = get_user_model()  # This gets your custom User model
 
@@ -14,7 +14,13 @@ class CustomerSignUpForm(UserCreationForm):
     Creates a new User with 'customer' role and associated Customer profile.
     """
     # User fields
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your email address'
+        })
+    )
     first_name = forms.CharField(max_length=30, required=False)
     last_name = forms.CharField(max_length=30, required=False)
     
@@ -36,6 +42,13 @@ class CustomerSignUpForm(UserCreationForm):
         model = User
         fields = ("username", "email", "password1", "password2", "first_name", "last_name")
 
+    def clean_email(self):
+        """Validate email uniqueness"""
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("A user with this email already exists.")
+        return email
+    
     def save(self, commit=True):
         """Save user and create associated customer profile."""
         user = super().save(commit=False)
