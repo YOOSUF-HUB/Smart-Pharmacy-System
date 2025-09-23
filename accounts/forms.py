@@ -1,4 +1,5 @@
 # accounts/forms.py
+import re
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model, authenticate
@@ -66,7 +67,7 @@ class CustomerSignUpForm(UserCreationForm):
         return user
 
 
-class StaffCreationForm(forms.ModelForm):
+class StaffCreationForm(UserCreationForm):
     """
     Form for creating staff members (admin, pharmacist, cashier).
     Includes password confirmation and role selection.
@@ -76,10 +77,47 @@ class StaffCreationForm(forms.ModelForm):
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'role', 'phone', 'date_hired', 'is_active')
-        widgets = {
-            'date_hired': forms.DateInput(attrs={'type': 'date'}),
-        }
+        fields = ['username', 'email', 'first_name', 'last_name', 'role', 
+                 'phone', 'date_hired', 'is_active', 'password1', 'password2']
+    
+    def clean_password1(self):
+        """Validate password strength"""
+        password = self.cleaned_data.get('password1')
+        
+        if password:
+            # Check minimum length
+            if len(password) < 8:
+                raise ValidationError("Password must be at least 8 characters long.")
+            
+            # Check for uppercase letter
+            if not re.search(r'[A-Z]', password):
+                raise ValidationError("Password must contain at least one uppercase letter.")
+            
+            # Check for lowercase letter
+            if not re.search(r'[a-z]', password):
+                raise ValidationError("Password must contain at least one lowercase letter.")
+            
+            # Check for digit
+            if not re.search(r'\d', password):
+                raise ValidationError("Password must contain at least one number.")
+            
+            # Check for special character
+            if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+                raise ValidationError("Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>).")
+            
+            # Check for common weak passwords
+            weak_passwords = ['password', '12345678', 'qwerty', 'abc123', 'password123']
+            if password.lower() in weak_passwords:
+                raise ValidationError("This password is too common. Please choose a stronger password.")
+        
+        return password
+    
+    def clean_email(self):
+        """Validate email uniqueness"""
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("A user with this email already exists.")
+        return email
     
     def clean_password2(self):
         """Validate that password confirmation matches."""
