@@ -672,12 +672,12 @@
       });
 
     // Delete modals
-    // document.querySelectorAll('.open-modal-button').forEach(button => {
-    //   button.addEventListener('click', () => {
-    //     const modal = document.querySelector(button.dataset.modalTarget);
-    //     openModal(modal);
-    //   });
-    // });
+    document.querySelectorAll('.open-modal-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const modal = document.querySelector(button.dataset.modalTarget);
+        openModal(modal);
+      });
+    });
 
       // Close modal when clicking outside
       document.querySelectorAll('.modal').forEach(modal => {
