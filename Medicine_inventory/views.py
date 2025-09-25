@@ -19,6 +19,7 @@ from weasyprint import HTML
 from .forms import MedicineForm
 from .models import Medicine, MedicineAction
 from Non_Medicine_inventory.models import NonMedicalProduct
+from supplierManagement.models import Supplier  # Adjust this import to your actual Supplier model location
 
 
 
@@ -799,3 +800,63 @@ def update_order_status(request, order_id):
         return redirect('order_detail', order_id=order_id)
     
     return redirect('view_online_orders')
+
+import csv
+from django import forms
+
+class BulkUploadForm(forms.Form):
+    csv_file = forms.FileField(label="CSV File")
+
+@pharmacist_required
+def bulk_upload_medicines(request):
+    if request.method == 'POST':
+        form = BulkUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = form.cleaned_data['csv_file']
+            if not csv_file.name.endswith('.csv'):
+                messages.error(request, 'Please upload a CSV file.')
+                return redirect('medicine_table')
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+            created_count = 0
+            errors = []
+            for idx, row in enumerate(reader, start=2):
+                try:
+                    supplier_name = row.get('supplier', '').strip()
+                    supplier = None
+                    if supplier_name:
+                        supplier, _ = Supplier.objects.get_or_create(name=supplier_name)
+                    medicine = Medicine(
+                        name=row.get('name', '').strip(),
+                        category=row.get('category', '').strip(),
+                        medicine_type=row.get('medicine_type', '').strip(),
+                        dosage=row.get('dosage', '').strip(),
+                        batch_number=row.get('batch_number', '').strip(),
+                        manufacture_date=row.get('manufacturing_date', None) or None,
+                        expiry_date=row.get('expiry_date', None) or None,
+                        selling_price=row.get('selling_price', 0) or 0,
+                        cost_price=row.get('cost_price', 0) or 0,
+                        quantity_in_stock=row.get('quantity_in_stock', 0) or 0,
+                        reorder_level=row.get('reorder_level', 0) or 0,
+                        brand=row.get('brand', '').strip(),
+                        supplier=supplier,
+                        description=row.get('description', '').strip(),
+                        # image_url=row.get('image_url', '').strip(),
+                    )
+                    medicine.full_clean()
+                    medicine.save()
+                    MedicineAction.objects.create(
+                        medicine=medicine,
+                        action='Bulk Uploaded',
+                        user=request.user,
+                        details='Bulk upload via CSV'
+                    )
+                    created_count += 1
+                except Exception as e:
+                    errors.append(f"Row {idx}: {str(e)}")
+            if created_count:
+                messages.success(request, f"Successfully uploaded {created_count} medicines.")
+            if errors:
+                messages.error(request, "Some rows could not be uploaded:<br>" + "<br>".join(errors))
+            return redirect('medicine_table')
+    return redirect('medicine_table')
