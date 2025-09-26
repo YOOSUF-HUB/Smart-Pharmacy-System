@@ -54,6 +54,7 @@ class Medicine(models.Model):
     manufacture_date = models.DateField()
     expiry_date = models.DateField()
     batch_number = models.CharField(max_length=150, unique=True)  # This should already be unique
+    available_online = models.BooleanField(default=False, help_text="Make this medicine available for online purchase")
     
     # supplier = models.CharField(max_length=100)
     supplier = models.ForeignKey(

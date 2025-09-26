@@ -30,7 +30,7 @@ def online_store_homepage(request):
         featured=True, 
         available_online=True
     ).filter(
-        Q(medicine__isnull=False) |  # Medicine products
+        Q(medicine__available_online=True) |  # Medicine must be available_online
         Q(non_medical_product__available_online=True)  # NonMedicalProduct must be available_online
     ).select_related('medicine', 'non_medical_product')[:6]
     
@@ -46,9 +46,9 @@ def products(request):
         'medicine', 'non_medical_product'
     )
     
-    # Additional filter: ensure NonMedicalProduct items are also available_online
+    # Additional filter: ensure both Medicine and NonMedicalProduct items are also available_online
     products = products.filter(
-        Q(medicine__isnull=False) |  # Medicine products (no additional filter needed)
+        Q(medicine__available_online=True) |  # Medicine must be available_online
         Q(non_medical_product__available_online=True)  # NonMedicalProduct must be available_online
     )
     
@@ -74,8 +74,6 @@ def products(request):
             Q(non_medical_product__brand__icontains=search_query)
         )
     
-
-    
     # Get categories for category filter dropdown
     medicine_categories = Medicine.CATEGORY_CHOICES
     non_medical_categories = NonMedicalProduct.CATEGORY_CHOICES
@@ -91,7 +89,6 @@ def products(request):
     
     return render(request, 'onlineStore/products.html', context)
 
-
 # Product detail view 
 def product_detail(request, pk):
     # First get the product
@@ -101,9 +98,11 @@ def product_detail(request, pk):
         available_online=True
     )
     
-    # Additional check: if it's a NonMedicalProduct, ensure it's available_online
-    if product.non_medical_product and not product.non_medical_product.available_online:
-        # Redirect to products page or show 404
+    # Additional check: ensure the source inventory item is available online
+    if product.medicine and not product.medicine.available_online:
+        messages.error(request, "This medicine is currently not available online.")
+        return redirect('onlineStore:products')
+    elif product.non_medical_product and not product.non_medical_product.available_online:
         messages.error(request, "This product is currently not available online.")
         return redirect('onlineStore:products')
     
@@ -118,7 +117,7 @@ def product_detail(request, pk):
             product_type=product.product_type,
             **{f'{product_type_field_name}__category': inventory_item.category}
         ).filter(
-            Q(medicine__isnull=False) |  # Medicine products
+            Q(medicine__available_online=True) |  # Medicine must be available_online
             Q(non_medical_product__available_online=True)  # NonMedicalProduct must be available_online
         ).exclude(pk=pk)[:4]
 
@@ -136,8 +135,11 @@ def add_to_cart(request, pk):
     if request.method == 'POST':
         product = get_object_or_404(Product, pk=pk, available_online=True)
         
-        # Additional check for NonMedicalProduct
-        if product.non_medical_product and not product.non_medical_product.available_online:
+        # Additional check for both Medicine and NonMedicalProduct
+        if product.medicine and not product.medicine.available_online:
+            messages.error(request, "This medicine is not available for online purchase.")
+            return redirect('onlineStore:products')
+        elif product.non_medical_product and not product.non_medical_product.available_online:
             messages.error(request, "This product is not available for online purchase.")
             return redirect('onlineStore:products')
         

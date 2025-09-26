@@ -991,6 +991,7 @@ def bulk_upload_medicines(request):
                         description=row.get('description', '').strip(),
                         image=image_file,  # This will be None if no image, which is perfectly fine
                         # created_by=request.user
+                        available_online=row.get('available_online', '').strip().upper() == 'FALSE'
                     )
                     
                     # Log the action
@@ -1086,5 +1087,23 @@ def show_media_path(request):
     • amoxicillin.png<br>
     • vitamin_c.jpg
     ''')
+    
+    return redirect('medicine_cards')
+
+@pharmacist_required
+def toggle_medicine_online(request, pk):
+    """Toggle the available_online status for a medicine"""
+    if request.method == 'POST':
+        medicine = get_object_or_404(Medicine, pk=pk)
+        
+        # Toggle the available_online field
+        medicine.available_online = not medicine.available_online
+        medicine.save()
+        
+        status = "enabled" if medicine.available_online else "disabled"
+        messages.success(request, f'Online availability for "{medicine.name}" has been {status}.')
+        
+        # Redirect back to the previous page
+        return redirect(request.META.get('HTTP_REFERER', 'medicine_cards'))
     
     return redirect('medicine_cards')

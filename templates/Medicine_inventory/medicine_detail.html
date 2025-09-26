@@ -42,7 +42,7 @@
   </div>
 
   <!-- Summary Stats -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-10">
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mb-10">
     <!-- Stock (Fixed progress overflow) -->
     <div class="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
       <div class="flex items-start justify-between">
@@ -157,6 +157,36 @@
       <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Category</p>
       <div class="mt-3 text-xl font-semibold text-slate-900 truncate">{{ medicine.category|default:"—" }}</div>
       <p class="mt-2 text-xs text-slate-500">Reorder Level: {{ medicine.reorder_level }}</p>
+    </div>
+
+    <!-- Online Availability -->
+    <div class="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
+      <div class="flex items-start justify-between">
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Online Store</p>
+        {% if medicine.available_online %}
+          <span class="inline-flex items-center rounded-full bg-emerald-50 text-emerald-600 text-[11px] font-medium px-2 py-0.5">Active</span>
+        {% else %}
+          <span class="inline-flex items-center rounded-full bg-slate-50 text-slate-600 text-[11px] font-medium px-2 py-0.5">Inactive</span>
+        {% endif %}
+      </div>
+      <div class="mt-3 flex items-center justify-between">
+        <div>
+          <div class="text-xl font-semibold text-slate-900">
+            {% if medicine.available_online %}Available{% else %}Not Available{% endif %}
+          </div>
+          <p class="mt-1 text-xs text-slate-500">
+            {% if medicine.available_online %}Customers can purchase online{% else %}Internal use only{% endif %}
+          </p>
+        </div>
+        
+        <form method="post" action="{% url 'toggle_medicine_online' medicine.id %}" class="inline">
+          {% csrf_token %}
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer" {% if medicine.available_online %}checked{% endif %} onchange="this.form.submit()">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+          </label>
+        </form>
+      </div>
     </div>
   </div>
 

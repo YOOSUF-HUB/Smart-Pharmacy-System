@@ -23,6 +23,7 @@ urlpatterns = [
     # Remove this line: path('accounts/', include('accounts.urls')),
     path('medicines/bulk_upload/', views.bulk_upload_medicines, name='bulk_upload_medicines'),
 
+    path('toggle-online/<int:pk>/', views.toggle_medicine_online, name='toggle_medicine_online'),
     path('online-orders/', views.view_online_orders, name='view_online_orders'),
     path('order/<str:order_id>/', views.order_detail, name='order_detail'),
     path('order/<str:order_id>/update-status/', views.update_order_status, name='update_order_status'),
