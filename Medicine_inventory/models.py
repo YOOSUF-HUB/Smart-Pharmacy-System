@@ -105,6 +105,26 @@ class Medicine(models.Model):
             return self.price * self.quantity_in_stock
         return 0
 
+    def can_be_deleted(self):
+        """
+        Check if this medicine can be safely deleted.
+        Returns False if it's referenced by other models.
+        """
+        try:
+            # Check if medicine is used in prescriptions
+            if hasattr(self, 'prescriptionitem_set') and self.prescriptionitem_set.exists():
+                return False
+            
+            # Check if medicine is used in payments/sales
+            if hasattr(self, 'paymentitem_set') and self.paymentitem_set.exists():
+                return False
+            
+            # Add other related model checks as needed
+            return True
+        except:
+            return False
+    
+    
 class MedicineAction(models.Model):
     ACTION_CHOICES = [
         ('Created', 'Created'),

@@ -15,6 +15,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
 from weasyprint import HTML
+from django.db.models import ProtectedError
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 
 from .forms import MedicineForm
 from .models import Medicine, MedicineAction
@@ -174,18 +178,64 @@ def create_medicine(request):
 @pharmacist_required
 def delete_medicine(request, id):
     medicine = get_object_or_404(Medicine, pk=id)
-    medicine_name = medicine.name
-
-    MedicineAction.objects.create(
-        medicine_name=medicine.name,
-        batch_number=medicine.batch_number,
-        action='Deleted',
-        user=request.user
-    )
-    medicine.delete()
-
-    messages.success(request, f"The record for '{medicine_name}' has been deleted successfully.")
-    return redirect('medicine_table')
+    
+    if request.method == 'POST':
+        try:
+            medicine_name = medicine.name
+            medicine_batch = medicine.batch_number
+            medicine.delete()
+            messages.success(request, f'Medicine "{medicine_name}" (Batch: {medicine_batch}) has been successfully deleted from inventory.')
+            return redirect('medicine_cards')  # Changed to redirect to cards view
+        except ProtectedError as e:
+            # Extract the related objects information
+            protected_objects = e.protected_objects
+            related_models = set()
+            related_count = 0
+            
+            for obj in protected_objects:
+                model_name = obj._meta.verbose_name
+                related_models.add(model_name)
+                related_count += 1
+            
+            # Create user-friendly error message
+            models_list = ', '.join(related_models)
+            error_message = f'''
+            <strong>Cannot delete "{medicine.name}" (Batch: {medicine.batch_number})</strong><br><br>
+            <div class="bg-amber-50 border-l-4 border-amber-400 p-4 my-3 rounded">
+                <div class="flex">
+                    <div class="ml-3">
+                        <p class="text-sm text-amber-700">
+                            <strong>Reason:</strong> This medicine is currently referenced in {related_count} record(s) 
+                            including: <strong>{models_list}</strong>
+                        </p>
+                        <p class="text-sm text-amber-700 mt-2">
+                            <strong>What this means:</strong> This medicine has been used in prescriptions or sales transactions 
+                            and cannot be deleted to maintain data integrity.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 my-3 rounded">
+                <div class="flex">
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>Suggested actions:</strong>
+                        </p>
+                        <ul class="text-sm text-blue-700 mt-1 list-disc list-inside">
+                            <li>Set the medicine quantity to 0 to mark it as out of stock</li>
+                            <li>Update the medicine status or add a note indicating it's discontinued</li>
+                            <li>Contact the system administrator if you need to remove this medicine entirely</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            '''
+            
+            messages.error(request, error_message)
+            return redirect('medicine_cards')  # Changed to redirect to cards view
+    
+    # If GET request, redirect to cards view
+    return redirect('medicine_cards')
 
 
 @pharmacist_required
