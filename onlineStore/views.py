@@ -24,6 +24,9 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 def customer_required(view_func):
     return user_passes_test(lambda u: u.is_authenticated and u.role == "customer")(view_func)
 
+def about_us(request):
+    return render(request, 'onlineStore/about_us.html')
+
 # Homepage view
 def online_store_homepage(request):
     featured_products = Product.objects.filter(

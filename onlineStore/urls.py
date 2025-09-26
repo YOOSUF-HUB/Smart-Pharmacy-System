@@ -14,7 +14,8 @@ urlpatterns = [
     # FIX: Changed URL parameter from `<int:id>` to `<int:pk>` to match the view
     path('products/<int:pk>/', views.product_detail, name='product_detail'), 
 
-    
+    #About Us Page
+    path('about/', views.about_us, name='about_us'),
     
 
     # Cart functionality

@@ -64,7 +64,7 @@
                     <a href="/MediSync/" class="text-sm/6 font-semibold text-white">Home</a>
                     <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-white">Product</a>
                     <a href="#" class="text-sm/6 font-semibold text-white">Contact us</a>
-                    <a href="#" class="text-sm/6 font-semibold text-white">About us</a>
+                    <a href="{% url 'onlineStore:about_us' %}" class="text-sm/6 font-semibold text-white">About us</a>
                 </div>
                 <div class="hidden lg:flex lg:flex-1 lg:justify-end items-center space-x-6">
                     {% if user.is_authenticated and user.role == 'customer' %}

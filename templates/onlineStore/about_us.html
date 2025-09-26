@@ -1,0 +1,83 @@
+{% extends 'onlineStore/onlineStore_base.html' %}
+{% load static %}
+{% block title %}About Us | MediSync{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl pt-40 mx-auto py-16 px-4 sm:px-8">
+    <div class="bg-gradient-to-br from-indigo-50 via-white to-blue-50 rounded-3xl shadow-2xl p-0 md:p-0 overflow-hidden">
+        <div class="flex flex-col md:flex-row">
+            <!-- Left: Image & Brand -->
+            <div class="md:w-1/2 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-100 to-blue-100 p-10">
+                <img src="{% static 'MediSyn_logo/1.png' %}" alt="MediSync" class="w-40 h-40 object-contain rounded-2xl shadow-xl mb-6 border-4 border-white">
+                <h1 class="text-4xl font-extrabold text-indigo-700 mb-2 tracking-tight">MediSync</h1>
+                <p class="text-lg text-indigo-600 font-medium mb-4 text-center">Your trusted partner in health and wellness</p>
+                <div class="flex space-x-4 mt-2">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold shadow">Licensed Pharmacy</span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold shadow">Island-wide Delivery</span>
+                </div>
+            </div>
+            <!-- Right: Content -->
+            <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                <section class="mb-8">
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-3">Who We Are</h2>
+                    <p class="text-gray-700 text-base leading-relaxed">
+                        MediSync is a licensed online pharmacy dedicated to delivering genuine medicines and healthcare essentials right to your doorstep. With a commitment to quality, safety, and customer satisfaction, we make healthcare accessible, affordable, and convenient for everyone in Sri Lanka.
+                    </p>
+                </section>
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold text-indigo-600 mb-2">Our Mission</h2>
+                    <p class="text-gray-700 text-base leading-relaxed">
+                        To empower communities by providing reliable, secure, and timely access to health and wellness products, supported by expert guidance and exceptional service.
+                    </p>
+                </section>
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold text-indigo-600 mb-2">Why Choose Us?</h2>
+                    <ul class="list-none space-y-2">
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            Licensed and regulated pharmacy
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            Wide range of medicines & health products
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            Secure online ordering & payments
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            Island-wide fast delivery
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            Professional customer support
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            Strict quality assurance
+                        </li>
+                    </ul>
+                </section>
+                <section>
+                    <h2 class="text-xl font-semibold text-indigo-600 mb-2">Contact Us</h2>
+                    <div class="bg-indigo-50 rounded-lg p-4 shadow flex flex-col space-y-1 text-sm text-gray-700">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-indigo-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M17 8V6a4 4 0 00-8 0v2m8 0a4 4 0 01-8 0m8 0V6a4 4 0 00-8 0v2"/></svg>
+                            123 Health Street, Colombo 03, Sri Lanka
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-indigo-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-9 4v8"/></svg>
+                            Phone: <a href="tel:+94112345678" class="text-indigo-700 hover:underline ml-1">+94 11 234 5678</a> | <a href="tel:+94771234567" class="text-indigo-700 hover:underline ml-1">+94 77 123 4567</a>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-indigo-500 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12H8m8 0a4 4 0 01-8 0m8 0V6a4 4 0 00-8 0v6m8 0a4 4 0 01-8 0"/></svg>
+                            Email: <a href="mailto:support@medisync.lk" class="text-indigo-700 hover:underline ml-1">support@medisync.lk</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
