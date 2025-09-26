@@ -3,11 +3,14 @@ import csv
 import os
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from io import StringIO
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, F, Q
 from django.http import HttpResponse
@@ -16,9 +19,6 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from weasyprint import HTML
 from django.db.models import ProtectedError
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
 
 from .forms import MedicineForm
 from .models import Medicine, MedicineAction
@@ -910,3 +910,181 @@ def bulk_upload_medicines(request):
                 messages.error(request, "Some rows could not be uploaded:<br>" + "<br>".join(errors))
             return redirect('medicine_table')
     return redirect('medicine_table')
+
+@pharmacist_required
+def bulk_upload_medicines(request):
+    if request.method == 'POST':
+        csv_file = request.FILES.get('csv_file')
+        
+        if not csv_file:
+            messages.error(request, 'Please select a CSV file to upload.')
+            return redirect('medicine_cards')
+        
+        try:
+            decoded_file = csv_file.read().decode('utf-8')
+            csv_reader = csv.DictReader(StringIO(decoded_file))
+            
+            created_count = 0
+            error_count = 0
+            with_images_count = 0
+            without_images_count = 0
+            missing_images = []
+            
+            # Ensure the medical_products directory exists
+            medical_products_path = ensure_medical_products_directory()
+            
+            for row_number, row in enumerate(csv_reader, start=2):  # Start at 2 because row 1 is headers
+                try:
+                    # Handle image path from CSV
+                    image_file = None
+                    image_path = row.get('image_path', '').strip()
+                    
+                    # Only try to process image if image_path is provided and not empty
+                    if image_path:
+                        # Construct full path to image
+                        full_image_path = os.path.join(medical_products_path, image_path)
+                        
+                        # Check if image file exists
+                        if os.path.exists(full_image_path):
+                            try:
+                                # Read the image file
+                                with open(full_image_path, 'rb') as img_file:
+                                    image_content = img_file.read()
+                                    # Create Django file object
+                                    image_file = ContentFile(image_content, name=image_path)
+                                    with_images_count += 1
+                            except Exception as img_error:
+                                print(f"Error reading image {image_path}: {img_error}")
+                                missing_images.append(f"{row.get('name', 'Unknown')} (Row {row_number}): {image_path} - Read error")
+                                without_images_count += 1
+                        else:
+                            missing_images.append(f"{row.get('name', 'Unknown')} (Row {row_number}): {image_path} - File not found")
+                            without_images_count += 1
+                    else:
+                        # No image path provided - this is fine, medicine will be created without image
+                        without_images_count += 1
+                    
+                    # Handle supplier creation/lookup
+                    supplier_name = row.get('supplier', '').strip()
+                    supplier = None
+                    if supplier_name:
+                        try:
+                            supplier, _ = Supplier.objects.get_or_create(name=supplier_name)
+                        except Exception as supplier_error:
+                            print(f"Error creating/getting supplier {supplier_name}: {supplier_error}")
+                    
+                    # Create medicine record (with or without image)
+                    medicine = Medicine.objects.create(
+                        name=row.get('name', '').strip(),
+                        category=row.get('category', '').strip(),
+                        medicine_type=row.get('medicine_type', '').strip(),
+                        dosage=row.get('dosage', '').strip(),
+                        batch_number=row.get('batch_number', '').strip(),
+                        manufacture_date=datetime.strptime(row.get('manufacturing_date', ''), '%Y-%m-%d').date() if row.get('manufacturing_date', '').strip() else None,
+                        expiry_date=datetime.strptime(row.get('expiry_date', ''), '%Y-%m-%d').date() if row.get('expiry_date', '').strip() else None,
+                        selling_price=Decimal(row.get('selling_price', '0') or '0'),
+                        cost_price=Decimal(row.get('cost_price', '0') or '0'),
+                        quantity_in_stock=int(row.get('quantity_in_stock', '0') or '0'),
+                        reorder_level=int(row.get('reorder_level', '0') or '0'),
+                        brand=row.get('brand', '').strip(),
+                        supplier=supplier,
+                        description=row.get('description', '').strip(),
+                        image=image_file,  # This will be None if no image, which is perfectly fine
+                        # created_by=request.user
+                    )
+                    
+                    # Log the action
+                    MedicineAction.objects.create(
+                        medicine=medicine,
+                        action='Bulk Uploaded',
+                        user=request.user,
+                        details=f'Bulk upload via CSV - {"With image" if image_file else "Without image"}'
+                    )
+                    
+                    created_count += 1
+                    
+                except Exception as e:
+                    error_count += 1
+                    print(f"Error processing row {row_number}: {e}")
+                    # Add the row data to error message for debugging
+                    missing_images.append(f"Row {row_number} ({row.get('name', 'Unknown')}): Processing error - {str(e)}")
+            
+            # Build comprehensive success message
+            success_parts = []
+            if created_count > 0:
+                success_parts.append(f"Successfully uploaded {created_count} medicines")
+                
+                # Add image statistics
+                if with_images_count > 0 and without_images_count > 0:
+                    success_parts.append(f"({with_images_count} with images, {without_images_count} without images)")
+                elif with_images_count > 0:
+                    success_parts.append(f"({with_images_count} with images)")
+                elif without_images_count > 0:
+                    success_parts.append(f"({without_images_count} without images - will show default 'no image' placeholder)")
+            
+            if success_parts:
+                messages.success(request, ' '.join(success_parts) + '!')
+            
+            # Handle warnings for missing images (but not errors since medicines were still created)
+            image_warnings = [msg for msg in missing_images if "File not found" in msg or "Read error" in msg]
+            processing_errors = [msg for msg in missing_images if "Processing error" in msg]
+            
+            if image_warnings:
+                warning_msg = f"Note: {len(image_warnings)} image(s) could not be loaded (medicines created without images):\n"
+                warning_msg += '\n'.join(image_warnings[:3])  # Show first 3
+                if len(image_warnings) > 3:
+                    warning_msg += f"\n... and {len(image_warnings) - 3} more"
+                messages.warning(request, warning_msg)
+            
+            # Handle actual processing errors
+            if error_count > 0:
+                error_msg = f'{error_count} medicines could not be processed due to data errors'
+                if processing_errors:
+                    error_msg += ":\n" + '\n'.join(processing_errors[:3])
+                    if len(processing_errors) > 3:
+                        error_msg += f"\n... and {len(processing_errors) - 3} more"
+                messages.error(request, error_msg)
+                
+        except Exception as e:
+            messages.error(request, f'Error processing CSV file: {str(e)}')
+        
+        return redirect('medicine_cards')
+    
+    return redirect('medicine_cards')
+
+# Add this function to create the directory if it doesn't exist:
+
+def ensure_medical_products_directory():
+    """Ensure the medical_products directory exists in media folder"""
+    medical_products_path = os.path.join(settings.MEDIA_ROOT, 'medical_products')
+    if not os.path.exists(medical_products_path):
+        os.makedirs(medical_products_path, exist_ok=True)
+    return medical_products_path
+
+# Add this helper view:
+
+@pharmacist_required
+def show_media_path(request):
+    """Show the media path for users to know where to place images"""
+    medical_products_path = ensure_medical_products_directory()
+    
+    context = {
+        'media_path': medical_products_path,
+        'relative_path': 'media/medical_products/',
+        'example_files': [
+            'paracetamol.jpg',
+            'amoxicillin.png', 
+            'vitamin_c.jpg'
+        ]
+    }
+    
+    messages.info(request, f'''
+    <strong>Image Upload Directory:</strong><br>
+    Place your medicine images in: <code>{medical_products_path}</code><br><br>
+    <strong>In your CSV, use just the filename:</strong><br>
+    • paracetamol.jpg<br>
+    • amoxicillin.png<br>
+    • vitamin_c.jpg
+    ''')
+    
+    return redirect('medicine_cards')
