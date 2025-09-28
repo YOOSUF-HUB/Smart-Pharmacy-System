@@ -34,38 +34,37 @@ def pharmacist_required(view_func):
 
 # -------------------- Medicine Views --------------------
 
-@pharmacist_required
-def view_medicine(request):
-    medicines = Medicine.objects.all()
-    categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
+# @pharmacist_required
+# def view_medicine(request):
+#     medicines = Medicine.objects.all()
+#     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
 
-    category = request.GET.get('category')
-    expiry = request.GET.get('expiry')
-    low_stock = request.GET.get('low_stock')
+#     category = request.GET.get('category')
+#     expiry = request.GET.get('expiry')
+#     low_stock = request.GET.get('low_stock')
 
-    if category:
-        medicines = medicines.filter(category=category)
+#     if category:
+#         medicines = medicines.filter(category=category)
 
-    filtered = []
-    for med in medicines:
-        med.low_stock = med.quantity_in_stock < med.reorder_level
-        med.near_expiry = med.is_near_expiry()
-        med.is_expired = med.is_expired()
-        if expiry == 'near' and not med.near_expiry:
-            continue
-        if expiry == 'expired' and not med.is_expired:
-            continue
-        if low_stock == 'low' and not med.low_stock:
-            continue
-        filtered.append(med)
+#     filtered = []
+#     for med in medicines:
+#         med.low_stock = med.quantity_in_stock < med.reorder_level
+#         med.near_expiry = med.is_near_expiry()
+#         med.is_expired = med.is_expired()
+#         if expiry == 'near' and not med.near_expiry:
+#             continue
+#         if expiry == 'expired' and not med.is_expired:
+#             continue
+#         if low_stock == 'low' and not med.low_stock:
+#             continue
+#         filtered.append(med)
 
-    return render(request, 'Medicine_inventory/view_medicine.html', {
-        'medicine': filtered,
-        'categories': categories,
-    })
+#     return render(request, 'Medicine_inventory/view_medicine.html', {
+#         'medicine': filtered,
+#         'categories': categories,
+#     })
 
 
-# ...existing code...
 @pharmacist_required
 def view_medicine_cards(request):
     """
@@ -81,6 +80,8 @@ def view_medicine_cards(request):
     category = request.GET.get('category')
     expiry = request.GET.get('expiry')
     low_stock = request.GET.get('low_stock')
+    # normalize the available_online param
+    online = request.GET.get('available_online', '').strip().lower()
 
     # Apply search (case-insensitive). Handle supplier as FK (supplier__name) or text field.
     if search:
@@ -105,6 +106,12 @@ def view_medicine_cards(request):
     if category:
         qs = qs.filter(category=category)
 
+    # NEW: Apply available_online filter (supports multiple common values)
+    if online in ('online', 'true', '1'):
+        qs = qs.filter(available_online=True)
+    elif online in ('offline', 'false', '0'):
+        qs = qs.filter(available_online=False)
+
     # Build filtered list applying computed properties and expiry/low-stock filters
     filtered = []
     for med in qs:
@@ -127,6 +134,7 @@ def view_medicine_cards(request):
         'medicine': filtered,
         'categories': categories,
         'recent_actions': recent_actions,
+        'available_online': online,
     })
 # ...existing code...
 
@@ -145,15 +153,23 @@ def view_medicine_table(request):
     medicines = medicines.order_by(order)
 
     # Filtering
-    search_query = request.GET.get('search')
+    search_query = request.GET.get('search', '').strip()
     category = request.GET.get('category')
     expiry = request.GET.get('expiry')
     low_stock = request.GET.get('low_stock')
+    # normalize available_online values
+    available_online = request.GET.get('available_online', '').strip().lower()
 
     if search_query:
         medicines = medicines.filter(name__icontains=search_query)
     if category:
         medicines = medicines.filter(category=category)
+
+    # Apply available_online filter if provided
+    if available_online in ('online', 'true', '1'):
+        medicines = medicines.filter(available_online=True)
+    elif available_online in ('offline', 'false', '0'):
+        medicines = medicines.filter(available_online=False)
 
     filtered = []
     for med in medicines:
@@ -176,6 +192,7 @@ def view_medicine_table(request):
         'recent_actions': recent_actions,
         'current_sort': sort_by,
         'current_dir': direction,
+        'available_online': available_online,  # pass to template for UI state
     }
     return render(request, 'Medicine_inventory/medicine_table.html', context)
 
