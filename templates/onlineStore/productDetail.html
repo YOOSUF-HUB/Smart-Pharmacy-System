@@ -120,20 +120,37 @@
             </div>
 
             <!-- Add to Cart Button -->
-            <button type="submit" 
-                    {% if product.stock <= 0 or not user.is_authenticated or user.role != 'customer' %}disabled{% endif %}
-                    class="mt-8 w-full rounded-lg bg-indigo-600 px-6 py-3 text-white font-semibold 
-                          disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-700">
-                {% if user.is_authenticated and user.role == 'customer' %}
-                    {% if product.stock > 0 %}
-                        Add to Cart
-                    {% else %}
-                        Out of Stock
-                    {% endif %}
-                {% else %}
+            {% comment %}Render different disabled states explicitly to avoid attribute errors when product.medicine is None{% endcomment %}
+            {% if not user.is_authenticated %}
+                <button type="button" disabled
+                        class="mt-8 w-full rounded-lg bg-indigo-600 px-6 py-3 text-white font-semibold opacity-80 cursor-not-allowed"
+                        title="Please log in to purchase">
                     Login to Purchase
-                {% endif %}
-            </button>
+                </button>
+            {% elif user.role != 'customer' %}
+                <button type="button" disabled
+                        class="mt-8 w-full rounded-lg bg-indigo-600 px-6 py-3 text-white font-semibold opacity-80 cursor-not-allowed"
+                        title="Only customers can purchase">
+                    Only customers can purchase
+                </button>
+            {% elif product.product_type == 'Medicine' and product.medicine and product.medicine.medicine_type == 'RX' %}
+                <button type="button" disabled
+                        class="mt-8 w-full rounded-lg bg-red-600 px-6 py-3 text-white font-semibold cursor-not-allowed"
+                        title="Prescription required to purchase">
+                    Prescription Required
+                </button>
+            {% elif product.stock <= 0 %}
+                <button type="button" disabled
+                        class="mt-8 w-full rounded-lg bg-blue-600 px-6 py-3 text-white font-semibold opacity-80 cursor-not-allowed"
+                        title="Out of stock">
+                    Out of Stock
+                </button>
+            {% else %}
+                <button type="submit"
+                        class="mt-8 w-full rounded-lg bg-indigo-600 px-6 py-3 text-white font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                    Add to Cart
+                </button>
+            {% endif %}
         </form>
       </div>
     </div>
