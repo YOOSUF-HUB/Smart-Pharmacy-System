@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="bg-white pt-28">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
       <!-- Sidebar Filters -->
@@ -97,33 +97,75 @@
             </div>
           </form>
         </div>
-        <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 xl:gap-x-8">
-            {% for product in products %}
-            
-              
-              <a href="{% url 'onlineStore:product_detail' pk=product.pk %}" class="block group relative">
-                <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                  {% if product.image_url %}
-                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="h-full w-full object-cover object-center lg:h-full lg:w-full">
-                  {% else %}
-                    <img src="https://via.placeholder.com/300" alt="No image available" class="h-full w-full object-cover object-center">
-                  {% endif %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+              {% for product in products %}
+                <div class="group relative bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-2xl transition-all duration-300">
+                  
+                  <!-- Product Image with Overlay -->
+                  <div class="relative w-full h-80 overflow-hidden">
+                    {% if product.image_url %}
+                      <img src="{{ product.image_url }}" alt="{{ product.name }}" 
+                          class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110">
+                    {% else %}
+                      <div class="flex items-center justify-center w-full h-full bg-gray-100">
+                        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                      </div>
+                    {% endif %}
+
+                    <!-- RX Badge -->
+                    {% if product.medicine_type == 'RX' %}
+                      <div class="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">
+                        Prescription Required
+                      </div>
+                    {% endif %}
+
+                    <!-- Quick Actions Overlay -->
+                    <div class="absolute inset-0 bg-black bg-opacity-25 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <a href="{% url 'onlineStore:product_detail' pk=product.pk %}" 
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium shadow hover:bg-indigo-700 transition">
+                        View Details
+                      </a>
+                    </div>
+                  </div>
+
+                  <!-- Product Info -->
+                  <div class="p-5 flex flex-col justify-between h-30">
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
+                        {{ product.name }}
+                      </h3>
+                      <p class="mt-2 text-indigo-600 font-sm text-xl">Rs. {{ product.price }}</p>
+                    </div>
+
+                    <!-- Stock Status -->
+                    <div class="mt-4">
+                      {% if product.stock > 10 %}
+                        <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                          In Stock
+                        </span>
+                      {% elif product.stock > 0 %}
+                        <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                          Low Stock
+                        </span>
+                      {% else %}
+                        <span class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                          Out of Stock
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
                 </div>
-                <h3 class="mt-4 text-sm text-gray-700">{{ product.name }}</h3>
-                <div class="mt-1 flex justify-between align-center">
-                  <p class=" text-lg font-medium text-gray-900">Rs. {{ product.price }}</p>
-                  {% if product.medicine_type == 'RX' %}
-                    <span class="bg-red-500 text-red-100 px-3 py-1 my-2 rounded-full text-xs font-medium align-center">Prescription Required</span>
-                  {% endif %}
+              {% empty %}
+                <div class="col-span-full text-center py-10">
+                  <p class="text-gray-500 text-lg">No products found matching your criteria.</p>
                 </div>
-                
-              </a>
-            {% empty %}
-              <div class="col-span-full text-center py-10">
-                <p class="text-gray-600">No products found matching your criteria.</p>
-              </div>
-            {% endfor %}
-        </div>
+              {% endfor %}
+            </div>
+
       </div>
 
     </div>
