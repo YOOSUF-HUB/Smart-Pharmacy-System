@@ -400,8 +400,8 @@
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-slate-900">Sell: ${{ med.selling_price }}</div>
-                <div class="text-xs text-slate-600">Cost: ${{ med.cost_price }}</div>
+                <div class="text-sm font-medium text-slate-900">Sell: Rs:{{ med.selling_price }}</div>
+                <div class="text-xs text-slate-600">Cost: Rs:{{ med.cost_price }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-slate-900">{{ med.get_medicine_type_display }}</div>
@@ -467,15 +467,25 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16.862 3.487l2.651 2.651a1.75 1.75 0 010 2.475l-9.31 9.31a2 2 0 01-.9.52l-3.41.85a.75.75 0 01-.91-.91l.85-3.41a2 2 0 01.52-.9l9.31-9.31a1.75 1.75 0 012.475 0z" />
                   </a>
-<!-- <button type="button"
-        onclick="openDeleteModal('{{ med.id }}')"
-        class="inline-flex items-center px-3 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-200 shadow-sm hover:shadow-md"
-        aria-label="Delete">
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v11a1 1 0 001 1h4a1 1 0 001-1V7M4 7h16" />
-  </svg>
-</button> -->
+                  <!-- <button type="button"
+                          onclick="openDeleteModal('{{ med.id }}')"
+                          class="inline-flex items-center px-3 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                          aria-label="Delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v11a1 1 0 001 1h4a1 1 0 001-1V7M4 7h16" />
+                    </svg>
+                  </button> -->
+                  
+                  <button type="button" onclick="if (confirm('Are you sure you want to delete {{ med.name|escapejs }} (Batch: {{ med.batch_number|escapejs }})?')) { window.location.href = '{% url 'medicine_delete' med.id %}'; }"
+                            class="inline-flex items-center px-3 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                            aria-label="Delete">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v11a1 1 0 001 1h4a1 1 0 001-1V7M4 7h16" />
+                      </svg>
+                  </button>
+
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <form method="post" action="{% url 'toggle_medicine_online' med.id %}" class="inline">

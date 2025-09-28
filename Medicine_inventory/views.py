@@ -65,29 +65,60 @@ def view_medicine(request):
     })
 
 
+# ...existing code...
 @pharmacist_required
 def view_medicine_cards(request):
-    medicines = Medicine.objects.all()
+    """
+    Cards view with server-side search by name/brand/supplier/description and filters.
+    """
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
 
+    # Base queryset (ordered)
+    qs = Medicine.objects.all().order_by('name')
+
+    # GET params (safe defaults)
+    search = request.GET.get('search', '').strip()
     category = request.GET.get('category')
     expiry = request.GET.get('expiry')
     low_stock = request.GET.get('low_stock')
 
-    if category:
-        medicines = medicines.filter(category=category)
+    # Apply search (case-insensitive). Handle supplier as FK (supplier__name) or text field.
+    if search:
+        # detect if supplier is a ForeignKey on the Medicine model and adjust lookup accordingly
+        try:
+            from django.db.models import ForeignKey
+            supplier_field = Medicine._meta.get_field('supplier')
+            supplier_is_fk = isinstance(supplier_field, ForeignKey)
+        except Exception:
+            supplier_is_fk = False
 
+        supplier_lookup = 'supplier__name__icontains' if supplier_is_fk else 'supplier__icontains'
+
+        qs = qs.filter(
+            Q(name__icontains=search) |
+            Q(brand__icontains=search) |
+            Q(description__icontains=search) |
+            Q(**{supplier_lookup: search})
+        )
+
+    # Apply category filter
+    if category:
+        qs = qs.filter(category=category)
+
+    # Build filtered list applying computed properties and expiry/low-stock filters
     filtered = []
-    for med in medicines:
+    for med in qs:
         med.low_stock = med.quantity_in_stock < med.reorder_level
         med.near_expiry = med.is_near_expiry()
         med.is_expired = med.is_expired()
+
         if expiry == 'near' and not med.near_expiry:
             continue
         if expiry == 'expired' and not med.is_expired:
             continue
         if low_stock == 'low' and not med.low_stock:
             continue
+
         filtered.append(med)
 
     recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
@@ -97,6 +128,7 @@ def view_medicine_cards(request):
         'categories': categories,
         'recent_actions': recent_actions,
     })
+# ...existing code...
 
 
 @pharmacist_required
@@ -235,7 +267,7 @@ def delete_medicine(request, id):
             return redirect('medicine_cards')  # Changed to redirect to cards view
     
     # If GET request, redirect to cards view
-    return redirect('medicine_cards')
+    return redirect('medicine_table')
 
 
 @pharmacist_required
