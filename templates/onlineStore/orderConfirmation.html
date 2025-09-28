@@ -2,28 +2,58 @@
 {% block title %}Order Confirmation - MediSync{% endblock %}
 
 {% block content %}
-<div class="bg-white pt-28 pb-16">
-    <!-- Complete the empty sections -->
-    <div class="text-center">
-        <svg class="mx-auto h-16 w-16 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+<div class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen pt-40 pb-16">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Order Confirmation Card -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-8 text-center">
+      <!-- Success Icon -->
+      <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
+        <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
-        <h1 class="mt-4 text-3xl font-bold text-gray-900">Order Confirmed!</h1>
-        <p class="mt-2 text-lg text-gray-600">Thank you for your order.</p>
-    </div>
+      </div>
 
-    <div class="mt-10 bg-gray-50 rounded-lg p-6">
-        <h2 class="text-xl font-semibold mb-4">Order Details</h2>
-        <p><strong>Order ID:</strong> #{{ order.order_id }}</p>
-        <p><strong>Status:</strong> {{ order.status }}</p>
-        <p><strong>Total:</strong> Rs. {{ order.total_amount|floatformat:2 }}</p>
-        <p><strong>Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
-    </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">Order Confirmed!</h1>
+      <p class="text-lg text-gray-600 mb-8">Thank you for your order. Your order has been successfully placed.</p>
 
-    <div class="mt-8 text-center">
-        <a href="{% url 'onlineStore:products' %}" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
-            Continue Shopping
+      <!-- Order Details -->
+      <div class="bg-gray-50/80 rounded-xl p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Order Details</h2>
+        <div class="space-y-3 text-left">
+          <div class="flex justify-between">
+            <span class="font-medium text-gray-700">Order ID:</span>
+            <span class="text-gray-900">#{{ order.order_id }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-medium text-gray-700">Status:</span>
+            <span class="text-gray-900">{{ order.status }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-medium text-gray-700">Total:</span>
+            <span class="text-gray-900">Rs. {{ order.total_amount|floatformat:2 }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-medium text-gray-700">Date:</span>
+            <span class="text-gray-900">{{ order.created_at|date:"F d, Y" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="space-y-4">
+        <a href="{% url 'onlineStore:products' %}" 
+           class="w-full inline-flex justify-center items-center py-3 px-6 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+          </svg>
+          Continue Shopping
         </a>
+        <a href="{% url 'onlineStore:order_history' %}" 
+           class="w-full inline-flex justify-center items-center py-3 px-6 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200">
+          View Order History
+        </a>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

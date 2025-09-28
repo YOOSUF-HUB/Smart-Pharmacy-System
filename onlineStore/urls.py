@@ -16,6 +16,7 @@ urlpatterns = [
 
     #About Us Page
     path('about/', views.about_us, name='about_us'),
+    path('order-history/', views.order_history, name='order_history'),
     
 
     # Cart functionality

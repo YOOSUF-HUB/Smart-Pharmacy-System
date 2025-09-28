@@ -1,0 +1,76 @@
+{% extends 'onlineStore/onlineStore_base.html' %}
+{% block title %}Order History - MediSync{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen pt-40 pb-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">Your Order History</h1>
+      
+      {% if orders %}
+        <div class="space-y-6">
+          {% for order in orders %}
+            <div class="bg-gray-50/80 rounded-xl p-6 border border-gray-200">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h2 class="text-xl font-semibold text-gray-900">Order #{{ order.id }}</h2>
+                  <p class="text-sm text-gray-600">{{ order.created_at|date:"F d, Y" }}</p>
+                </div>
+                <div class="text-right">
+                  <span class="px-3 py-1 rounded-full text-sm font-medium 
+                    {% if order.status == 'Pending' %}bg-yellow-100 text-yellow-800
+                    {% elif order.status == 'Processing' %}bg-blue-100 text-blue-800
+                    {% elif order.status == 'Shipped' %}bg-purple-100 text-purple-800
+                    {% elif order.status == 'Delivered' %}bg-green-100 text-green-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ order.status }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="space-y-2 mb-4">
+                {% for item in order.items.all %}
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                      {% if item.product.image_url %}
+                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-12 h-12 rounded-lg object-cover mr-4">
+                      {% endif %}
+                      <div>
+                        <p class="font-medium text-gray-900">{{ item.product.name }}</p>
+                        <p class="text-sm text-gray-600">Qty: {{ item.quantity }}</p>
+                      </div>
+                    </div>
+                    <p class="font-semibold text-gray-900">Rs. {{ item.subtotal|floatformat:2 }}</p>
+                  </div>
+                {% endfor %}
+              </div>
+              
+              <div class="border-t pt-4 flex justify-between items-center">
+                <p class="text-lg font-semibold text-gray-900">Total: Rs. {{ order.total_amount|floatformat:2 }}</p>
+                <a href="#" 
+                   class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                  View Details
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-16">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m8-5v2m0 0v2m0-2h2m-2 0h-2"></path>
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No orders found</h3>
+          <p class="mt-1 text-sm text-gray-500">You haven't placed any orders yet.</p>
+          <div class="mt-6">
+            <a href="{% url 'onlineStore:products' %}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+              Start Shopping
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

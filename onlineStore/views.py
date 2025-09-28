@@ -27,6 +27,14 @@ def customer_required(view_func):
 def about_us(request):
     return render(request, 'onlineStore/about_us.html')
 
+
+# Customer Order View
+@customer_required
+def order_history(request):
+    orders = Order.objects.filter(customer_user=request.user).order_by('-created_at')
+    return render(request, 'onlineStore/order_history.html', {'orders': orders})
+
+
 # Homepage view
 def online_store_homepage(request):
     featured_products = Product.objects.filter(
