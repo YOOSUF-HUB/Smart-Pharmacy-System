@@ -6,82 +6,81 @@
   <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-      <!-- Sidebar Filters -->
-      <div class="lg:col-span-1">
-        <form method="get" class="w-full bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-          
-          <!-- Filter Title -->
-           <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 flex items-center">
-              <img src="https://img.icons8.com/?size=100&id=3720&format=png&color=ffffff" class="h-5 w-5 mr-2" alt="">
-             <h3 class="text-lg font-bold text-white">Filter Products</h3>
-           </div>
-          
-          <!-- Product Type Filter -->
-          <div class="p-6 space-y-6">
-            <!-- <div>
-              <label class="block text-sm font-semibold text-gray-900 mb-3">Product Type</label>
-              <div class="space-y-2">
-                <label class="flex items-center p-2 rounded-md hover:bg-gray-50 cursor-pointer">
-                  <input type="radio" name="type" value="" {% if not current_type %}checked{% endif %} 
-                        class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-                  <span class="ml-3 text-sm text-gray-700">All Products</span>
-                </label>
-                <label class="flex items-center p-2 rounded-md hover:bg-gray-50 cursor-pointer">
-                  <input type="radio" name="type" value="Medicine" {% if current_type == 'Medicine' %}checked{% endif %} 
-                        class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-                  <span class="ml-3 text-sm text-gray-700">Medicine</span>
-                </label>
-                <label class="flex items-center p-2 rounded-md hover:bg-gray-50 cursor-pointer">
-                  <input type="radio" name="type" value="NonMedicalProduct" {% if current_type == 'NonMedicalProduct' %}checked{% endif %} 
-                        class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-                  <span class="ml-3 text-sm text-gray-700">Non-Medical</span>
-                </label>
-              </div>
-            </div> -->
+<!-- Sidebar Filters -->
+        <div class="lg:col-span-1">
+            <form method="get" class="w-full bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+                <!-- Filter Title -->
+                <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 flex items-center">
+                    <img src="https://img.icons8.com/?size=100&id=3720&format=png&color=ffffff" class="h-5 w-5 mr-2" alt="">
+                    <h3 class="text-lg font-bold text-white">Filter Products</h3>
+                </div>
 
-            <!-- Category Filter -->
-            <div>
-              <label for="category" class="block text-sm font-semibold text-gray-900 mb-3">Category</label>
-              <select name="category" id="category" 
-                      class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                  <option value="">All Categories</option>
-                  <!-- <optgroup label="Medicine Categories">
-                      {% for value, display_name in medicine_categories %}
-                      <option value="{{ value }}" {% if current_category == value %}selected{% endif %}>
-                        {{ display_name }}
-                      </option>
-                      {% endfor %}
-                  </optgroup> -->
-                  <optgroup label="Non-Medical Categories">
-                      {% for value, display_name in non_medical_categories %}
-                      <option value="{{ value }}" {% if current_category == value %}selected{% endif %}>
-                        {{ display_name }}
-                      </option>
-                      {% endfor %}
-                  </optgroup>
-              </select>
-            </div>
+                <!-- Product Type Filter -->
+                <div class="p-6 space-y-6">
+                    <div>
+                    <label class="block text-sm font-semibold text-gray-900 mb-3">Product Type</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-2 rounded-md hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="type" value="" {% if not current_type %}checked{% endif %} 
+                                class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                        <span class="ml-3 text-sm text-gray-700">All Products</span>
+                        </label>
+                        <label class="flex items-center p-2 rounded-md hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="type" value="Medicine" {% if current_type == 'Medicine' %}checked{% endif %} 
+                                class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                        <span class="ml-3 text-sm text-gray-700">Medicine</span>
+                        </label>
+                        <label class="flex items-center p-2 rounded-md hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="type" value="NonMedicalProduct" {% if current_type == 'NonMedicalProduct' %}checked{% endif %} 
+                                class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                        <span class="ml-3 text-sm text-gray-700">Non-Medical</span>
+                        </label>
+                    </div>
+                    </div>
 
-            <!-- Buttons -->
-            <div class="space-y-2 pt-4">
-              <button type="submit" 
-                      class="w-full bg-indigo-600 text-white px-4 py-2.5 rounded-md font-medium text-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                Apply Filters
-              </button>
-              
-              <a href="{% url 'onlineStore:products' %}" 
-                class="block w-full text-center px-4 py-2.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                Clear Filters
-              </a>
-            </div>
-          </div>
+                    <!-- Category Filter -->
+                    <div>
+                    <label for="category" class="block text-sm font-semibold text-gray-900 mb-3">Category</label>
+                    <select name="category" id="category" 
+                            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="">All Categories</option>
+                        <optgroup label="Medicine Categories">
+                            {% for value, display_name in medicine_categories %}
+                            <option value="{{ value }}" {% if current_category == value %}selected{% endif %}>
+                                {{ display_name }}
+                            </option>
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="Non-Medical Categories">
+                            {% for value, display_name in non_medical_categories %}
+                            <option value="{{ value }}" {% if current_category == value %}selected{% endif %}>
+                                {{ display_name }}
+                            </option>
+                            {% endfor %}
+                        </optgroup>
+                    </select>
+                    </div>
 
-        </form>
-      </div>
+                    <!-- Buttons -->
+                    <div class="space-y-2 pt-4">
+                    <button type="submit" 
+                            class="w-full bg-indigo-600 text-white px-4 py-2.5 rounded-md font-medium text-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                        Apply Filters
+                    </button>
+
+                    <a href="{% url 'onlineStore:products' %}" 
+                        class="block w-full text-center px-4 py-2.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                        Clear Filters
+                    </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
       <!-- Product Grid -->
       <div class="lg:col-span-3">
         <div class="flex justify-between mb-8">
-          <h2 class="text-2xl font-bold tracking-tight text-gray-900">Products</h2>
+          <h2 class="text-2xl font-bold tracking-tight text-gray-900">Medical Devices</h2>
           <form method="get">          
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-3" type="submit">

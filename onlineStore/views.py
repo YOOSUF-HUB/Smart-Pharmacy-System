@@ -53,7 +53,7 @@ def online_store_homepage(request):
 # Product listing view
 def products(request):
     # Only show products that are available online AND their source inventory is available online
-    products = Product.objects.filter(available_online=True).select_related(
+    products = Product.objects.filter(available_online=True, product_type='NonMedicalProduct').select_related(
         'medicine', 'non_medical_product'
     )
     
@@ -99,6 +99,110 @@ def products(request):
     }
     
     return render(request, 'onlineStore/products.html', context)
+
+
+
+# Medicine Product listing view
+def medicine_products(request):
+    # Only show products that are available online AND their source inventory is available online
+    products = Product.objects.filter(available_online=True, product_type='Medicine').select_related(
+        'medicine', 'non_medical_product'
+    )
+    
+    # Additional filter: ensure both Medicine and NonMedicalProduct items are also available_online
+    products = products.filter(
+        Q(medicine__available_online=True) |  # Medicine must be available_online
+        Q(non_medical_product__available_online=True)  # NonMedicalProduct must be available_online
+    )
+    
+    product_type = request.GET.get('type', '')
+    category = request.GET.get('category', '')
+    search_query = request.GET.get('search', '').strip()
+    
+    if product_type:
+        products = products.filter(product_type=product_type)
+    
+    if category:
+        # Filter across both related models using Q objects
+        products = products.filter(
+            Q(medicine__category=category) | 
+            Q(non_medical_product__category=category)
+        )
+    
+    if search_query:
+        products = products.filter(
+            Q(medicine__name__icontains=search_query) |
+            Q(medicine__brand__icontains=search_query) |
+            Q(non_medical_product__name__icontains=search_query) |
+            Q(non_medical_product__brand__icontains=search_query)
+        )
+    
+    # Get categories for category filter dropdown
+    medicine_categories = Medicine.CATEGORY_CHOICES
+    non_medical_categories = NonMedicalProduct.CATEGORY_CHOICES
+    
+    context = {
+        'products': products,
+        'medicine_categories': medicine_categories,
+        'non_medical_categories': non_medical_categories,
+        'current_type': product_type,
+        'current_category': category,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'onlineStore/medicine_product.html', context)
+
+
+
+# Medicine Product listing view
+def medical_devices_view(request):
+    # Only show products that are available online AND their source inventory is available online
+    products = Product.objects.filter(available_online=True, product_type='NonMedicalProduct').select_related(
+        'medicine', 'non_medical_product'
+    )
+    
+    # Additional filter: ensure both Medicine and NonMedicalProduct items are also available_online
+    products = products.filter(
+        Q(medicine__available_online=True) |  # Medicine must be available_online
+        Q(non_medical_product__available_online=True)  # NonMedicalProduct must be available_online
+    )
+    
+    product_type = request.GET.get('type', '')
+    category = request.GET.get('category', 'Medical Devices')
+    search_query = request.GET.get('search', '').strip()
+    
+    if product_type:
+        products = products.filter(product_type=product_type)
+    
+    if category:
+        # Filter across both related models using Q objects
+        products = products.filter(
+            Q(medicine__category=category) | 
+            Q(non_medical_product__category=category)
+        )
+    
+    if search_query:
+        products = products.filter(
+            Q(medicine__name__icontains=search_query) |
+            Q(medicine__brand__icontains=search_query) |
+            Q(non_medical_product__name__icontains=search_query) |
+            Q(non_medical_product__brand__icontains=search_query)
+        )
+    
+    # Get categories for category filter dropdown
+    medicine_categories = Medicine.CATEGORY_CHOICES
+    non_medical_categories = NonMedicalProduct.CATEGORY_CHOICES
+    
+    context = {
+        'products': products,
+        'medicine_categories': medicine_categories,
+        'non_medical_categories': non_medical_categories,
+        'current_type': product_type,
+        'current_category': category,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'onlineStore/medical_device.html', context)
 
 # Product detail view 
 def product_detail(request, pk):

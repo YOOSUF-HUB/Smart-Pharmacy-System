@@ -2,23 +2,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
-    <link rel="icon" type="image/x-icon" href="{% static 'MediSyn_logo/1.png' %}">
-    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Questrial&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-  <!-- Add these to your base template if missing -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'MediSyn_logo/1.png' %}">
+  
+  <!-- Tailwind (v3 latest) -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Questrial&display=swap" rel="stylesheet">
+  <!-- AlpineJS -->
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Questrial&display=swap" rel="stylesheet">
+
+  <!-- Select2 (if you’re really using it for forms) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <style>
+    body { font-family: "Montserrat", sans-serif; background-color: #f8fafc; }
+    .font-serif { font-family: "Montserrat", sans-serif; }
+  </style>
 </head>
 <style>
 body {
@@ -82,7 +87,9 @@ body {
                 </div>
                 <div class="hidden lg:flex lg:gap-x-12">
                     <a href="/MediSync/" class="text-sm/6 font-semibold text-white">Home</a>
-                    <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-white">Product</a>
+                    <a href="{% url 'onlineStore:medicine-products' %}" class="text-sm/6 font-semibold text-white">Medicines</a>
+                    <a href="{% url 'onlineStore:products' %}" class="text-sm/6 font-semibold text-white">Products</a>
+                    <a href="{% url 'onlineStore:medical-devices' %}" class="text-sm/6 font-semibold text-white">Medical Devices</a>
                     <a href="#" class="text-sm/6 font-semibold text-white">Contact us</a>
                     <a href="{% url 'onlineStore:about_us' %}" class="text-sm/6 font-semibold text-white">About us</a>
                 </div>
@@ -154,7 +161,9 @@ body {
                     <div class="-my-6 divide-y divide-gray-500/10">
                         <div class="space-y-2 py-6">
                         <a href="/online-store/" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Home</a>
-                        <a href="{% url 'onlineStore:products' %}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Product</a>
+                        <a href="{% url 'onlineStore:products' %}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Medicines</a>
+                        <a href="{% url 'onlineStore:products' %}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Products</a>
+                        <a href="{% url 'onlineStore:products' %}" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Medical</a>
                         <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Contact us</a>
                         <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">About us</a>
                         </div>
@@ -165,7 +174,7 @@ body {
                             {% else %}
                                 <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-indigo-600">Log in <span aria-hidden="true">&rarr;</span></a>
                             {% endif %}
-                                    
+
                                 </div>
 
                     </div>

@@ -5,8 +5,15 @@
 
 {% block content %}
 <div class="max-w-6xl mx-auto px-6 py-10">
-  <div class="mb-10">
+<div class="mb-10">
+    {% if medicine and medicine.id %}
+    <h1 class="text-3xl font-semibold text-slate-900 tracking-tight">
+      Update Medication  - {{ medicine.id }}
+      {% if medicine.name %} - {{ medicine.name }}{% endif %}
+    </h1>
+    {% else %}
     <h1 class="text-3xl font-semibold text-slate-900 tracking-tight">Update Medication</h1>
+    {% endif %}
     <p class="mt-2 text-sm text-slate-500">Modify details and save. Fields marked * are required.</p>
   </div>
 

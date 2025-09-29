@@ -312,7 +312,7 @@ def update_medicine(request, id):
                     action='Updated',
                     user=request.user
                 )
-                messages.success(request, f"The record for '{medicine.name}' has been updated successfully.")
+                messages.success(request, f"The record for '{medicine.name}' has been updated successfully with Product ID '{ medicine.id}'.")
                 return redirect('medicine_table')
             except ValidationError as e:
                 # Handle model validation errors

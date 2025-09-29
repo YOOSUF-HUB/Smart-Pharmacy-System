@@ -9,6 +9,8 @@ urlpatterns = [
     path('', views.online_store_homepage, name='homepage'),
     path('accounts/', include('accounts.urls')), # Include accounts URLs for login/logout
     path('products/', views.products, name='products'),
+    path('products/medicine/', views.medicine_products, name='medicine-products'),
+    path('products/medical-devices/', views.medical_devices_view, name='medical-devices'),
     
     # FIX: Corrected view name from `view_product_detail` to `product_detail`
     # FIX: Changed URL parameter from `<int:id>` to `<int:pk>` to match the view
