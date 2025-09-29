@@ -154,33 +154,58 @@ def medicine_products(request):
 
 
 
-# Medicine Product listing view
+from django.db.models import Q
+
+from django.db.models import Q, F, Value
+from django.db.models.functions import Coalesce
+
 def medical_devices_view(request):
-    # Only show products that are available online AND their source inventory is available online
     products = Product.objects.filter(available_online=True, product_type='NonMedicalProduct').select_related(
         'medicine', 'non_medical_product'
     )
     
-    # Additional filter: ensure both Medicine and NonMedicalProduct items are also available_online
+    # Ensure related items are available online
     products = products.filter(
-        Q(medicine__available_online=True) |  # Medicine must be available_online
-        Q(non_medical_product__available_online=True)  # NonMedicalProduct must be available_online
+        Q(medicine__available_online=True) |
+        Q(non_medical_product__available_online=True)
     )
-    
+
     product_type = request.GET.get('type', '')
     category = request.GET.get('category', 'Medical Devices')
     search_query = request.GET.get('search', '').strip()
-    
+
+    # Annotate price using Coalesce (use medicine.selling_price if exists, else non_medical_product.selling_price)
+    from django.db.models import FloatField
+    products = products.annotate(
+        effective_price=Coalesce(
+            F('medicine__selling_price'),
+            F('non_medical_product__selling_price'),
+            output_field=FloatField()
+        )
+    )
+
+    # Price filter (validate and apply only when provided)
+    min_price = request.GET.get('min_price', '0').strip()
+    max_price = request.GET.get('max_price', '100000').strip()
+
+    try:
+        if min_price != '0':
+            products = products.filter(effective_price__gte=float(min_price))
+        if max_price != '100000':
+            products = products.filter(effective_price__lte=float(max_price))
+    except ValueError:
+        # ignore invalid numeric inputs (or add messages.error as needed)
+        pass
+
     if product_type:
         products = products.filter(product_type=product_type)
-    
+
     if category:
-        # Filter across both related models using Q objects
         products = products.filter(
-            Q(medicine__category=category) | 
+            Q(medicine__category=category) |
             Q(non_medical_product__category=category)
         )
-    
+
     if search_query:
         products = products.filter(
             Q(medicine__name__icontains=search_query) |
@@ -188,11 +213,10 @@ def medical_devices_view(request):
             Q(non_medical_product__name__icontains=search_query) |
             Q(non_medical_product__brand__icontains=search_query)
         )
-    
-    # Get categories for category filter dropdown
+
     medicine_categories = Medicine.CATEGORY_CHOICES
     non_medical_categories = NonMedicalProduct.CATEGORY_CHOICES
-    
+
     context = {
         'products': products,
         'medicine_categories': medicine_categories,
@@ -200,9 +224,13 @@ def medical_devices_view(request):
         'current_type': product_type,
         'current_category': category,
         'search_query': search_query,
+        'current_min_price': min_price,
+        'current_max_price': max_price,
     }
-    
+
     return render(request, 'onlineStore/medical_device.html', context)
+
+
 
 # Product detail view 
 def product_detail(request, pk):

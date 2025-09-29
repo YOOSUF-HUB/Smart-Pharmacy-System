@@ -37,6 +37,16 @@
                         </label>
                     </div>
                     </div>
+                    <div>
+
+                    <label class="block text-sm font-semibold text-gray-900 mb-3">Price Range (Rs.)</label>
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="text-sm text-gray-700">Rs. <span id="price-min-text">{{ current_min_price|default:'0' }}</span></span>
+                        <span class="text-sm text-gray-700">- Rs. <span id="price-max-text">{{ current_max_price|default:'100000' }}</span></span>
+                    </div>
+                    <input type="range" id="price-min" name="min_price" min="0" max="100000" value="{{ current_min_price|default:'0' }}" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                    <input type="range" id="price-max" name="max_price" min="0" max="100000" value="{{ current_max_price|default:'100000' }}" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2">
+                    </div>
 
                     <!-- Category Filter -->
                     <div>
@@ -68,7 +78,7 @@
                         Apply Filters
                     </button>
 
-                    <a href="{% url 'onlineStore:products' %}" 
+                    <a href="{% url 'onlineStore:medical-devices' %}" 
                         class="block w-full text-center px-4 py-2.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
                         Clear Filters
                     </a>
@@ -173,5 +183,39 @@
     </div>
   </div>
 </div>
+
+<script>
+  const priceMin = document.getElementById('price-min');
+  const priceMax = document.getElementById('price-max');
+  const priceMinText = document.getElementById('price-min-text');
+  const priceMaxText = document.getElementById('price-max-text');
+
+  function updatePriceText() {
+    let minVal = parseInt(priceMin.value);
+    let maxVal = parseInt(priceMax.value);
+
+    // Prevent min from being higher than max
+    if(minVal > maxVal) {
+      minVal = maxVal;
+      priceMin.value = minVal;
+    }
+
+    // Prevent max from being lower than min
+    if(maxVal < minVal) {
+      maxVal = minVal;
+      priceMax.value = maxVal;
+    }
+
+    priceMinText.textContent = minVal;
+    priceMaxText.textContent = maxVal;
+  }
+
+  priceMin.addEventListener('input', updatePriceText);
+  priceMax.addEventListener('input', updatePriceText);
+
+  // Initialize text on page load
+  updatePriceText();
+</script>
+
 
 {% endblock %}
