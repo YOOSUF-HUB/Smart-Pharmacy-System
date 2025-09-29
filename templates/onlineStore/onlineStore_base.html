@@ -9,6 +9,16 @@
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Questrial&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <!-- Add these to your base template if missing -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Questrial&display=swap" rel="stylesheet">
 </head>
 <style>
 body {
@@ -58,7 +68,7 @@ body {
             style="border-color: #00eebc;">
 
                 <div class="flex lg:flex-1 ">
-                    <a href="#" class="-m-1.5 p-1.5">
+                    <a href="/MediSync/" class="-m-1.5 p-1.5">
                     <img src="{% static 'MediSyn_logo/2.png' %}" alt="" class="h-14 lg:h-16 w-auto " />
                     </a>
                     <span class="justify-center items-center  flex lg:text-3xl text-2xl font-semibold" style="color: #00eebc;">MediSync</span>
@@ -150,7 +160,7 @@ body {
                         </div>
                         <div class="py-6">
                              {% if user.is_authenticated and user.role == 'customer' %}
-                                <span class="welcome-text mr-4 font-bold italic" style="color: #00eebc;">Hey, {{ user.first_name|default:user.username }}!</span>
+                                <span class="welcome-text mr-4 font-semibold" style="color: #8300ee;">Hey, {{ user.first_name|default:user.username }}!</span>
                                 <a href="{% url 'customer_logout' %}" class="text-sm/6 font-semibold text-red-600">Logout <span aria-hidden="true">&larr;</span></a>
                             {% else %}
                                 <a href="{% url 'customer_login' %}" class="text-sm/6 font-semibold text-indigo-600">Log in <span aria-hidden="true">&rarr;</span></a>

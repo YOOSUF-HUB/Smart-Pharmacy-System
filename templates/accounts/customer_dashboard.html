@@ -1,37 +1,81 @@
-{% extends 'registration/base.html' %}
+{% extends 'onlineStore/onlineStore_base.html' %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-10 px-6">
-  <div class="max-w-5xl mx-auto">
+<div class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen pt-28 pb-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     
     <!-- Header Section -->
-    <div class="bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-2xl shadow-lg p-8 mb-10">
-      <h1 class="text-3xl font-bold mb-2">Welcome, {{ user.username }} 👋</h1>
-      <p class="text-gray-100 text-lg">This is your dashboard where you can manage your profile and view your orders.</p>
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-8 mb-10 text-center">
+      <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
+        <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
+      <p class="text-lg text-gray-600">This is your dashboard where you can manage your profile and view your orders.</p>
     </div>
 
     <!-- Actions Section -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       
       <!-- Profile Card -->
-      <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-semibold text-gray-800 mb-3">Your Profile</h2>
-        <p class="text-gray-600 text-sm mb-4">Update your personal details and preferences.</p>
-        <a href="{% url 'edit_customer_profile' %}" class="inline-block bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg shadow transition">Manage Profile</a>
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-8 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+        <div class="flex items-center mb-4">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+          </div>
+          <h2 class="ml-3 text-xl font-semibold text-gray-900">Your Profile</h2>
+        </div>
+        <p class="text-gray-600 mb-6">Update your personal details and preferences.</p>
+        <a href="{% url 'edit_customer_profile' %}" 
+           class="w-full inline-flex justify-center items-center py-3 px-6 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          Manage Profile
+        </a>
       </div>
 
       <!-- Orders Card -->
-      <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-semibold text-gray-800 mb-3">Your Orders</h2>
-        <p class="text-gray-600 text-sm mb-4">Track your recent purchases and order history.</p>
-        <a href="{% url 'onlineStore:order_history' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition">View Orders</a>
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-8 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+        <div class="flex items-center mb-4">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
+          </div>
+          <h2 class="ml-3 text-xl font-semibold text-gray-900">Your Orders</h2>
+        </div>
+        <p class="text-gray-600 mb-6">Track your recent purchases and order history.</p>
+        <a href="{% url 'onlineStore:order_history' %}" 
+           class="w-full inline-flex justify-center items-center py-3 px-6 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+          View Orders
+        </a>
       </div>
 
       <!-- Logout Card -->
-      <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-        <h2 class="text-lg font-semibold text-gray-800 mb-3">Logout</h2>
-        <p class="text-gray-600 text-sm mb-4">Securely sign out of your account.</p>
-        <a href="{% url 'customer_logout' %}" class="inline-block bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow transition">Logout</a>
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-8 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+        <div class="flex items-center mb-4">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+          </div>
+          <h2 class="ml-3 text-xl font-semibold text-gray-900">Logout</h2>
+        </div>
+        <p class="text-gray-600 mb-6">Securely sign out of your account.</p>
+        <a href="{% url 'customer_logout' %}" 
+           class="w-full inline-flex justify-center items-center py-3 px-6 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 transition-all duration-200 hover:scale-105">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+          Logout
+        </a>
       </div>
 
     </div>
