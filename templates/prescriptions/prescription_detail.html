@@ -109,6 +109,26 @@
 
     <!-- Add Medicine to Prescription Form -->
     <h2 class="text-xl font-bold text-gray-800 mb-4 mt-8">Add Medicine to Prescription</h2>
+    
+    <!-- **************************************** -->
+    <!-- INSERTED RECOMMENDATION BUTTON BLOCK HERE -->
+    <!-- **************************************** -->
+    <div class="my-4">
+        <!-- Assuming the URL name is 'prescriptions:recommendation_test_view' -->
+        <a href="{% url 'recommendation_test' %}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out w-full sm:w-auto">
+
+            <!-- Icon for Recommendation -->
+            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
+                <path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm256 96a96 96 0 1 0 0-192 96 96 0 1 0 0 192zM128 256a128 128 0 1 1 256 0 128 128 0 1 1 -256 0zM256 384a128 128 0 1 0 0-256 128 128 0 1 0 0 256zM256 352a96 96 0 1 1 0-192 96 96 0 1 1 0 192zM320 256a64 64 0 1 0 -128 0 64 64 0 1 0 128 0z"/></svg>
+            
+            Get Medicine Recommendations
+        </a>
+    </div>
+    <!-- **************************************** -->
+
     <form id="add-item-form" method="post" action="{% url 'add_prescription_item' prescription.pk %}" class="space-y-4">
         {% csrf_token %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

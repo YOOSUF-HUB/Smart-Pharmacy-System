@@ -56,4 +56,6 @@ urlpatterns = [
     # --- DrugInteraction URLs (for future admin/management, optional for now) ---
     # You might add views for DrugInteraction later if needed for non-admin CRUD.
     # For now, it's primarily managed via Django Admin or by the DL model.
+    
+    path('recommend/', views.recommendation_test_view, name='recommendation_test'),
 ]

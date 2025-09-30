@@ -1,0 +1,64 @@
+{% extends 'prescriptions/base.html' %}
+{% load static %}
+
+{% block title %}Alternative Medicine Recommendations{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-xl rounded-xl p-8 mb-6 max-w-3xl mx-auto border-t-4 border-indigo-500">
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-2 text-center">
+        <i class="fas fa-search-plus text-indigo-500 mr-2"></i> Medicine Alternatives Finder
+    </h1>
+    <p class="text-center text-gray-600 mb-8">Test your similarity model by searching for any drug name.</p>
+
+    <form method="GET" class="mb-10 flex gap-4">
+        <div class="flex-grow">
+            <label for="q" class="sr-only">Search Medicine</label>
+            <input 
+                type="text" 
+                name="q" 
+                id="q" 
+                value="{{ medicine_name|default:'' }}" 
+                placeholder="Enter an unavailable medicine name (e.g., Acetaminophen)" 
+                class="form-control w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                required
+            >
+        </div>
+        <div>
+            <button type="submit" class="btn-primary w-full px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 transition duration-150 ease-in-out shadow-md rounded-lg">
+                <i class="fas fa-flask mr-2"></i>Find Alternatives
+            </button>
+        </div>
+    </form>
+
+    {% if medicine_name %}
+        <div class="mt-8 border-t pt-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+                Results for: <span class="text-indigo-600">"{{ medicine_name }}"</span>
+            </h2>
+
+            {% if recommendations %}
+                <div class="p-6 bg-indigo-50 border border-indigo-200 rounded-xl shadow-inner">
+                    <p class="font-bold text-indigo-800 text-lg mb-4 flex items-center">
+                        <i class="fas fa-hand-holding-medical mr-2 text-indigo-500"></i> Top 5 Recommended Alternatives:
+                    </p>
+                    <ol class="space-y-3">
+                        {% for drug in recommendations %}
+                            <li class="bg-white p-3 rounded-lg border-l-4 border-indigo-400 shadow-md flex items-center text-gray-900 font-medium hover:bg-indigo-100 transition duration-150 ease-in-out">
+                                <span class="text-indigo-600 font-extrabold text-xl mr-3">{{ forloop.counter }}.</span>
+                                {{ drug }}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            {% else %}
+                <div class="p-6 bg-red-50 border border-red-200 rounded-xl shadow-inner">
+                    <p class="text-red-800 font-medium flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> 
+                        No close match found for "{{ medicine_name }}" in the database (cutoff too strict), or the data failed to load. Please check the console for loading errors.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

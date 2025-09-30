@@ -610,3 +610,24 @@ def generate_prescription_pdf(request, pk):
     response['Content-Disposition'] = f'attachment; filename="prescription_{prescription.id}.pdf"'
     return response
 
+
+from django.shortcuts import render
+from .recommender import get_recommendations 
+
+
+def recommendation_test_view(request):
+   
+   
+    medicine_name = request.GET.get('q')
+    recommendations = []
+    
+    if medicine_name:
+        
+        recommendations = get_recommendations(medicine_name)
+    
+    context = {
+        'medicine_name': medicine_name,
+        'recommendations': recommendations,
+    }
+    
+    return render(request, 'prescriptions/recommendation_test.html', context)
