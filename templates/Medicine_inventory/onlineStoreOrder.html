@@ -291,15 +291,22 @@ body {
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-slate-700">
-                                    {% if order.customer_user.phone %}
+                                    {% if order.contact_phone %}
+                                        {{ order.contact_phone }}
+                                    {% elif order.customer_user.phone %}
                                         {{ order.customer_user.phone }}
                                     {% else %}
-                                        <span class="text-slate-400 italic">Not provided</span>
+                                        {% comment %}Try customer profile phone if present (may raise if profile missing) {% endcomment %}
+                                        {% if order.customer_user.customer and order.customer_user.customer.phone %}
+                                            {{ order.customer_user.customer.phone }}
+                                        {% else %}
+                                            <span class="text-slate-400 italic">Not provided</span>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-bold text-emerald-600">${{ order.total_amount|floatformat:2 }}</div>
+                                <div class="text-sm font-bold text-emerald-600">Rs. {{ order.total_amount|floatformat:2 }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 {% if order.status == 'Pending' %}

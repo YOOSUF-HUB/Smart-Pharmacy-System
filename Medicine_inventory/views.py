@@ -12,7 +12,8 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Count, F, Q
+from django.db.models import Count, F, Q, Value
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
@@ -582,7 +583,8 @@ def view_online_orders(request):
         return redirect('med_inventory_dash')
     
     # Use select_related to fetch customer data efficiently
-    orders = Order.objects.select_related('customer_user').all().order_by('-created_at')
+    orders = Order.objects.select_related('customer_user', 'customer_user__customer') \
+        .annotate(contact_phone=Coalesce('customer_user__phone', 'customer_user__customer__phone', Value('')))
     
     # Calculate statistics
     total_orders = orders.count()
