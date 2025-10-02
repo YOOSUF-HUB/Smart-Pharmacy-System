@@ -187,8 +187,28 @@ def view_medicine_table(request):
 
     recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
 
+    # Get items per page from request (default 25)
+    per_page = request.GET.get('per_page', 25)
+    try:
+        per_page = int(per_page)
+        if per_page not in [25, 50, 100]:
+            per_page = 25
+    except (ValueError, TypeError):
+        per_page = 25
+    
+    # Add pagination
+    paginator = Paginator(filtered, per_page)
+    page = request.GET.get('page')
+    
+    try:
+        medicines = paginator.page(page)
+    except PageNotAnInteger:
+        medicines = paginator.page(1)
+    except EmptyPage:
+        medicines = paginator.page(paginator.num_pages)
+
     context = {
-        'medicine': filtered,
+        'medicine': medicines,
         'categories': categories,
         'recent_actions': recent_actions,
         'current_sort': sort_by,
