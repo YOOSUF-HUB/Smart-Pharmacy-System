@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from io import StringIO
+from urllib import request
 
 from django.conf import settings
 from django.contrib import messages
@@ -65,11 +66,10 @@ def pharmacist_required(view_func):
 #         'categories': categories,
 #     })
 
-
 @pharmacist_required
 def view_medicine_cards(request):
     """
-    Cards view with server-side search by name/brand/supplier/description and filters.
+    Cards view with server-side search by name/brand/supplier/description and filters with pagination.
     """
     categories = [c[0] for c in Medicine.CATEGORY_CHOICES]
 
@@ -129,14 +129,35 @@ def view_medicine_cards(request):
 
         filtered.append(med)
 
+    # Get items per page from request (default 12 for cards)
+    per_page = request.GET.get('per_page', 12)
+    try:
+        per_page = int(per_page)
+        if per_page not in [12, 24, 48]:
+            per_page = 12  # default if invalid
+    except (ValueError, TypeError):
+        per_page = 12  # default if conversion fails
+    
+    # Add pagination
+    paginator = Paginator(filtered, per_page)
+    page = request.GET.get('page')
+    
+    try:
+        medicines = paginator.page(page)
+    except PageNotAnInteger:
+        medicines = paginator.page(1)
+    except EmptyPage:
+        medicines = paginator.page(paginator.num_pages)
+
     recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
 
     return render(request, 'Medicine_inventory/view_medicine.html', {
-        'medicine': filtered,
+        'medicine': medicines,  # Now paginated
         'categories': categories,
         'recent_actions': recent_actions,
         'available_online': online,
     })
+
 # ...existing code...
 
 
@@ -187,14 +208,14 @@ def view_medicine_table(request):
 
     recent_actions = MedicineAction.objects.select_related('medicine').order_by('-timestamp')[:5]
 
-    # Get items per page from request (default 25)
-    per_page = request.GET.get('per_page', 25)
+    # Get items per page from request (default 100)
+    per_page = request.GET.get('per_page', 100)
     try:
         per_page = int(per_page)
-        if per_page not in [25, 50, 100]:
-            per_page = 25
+        if per_page not in [100, 200, 500]:
+            per_page = 100  # default if invalid
     except (ValueError, TypeError):
-        per_page = 25
+        per_page = 100  # default if conversion fails
     
     # Add pagination
     paginator = Paginator(filtered, per_page)

@@ -575,6 +575,116 @@
         </div>
       {% endfor %}
     </div>
+
+    <!-- Pagination Controls - ADDED -->
+    {% if medicine.has_other_pages %}
+    <div class="mt-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-white/50 p-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- Page Info -->
+        <div class="text-sm text-slate-600">
+          Showing <span class="font-semibold text-slate-900">{{ medicine.start_index }}</span> to 
+          <span class="font-semibold text-slate-900">{{ medicine.end_index }}</span> of 
+          <span class="font-semibold text-slate-900">{{ medicine.paginator.count }}</span> medicines
+        </div>
+
+        <!-- Pagination Buttons -->
+        <nav class="flex items-center space-x-2" aria-label="Pagination">
+          <!-- Previous Button -->
+          {% if medicine.has_previous %}
+            <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.expiry %}&expiry={{ request.GET.expiry }}{% endif %}{% if request.GET.low_stock %}&low_stock={{ request.GET.low_stock }}{% endif %}{% if request.GET.available_online %}&available_online={{ request.GET.available_online }}{% endif %}" 
+               class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+              </svg>
+            </a>
+            <a href="?page={{ medicine.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.expiry %}&expiry={{ request.GET.expiry }}{% endif %}{% if request.GET.low_stock %}&low_stock={{ request.GET.low_stock }}{% endif %}{% if request.GET.available_online %}&available_online={{ request.GET.available_online }}{% endif %}" 
+               class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              Previous
+            </a>
+          {% else %}
+            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-slate-100 border border-slate-200 rounded-lg cursor-not-allowed">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+              </svg>
+            </span>
+            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-slate-100 border border-slate-200 rounded-lg cursor-not-allowed">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              Previous
+            </span>
+          {% endif %}
+
+          <!-- Page Numbers -->
+          <div class="hidden sm:flex items-center space-x-1">
+            {% for num in medicine.paginator.page_range %}
+              {% if medicine.number == num %}
+                <span class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-500 border border-emerald-600 rounded-lg shadow-lg">
+                  {{ num }}
+                </span>
+              {% elif num > medicine.number|add:'-3' and num < medicine.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.expiry %}&expiry={{ request.GET.expiry }}{% endif %}{% if request.GET.low_stock %}&low_stock={{ request.GET.low_stock }}{% endif %}{% if request.GET.available_online %}&available_online={{ request.GET.available_online }}{% endif %}" 
+                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200">
+                  {{ num }}
+                </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <!-- Mobile Page Indicator -->
+          <div class="sm:hidden">
+            <span class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-500 border border-emerald-600 rounded-lg shadow-lg">
+              Page {{ medicine.number }} of {{ medicine.paginator.num_pages }}
+            </span>
+          </div>
+
+          <!-- Next Button -->
+          {% if medicine.has_next %}
+            <a href="?page={{ medicine.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.expiry %}&expiry={{ request.GET.expiry }}{% endif %}{% if request.GET.low_stock %}&low_stock={{ request.GET.low_stock }}{% endif %}{% if request.GET.available_online %}&available_online={{ request.GET.available_online }}{% endif %}" 
+               class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200">
+              Next
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+            <a href="?page={{ medicine.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.expiry %}&expiry={{ request.GET.expiry }}{% endif %}{% if request.GET.low_stock %}&low_stock={{ request.GET.low_stock }}{% endif %}{% if request.GET.available_online %}&available_online={{ request.GET.available_online }}{% endif %}" 
+               class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          {% else %}
+            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-slate-100 border border-slate-200 rounded-lg cursor-not-allowed">
+              Next
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </span>
+            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-slate-100 border border-slate-200 rounded-lg cursor-not-allowed">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+              </svg>
+            </span>
+          {% endif %}
+        </nav>
+
+        <!-- Items per page selector -->
+        <div class="text-sm">
+          <select onchange="window.location.href='?page=1&per_page=' + this.value + '{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.expiry %}&expiry={{ request.GET.expiry }}{% endif %}{% if request.GET.low_stock %}&low_stock={{ request.GET.low_stock }}{% endif %}{% if request.GET.available_online %}&available_online={{ request.GET.available_online }}{% endif %}'"
+                  class="px-3 py-2 border border-slate-300 rounded-lg text-slate-700 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+            <option value="12" {% if request.GET.per_page == '12' %}selected{% endif %}>12 per page</option>
+            <option value="24" {% if request.GET.per_page == '24' %}selected{% endif %}>24 per page</option>
+            <option value="48" {% if request.GET.per_page == '48' %}selected{% endif %}>48 per page</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <!-- END Pagination Controls -->
+
   </div>
 </div>
 

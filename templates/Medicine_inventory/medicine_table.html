@@ -615,9 +615,9 @@
         <div class="text-sm">
           <select onchange="window.location.href='?page=1&per_page=' + this.value + '{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.expiry %}&expiry={{ request.GET.expiry }}{% endif %}{% if request.GET.low_stock %}&low_stock={{ request.GET.low_stock }}{% endif %}{% if request.GET.available_online %}&available_online={{ request.GET.available_online }}{% endif %}'"
                   class="px-3 py-2 border border-slate-300 rounded-lg text-slate-700 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-            <option value="25" {% if request.GET.per_page == '25' %}selected{% endif %}>25 per page</option>
-            <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>50 per page</option>
             <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>100 per page</option>
+            <option value="200" {% if request.GET.per_page == '200' %}selected{% endif %}>200 per page</option>
+            <option value="500" {% if request.GET.per_page == '500' %}selected{% endif %}>500 per page</option>
           </select>
         </div>
       </div>
