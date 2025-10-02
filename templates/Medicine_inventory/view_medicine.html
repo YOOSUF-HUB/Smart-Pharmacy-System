@@ -776,20 +776,25 @@ Paracetamol 500mg,Analgesic,OTC,500mg,BATCH001,2024-01-15,2026-01-15,5.50,3.20,1
 Amoxicillin 250mg,Antibiotic,RX,250mg,BATCH002,2024-02-10,2025-02-10,12.75,8.50,50,10,AntiBio Pharma,HealthCare Distributors,Broad spectrum antibiotic,amoxicillin.png
 Oseltamivir 75mg,Antiviral,RX,75mg,BATCH003,2024-03-05,2026-03-05,25.00,18.00,30,5,Tamiflu Inc,Global Medical Supply,Antiviral for influenza,
 Cetirizine 10mg,Antihistamine,OTC,10mg,BATCH004,2024-01-20,2026-01-20,8.90,5.60,200,25,VitaLife,Health Supplements Inc,Allergy relief tablet,cetirizine.jpg
-Pantoprazole 40mg,Antacid,RX,40mg,BATCH005,2024-02-15,2025-12-15,14.75,10.10,120,30,StomachCare,MediCore Distributors,Acid reflux treatment,`;
+Pantoprazole 40mg,Antacid,RX,40mg,BATCH005,2024-02-15,2025-12-15,14.75,10.10,120,30,StomachCare,MediCore Distributors,Acid reflux treatment,pantoprazole.png
+Metformin 500mg,Antidiabetic,RX,500mg,BATCH006,2024-04-01,2026-04-01,6.50,4.00,150,20,Glucophage,PharmaPlus,Blood sugar control,metformin.jpg
+Warfarin 5mg,Anticoagulant,RX,5mg,BATCH007,2024-05-10,2026-05-10,18.00,12.00,60,10,CoaguSafe,SafeMeds,Blood thinner,
+Vitamin D 1000IU,Nutritional Supplement,OTC,1000IU,BATCH008,2024-06-01,2026-06-01,7.25,4.50,180,30,Sunshine,VitaSuppliers,Vitamin D supplement,vitamin_d.jpg
+Albuterol 100mcg,Bronchodilator,RX,100mcg,BATCH009,2024-07-01,2026-07-01,22.00,15.00,80,15,BreatheEasy,RespiraMed,Asthma inhaler,albuterol.png
+Prednisone 20mg,Steroid,RX,20mg,BATCH010,2024-08-01,2026-08-01,16.00,11.00,90,20,PredniPharm,CoreDistributors,Corticosteroid anti-inflammatory,prednisone.jpg`;
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'medicine_bulk_upload_template.csv');
+    link.setAttribute('download', 'medicine_bulk_upload_template_with_images.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     
     setTimeout(() => {
-      alert('📋 Template downloaded!\n\n🖼️ Image Path Instructions:\n\n✅ With Images:\n• Place images in: media/medical_products/\n• Use filename in CSV: paracetamol.jpg\n\n✅ Without Images:\n• Leave image_path column empty\n• Medicine will show default "no image" placeholder\n\n📝 Both approaches work perfectly!');
+      alert('📋 Template downloaded with image support!\n\n🖼️ Image Path Instructions:\n\n✅ With Images:\n• Place images in: /media/medical_products/\n• Use filename in CSV: paracetamol.jpg\n\n✅ Without Images:\n• Leave image_path column empty\n• Medicine will show default "no image" placeholder\n\n✅ Mixed Approach:\n• Some medicines with images, some without\n• Both approaches work perfectly!\n\n📝 The template includes examples of all scenarios.');
     }, 500);
   }
 
