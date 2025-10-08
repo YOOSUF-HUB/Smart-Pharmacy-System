@@ -57,7 +57,7 @@ def checkout_prescription(request, pk):
     # Calculate the total amount and prepare line items for Stripe
     line_items = []
     for item in prescription.items.all():
-        unit_amount = int(item.medicine.selling_price * 100)
+        unit_amount = int(item.medicine.selling_price)
         
         # --- Create a PaymentItem for each PrescriptionItem ---
         PaymentItem.objects.create(
@@ -69,7 +69,7 @@ def checkout_prescription(request, pk):
         
         line_items.append({
             'price_data': {
-                'currency': 'usd',
+                'currency': 'LKR',
                 'product_data': {
                     'name': f"{item.medicine.name} ({item.medicine.dosage})",
                 },
