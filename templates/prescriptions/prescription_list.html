@@ -1,125 +1,530 @@
 {% extends 'prescriptions/base.html' %}
 {% load static %}
 
-{% block title %}Prescriptions List{% endblock %}
+{% block title %}Prescriptions Management{% endblock %}
 
 {% block content %}
-<div class="bg-white shadow-md rounded-lg p-6 mb-6">
-    <div class="flex justify-between items-center mb-4">
-        <h1 class="text-2xl font-bold text-gray-800">Prescriptions</h1>
-        <a href="{% url 'prescription_create' %}" class="btn-primary flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-            Create New Prescription
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    font-family: "Inter", sans-serif;
+    background-color: #f8fafc;
+  }
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  .badge-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .7; }
+  }
+  @media (max-width: 640px) {
+    .mobile-card {
+      padding: 1rem;
+    }
+  }
+</style>
+
+<div class="min-h-screen bg-gradient-to-br py-6 sm:py-8">
+  <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header Section -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/50 p-4 sm:p-6 mb-6 card-hover">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div class="flex items-center space-x-4">
+          <div class="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Prescriptions Management</h1>
+            <p class="text-sm text-slate-600 mt-1">Manage and track patient prescriptions</p>
+          </div>
+        </div>
+        <a href="{% url 'prescription_create' %}" 
+           class="inline-flex items-center justify-center px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 w-full sm:w-auto">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Create New Prescription
         </a>
+      </div>
     </div>
 
-    <!-- Search/Filter Form -->
-    <form method="GET" class="mb-6 flex gap-4 items-end">
-        <div class="flex-grow">
-            <label for="patient" class="block text-sm font-medium text-gray-700 mb-1">Filter by Patient:</label>
-            <select name="patient" id="patient" class="form-control">
-                <option value="">All Patients</option>
-                {% for patient_obj in patients %}
-                    <option value="{{ patient_obj.id }}" {% if request.GET.patient == patient_obj.id|stringformat:"s" %}selected{% endif %}>
-                        {{ patient_obj.first_name }} {{ patient_obj.last_name }}
-                    </option>
-                {% endfor %}
+    <!-- Filters Panel -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/50 overflow-hidden mb-6 card-hover">
+      <div class="bg-gradient-to-r from-slate-700 to-slate-800 px-4 sm:px-6 py-4">
+        <h3 class="text-lg font-semibold text-white flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"></path>
+          </svg>
+          Search & Filter Options
+        </h3>
+      </div>
+      
+      <div class="p-4 sm:p-6">
+        <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Patient Filter -->
+          <div class="flex flex-col">
+            <label for="patient" class="block text-sm font-medium text-slate-700 mb-2">Filter by Patient</label>
+            <select name="patient" id="patient" 
+                    class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm text-sm">
+              <option value="">All Patients</option>
+              {% for patient_obj in patients %}
+                <option value="{{ patient_obj.id }}" {% if request.GET.patient == patient_obj.id|stringformat:"s" %}selected{% endif %}>
+                  {{ patient_obj.first_name }} {{ patient_obj.last_name }}
+                </option>
+              {% endfor %}
             </select>
-        </div>
-        <div class="flex-grow">
-            <label for="doctor" class="block text-sm font-medium text-gray-700 mb-1">Filter by Doctor:</label>
-            <select name="doctor" id="doctor" class="form-control">
-                <option value="">All Doctors</option>
-                {% for doctor_obj in doctors %}
-                    <option value="{{ doctor_obj.id }}" {% if request.GET.doctor == doctor_obj.id|stringformat:"s" %}selected{% endif %}>
-                        Dr. {{ doctor_obj.first_name }} {{ doctor_obj.last_name }} ({{ doctor_obj.medical_code }})
-                    </option>
-                {% endfor %}
+          </div>
+
+          <!-- Doctor Filter -->
+          <div class="flex flex-col">
+            <label for="doctor" class="block text-sm font-medium text-slate-700 mb-2">Filter by Doctor</label>
+            <select name="doctor" id="doctor" 
+                    class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm text-sm">
+              <option value="">All Doctors</option>
+              {% for doctor_obj in doctors %}
+                <option value="{{ doctor_obj.id }}" {% if request.GET.doctor == doctor_obj.id|stringformat:"s" %}selected{% endif %}>
+                  Dr. {{ doctor_obj.first_name }} {{ doctor_obj.last_name }} ({{ doctor_obj.medical_code }})
+                </option>
+              {% endfor %}
             </select>
+          </div>
+
+          <!-- Date Filter -->
+          <div class="flex flex-col">
+            <label for="date" class="block text-sm font-medium text-slate-700 mb-2">Filter by Date</label>
+            <input type="date" name="date" id="date" value="{{ request.GET.date }}" 
+                   class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/50 backdrop-blur-sm text-sm">
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col justify-end gap-2 sm:flex-row lg:flex-col">
+            <button type="submit" 
+                    class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-sm">
+              Apply Filters
+            </button>
+            {% if request.GET.patient or request.GET.doctor or request.GET.date %}
+              <a href="{% url 'prescription_list' %}" 
+                 class="flex-1 bg-slate-200 text-slate-800 px-4 sm:px-6 py-3 rounded-xl hover:bg-slate-300 transition-all duration-200 text-center font-medium text-sm">
+                Clear Filters
+              </a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Prescriptions Content -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/50 overflow-hidden card-hover">
+      <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 sm:px-6 py-4">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+          <h3 class="text-lg font-semibold text-white flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Prescriptions List
+            {% if prescriptions %}
+              <span class="ml-2 px-3 py-1 bg-white/20 rounded-full text-sm font-medium">
+                {{ prescriptions|length }} {% if prescriptions|length == 1 %}prescription{% else %}prescriptions{% endif %}
+              </span>
+            {% endif %}
+          </h3>
+          <div class="text-white/80 text-sm">
+            {% if request.GET.patient or request.GET.doctor or request.GET.date %}
+              <span class="inline-flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z"></path>
+                </svg>
+                Filtered Results
+              </span>
+            {% endif %}
+          </div>
         </div>
-        <div class="flex-grow">
-            <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Filter by Date:</label>
-            <input type="date" name="date" id="date" value="{{ request.GET.date }}" class="form-control">
+      </div>
+
+      {% if prescriptions %}
+        <!-- Desktop Table View (hidden on mobile) -->
+        <div class="hidden lg:block overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-slate-50/50 border-b border-slate-200/50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Patient</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Doctor</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Warning</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white/50 divide-y divide-slate-200/50">
+              {% for prescription in prescriptions %}
+              <tr class="hover:bg-slate-50/50 transition-colors duration-200">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center text-white font-bold text-xs">
+                      {{ prescription.id }}
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-slate-900">{{ prescription.patient.first_name }} {{ prescription.patient.last_name }}</div>
+                  <div class="text-xs text-slate-500">Patient</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-slate-900">Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}</div>
+                  <div class="text-xs text-slate-500">{{ prescription.doctor.medical_code }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-slate-900">{{ prescription.prescription_date|date:"M d, Y" }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  {% if prescription.is_validated %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      Validated
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      Pending
+                    </span>
+                  {% endif %}
+                </td>
+                <td class="px-6 py-4 text-center">
+                  {% if prescription.interaction_warning %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200 badge-pulse" title="{{ prescription.interaction_warning }}">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                      </svg>
+                      Warning
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                      <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      Clear
+                    </span>
+                  {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="flex justify-center gap-2">
+                    <a href="{% url 'prescription_detail' prescription.pk %}" 
+                       class="inline-flex items-center px-3 py-2 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                       title="View Details">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                    </a>
+                    <a href="{% url 'prescription_update' prescription.pk %}" 
+                       class="inline-flex items-center px-3 py-2 rounded-lg bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                       title="Edit">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </a>
+                    <button type="button" 
+                            onclick="openDeleteModal('{{ prescription.pk }}')"
+                            class="inline-flex items-center px-3 py-2 rounded-lg bg-red-100 text-red-800 hover:bg-red-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                            title="Delete">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        <div>
-            <button type="submit" class="btn-primary">Filter</button>
+
+        <!-- Mobile Card View (visible only on mobile) -->
+        <div class="lg:hidden divide-y divide-slate-200">
+          {% for prescription in prescriptions %}
+          <div class="p-4 sm:p-6 mobile-card hover:bg-slate-50/50 transition-colors duration-200">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                  {{ prescription.id }}
+                </div>
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">{{ prescription.patient.first_name }} {{ prescription.patient.last_name }}</div>
+                  <div class="text-xs text-slate-500">Patient</div>
+                </div>
+              </div>
+              <div class="flex gap-1">
+                {% if prescription.is_validated %}
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"></path>
+                    </svg>
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-sm">
+                <svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <span class="text-slate-600">Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }}</span>
+                <span class="ml-2 text-xs text-slate-400">({{ prescription.doctor.medical_code }})</span>
+              </div>
+              <div class="flex items-center text-sm">
+                <svg class="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span class="text-slate-600">{{ prescription.prescription_date|date:"M d, Y" }}</span>
+              </div>
+              {% if prescription.interaction_warning %}
+              <div class="flex items-start">
+                <svg class="w-4 h-4 mr-2 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span class="text-xs text-red-600 font-medium">{{ prescription.interaction_warning|truncatechars:50 }}</span>
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="flex gap-2">
+              <a href="{% url 'prescription_detail' prescription.pk %}" 
+                 class="flex-1 inline-flex items-center justify-center px-3 py-2 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 transition-all duration-200 text-sm font-medium">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                View
+              </a>
+              <a href="{% url 'prescription_update' prescription.pk %}" 
+                 class="flex-1 inline-flex items-center justify-center px-3 py-2 rounded-lg bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-all duration-200 text-sm font-medium">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Edit
+              </a>
+              <button type="button" 
+                      onclick="openDeleteModal('{{ prescription.pk }}')"
+                      class="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-red-100 text-red-800 hover:bg-red-200 transition-all duration-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          {% endfor %}
         </div>
-        {% if request.GET.patient or request.GET.doctor or request.GET.date %}
-        <div>
-            <a href="{% url 'prescription_list' %}" class="btn-danger">Clear Filters</a>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="bg-slate-50/50 px-4 sm:px-6 py-4 border-t border-slate-200">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-sm text-slate-600">
+              Page <span class="font-semibold text-slate-900">{{ page_obj.number }}</span> of
+              <span class="font-semibold text-slate-900">{{ page_obj.num_pages }}</span>
+            </div>
+            <nav class="flex items-center space-x-2">
+              {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.patient %}&patient={{ request.GET.patient }}{% endif %}{% if request.GET.doctor %}&doctor={{ request.GET.doctor }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" 
+                   class="inline-flex items-center px-3 sm:px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200">
+                  <svg class="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                  <span class="hidden sm:inline">Previous</span>
+                </a>
+              {% else %}
+                <span class="inline-flex items-center px-3 sm:px-4 py-2 text-sm font-medium text-slate-400 bg-slate-100 border border-slate-200 rounded-lg cursor-not-allowed">
+                  <svg class="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                  <span class="hidden sm:inline">Previous</span>
+                </span>
+              {% endif %}
+
+              {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.patient %}&patient={{ request.GET.patient }}{% endif %}{% if request.GET.doctor %}&doctor={{ request.GET.doctor }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" 
+                   class="inline-flex items-center px-3 sm:px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200">
+                  <span class="hidden sm:inline">Next</span>
+                  <svg class="w-4 h-4 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+              {% else %}
+                <span class="inline-flex items-center px-3 sm:px-4 py-2 text-sm font-medium text-slate-400 bg-slate-100 border border-slate-200 rounded-lg cursor-not-allowed">
+                  <span class="hidden sm:inline">Next</span>
+                  <svg class="w-4 h-4 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </span>
+              {% endif %}
+            </nav>
+          </div>
         </div>
         {% endif %}
-    </form>
 
-    {% if prescriptions %}
-    <div class="overflow-x-auto">
-        <table class="table-auto min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Validated</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warning</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for prescription in prescriptions %}
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ prescription.id }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ prescription.patient.first_name }} {{ prescription.patient.last_name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dr. {{ prescription.doctor.first_name }} {{ prescription.doctor.last_name }} ({{ prescription.doctor.medical_code }})</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ prescription.prescription_date|date:"Y-m-d" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {% if prescription.is_validated %}
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
-                        {% else %}
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">No</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {% if prescription.interaction_warning %}
-                            <span class="text-red-600 font-semibold">Warning!</span> ({{ prescription.interaction_warning|truncatechars:30 }})
-                        {% else %}
-                            No
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{% url 'prescription_detail' prescription.pk %}" class="text-indigo-600 hover:text-indigo-900 mr-4">View</a>
-                        <a href="{% url 'prescription_update' prescription.pk %}" class="text-yellow-600 hover:text-yellow-900 mr-4">Edit</a>
-                        <a href="{% url 'prescription_delete' prescription.pk %}" class="text-red-600 hover:text-red-900">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      {% else %}
+        <div class="text-center py-16 px-4">
+          <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-slate-900 mb-2">No prescriptions found</h3>
+          <p class="text-sm text-slate-500 mb-6">
+            {% if request.GET.patient or request.GET.doctor or request.GET.date %}
+              No prescriptions match your current filters.
+            {% else %}
+              Get started by creating your first prescription.
+            {% endif %}
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4">
+            {% if request.GET.patient or request.GET.doctor or request.GET.date %}
+            <a href="{% url 'prescription_list' %}" 
+               class="inline-flex items-center justify-center px-4 py-2 bg-slate-200 text-slate-800 rounded-xl hover:bg-slate-300 transition-all duration-200">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              Clear Filters
+            </a>
+            {% endif %}
+            <a href="{% url 'prescription_create' %}" 
+               class="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              Create Prescription
+            </a>
+          </div>
+        </div>
+      {% endif %}
     </div>
-
-    <!-- Pagination -->
-    {% if is_paginated %}
-    <nav class="mt-4 flex justify-center">
-        <ul class="pagination flex">
-            {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.patient %}&patient={{ request.GET.patient }}{% endif %}{% if request.GET.doctor %}&doctor={{ request.GET.doctor }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-l-md">Previous</a>
-                </li>
-            {% endif %}
-            <li class="page-item disabled">
-                <span class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 bg-gray-200 text-sm font-medium text-gray-700">Page {{ page_obj.number }} of {{ page_obj.num_pages }}</span>
-            </li>
-            {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.patient %}&patient={{ request.GET.patient }}{% endif %}{% if request.GET.doctor %}&doctor={{ request.GET.doctor }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" class="page-link relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-r-md">Next</a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
-
-    {% else %}
-    <p class="text-gray-600">No prescriptions found. <a href="{% url 'prescription_create' %}" class="text-blue-600 hover:underline">Create the first prescription</a>.</p>
-    {% endif %}
+  </div>
 </div>
+
+<!-- Delete Confirmation Modals -->
+{% if prescriptions %}
+  {% for prescription in prescriptions %}
+  <div id="deleteModal{{ prescription.pk }}" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+      <div class="bg-white p-6 sm:p-8 rounded-xl max-w-md w-full shadow-2xl transform modal-content scale-95">
+        <div class="text-center">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg class="h-6 w-6 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-4 text-slate-900">Delete Prescription</h3>
+          <p class="text-sm text-slate-600 mb-6">
+            Are you sure you want to delete prescription <strong>#{{ prescription.id }}</strong> for <strong>{{ prescription.patient.first_name }} {{ prescription.patient.last_name }}</strong>?<br>
+            <span class="text-red-600 font-medium">This action cannot be undone.</span>
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-3">
+            <button type="button" 
+                    onclick="closeDeleteModal('{{ prescription.pk }}')" 
+                    class="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium">
+              Cancel
+            </button>
+            <a href="{% url 'prescription_delete' prescription.pk %}" 
+               class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium">
+              Delete
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
+
+<script>
+  // Modal Functions
+  function openDeleteModal(prescriptionId) {
+    console.log('Opening delete modal for:', prescriptionId);
+    const modal = document.getElementById('deleteModal' + prescriptionId);
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      
+      setTimeout(() => {
+        const content = modal.querySelector('.modal-content');
+        if (content) {
+          content.classList.remove('scale-95');
+          content.classList.add('scale-100');
+        }
+      }, 10);
+    }
+  }
+
+  function closeDeleteModal(prescriptionId) {
+    const modal = document.getElementById('deleteModal' + prescriptionId);
+    if (modal) {
+      const content = modal.querySelector('.modal-content');
+      if (content) {
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+      }
+      
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }, 150);
+    }
+  }
+
+  // Event Listeners
+  document.addEventListener('DOMContentLoaded', function () {
+    // Close modal on backdrop click
+    document.addEventListener('click', function(event) {
+      if (event.target.id && event.target.id.startsWith('deleteModal')) {
+        const prescriptionId = event.target.id.replace('deleteModal', '');
+        closeDeleteModal(prescriptionId);
+      }
+    });
+
+    // Escape key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('[id^="deleteModal"]').forEach(modal => {
+          if (!modal.classList.contains('hidden')) {
+            const id = modal.id.replace('deleteModal', '');
+            closeDeleteModal(id);
+          }
+        });
+      }
+    });
+
+    document.body.style.overflow = '';
+  });
+
+  // Reset on page navigation
+  window.addEventListener('pageshow', function() {
+    document.body.style.overflow = '';
+  });
+</script>
+
 {% endblock %}
