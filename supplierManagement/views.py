@@ -55,6 +55,7 @@ class SupplierListView(ListView):
         return ctx
 
 
+
 @method_decorator(pharmacist_required, name="dispatch")
 class SupplierCreateView(CreateView):
     """Form to create a new supplier"""

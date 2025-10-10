@@ -9,14 +9,14 @@ class Product(models.Model):
     ("Capsule", "Capsule"),
     ("Syrup", "Syrup"),
     ("Injection", "Injection"),
-    # ...add all your categories here...
-]
-
+    ]
 
     name = models.CharField(max_length=120)
     category = models.CharField(
         max_length=50,
-        choices=CATEGORY_CHOICES
+        choices=CATEGORY_CHOICES,
+        blank=True,
+        null=True
     )
 
     def __str__(self):
@@ -65,3 +65,42 @@ class Supplier(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class PurchaseOrder(models.Model):
+    STATUS_PENDING = "Pending"
+    STATUS_SHIPPED = "Shipped"
+    STATUS_DELIVERED = "Delivered"
+    STATUS_DELAYED = "Delayed"
+    STATUS_CANCELLED = "Cancelled"
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_SHIPPED, "Shipped"),
+        (STATUS_DELIVERED, "Delivered"),
+        (STATUS_DELAYED, "Delayed"),
+        (STATUS_CANCELLED , "Cancelled")
+    ]
+
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name="purchase_orders")
+    order_date = models.DateField(auto_now_add=True)
+    expected_delivery = models.DateField()
+    total_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"PO-{self.id} | {self.supplier.name}"
+
+class PurchaseOrderItem(models.Model):
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def get_subtotal(self):
+        return self.quantity * self.price
+
+    def __str__(self):
+        return f"{self.product.name} ({self.quantity})"
