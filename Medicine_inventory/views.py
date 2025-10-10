@@ -25,7 +25,7 @@ from django.db.models import ProtectedError
 from .forms import MedicineForm
 from .models import Medicine, MedicineAction
 from Non_Medicine_inventory.models import NonMedicalProduct
-from supplierManagement.models import Supplier  # Adjust this import to your actual Supplier model location
+from supplierManagement.models import Supplier
 
 
 
