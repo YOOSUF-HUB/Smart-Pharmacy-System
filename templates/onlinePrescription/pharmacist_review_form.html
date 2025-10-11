@@ -18,6 +18,9 @@
                     <div class="card-body">
                         <p class="mb-0"><strong>Uploaded:</strong> {{ prescription.uploaded_at|date:"SHORT_DATETIME_FORMAT" }}</p>
                         <p class="mb-0"><strong>Uploaded by:</strong> {{ prescription.user.username }}</p>
+                        <a href="{{ prescription.prescription_image.url }}" target="_blank" class="btn btn-sm btn-primary mt-2">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Open Image in New Tab
+                        </a>
                     </div>
                 </div>
             {% else %}

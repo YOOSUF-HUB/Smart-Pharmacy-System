@@ -132,4 +132,94 @@
   </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Get mobile menu elements
+  const mobileMenuButton = document.querySelector('[data-mobile-menu-button]');
+  const mobileMenu = document.querySelector('[data-mobile-menu]');
+  const mobileMenuOverlay = document.querySelector('[data-mobile-menu-overlay]');
+  const mobileMenuClose = document.querySelector('[data-mobile-menu-close]');
+  
+  if (!mobileMenuButton || !mobileMenu) return;
+
+  // Function to open mobile menu with animation
+  function openMobileMenu() {
+    // Show menu
+    mobileMenu.classList.remove('hidden');
+    if (mobileMenuOverlay) mobileMenuOverlay.classList.remove('hidden');
+    
+    // Trigger reflow for animation
+    mobileMenu.offsetHeight;
+    
+    // Add animation classes
+    if (mobileMenuOverlay) {
+      mobileMenuOverlay.classList.add('opacity-0');
+      setTimeout(() => {
+        mobileMenuOverlay.classList.remove('opacity-0');
+        mobileMenuOverlay.classList.add('opacity-100');
+      }, 10);
+    }
+    
+    mobileMenu.classList.add('translate-x-full');
+    setTimeout(() => {
+      mobileMenu.classList.remove('translate-x-full');
+      mobileMenu.classList.add('translate-x-0');
+    }, 10);
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Function to close mobile menu with animation
+  function closeMobileMenu() {
+    // Add closing animation
+    if (mobileMenuOverlay) {
+      mobileMenuOverlay.classList.remove('opacity-100');
+      mobileMenuOverlay.classList.add('opacity-0');
+    }
+    
+    mobileMenu.classList.remove('translate-x-0');
+    mobileMenu.classList.add('translate-x-full');
+    
+    // Hide menu after animation completes
+    setTimeout(() => {
+      mobileMenu.classList.add('hidden');
+      if (mobileMenuOverlay) mobileMenuOverlay.classList.add('hidden');
+    }, 300);
+    
+    // Restore body scroll
+    document.body.style.overflow = '';
+  }
+
+  // Event listeners
+  mobileMenuButton.addEventListener('click', openMobileMenu);
+  
+  if (mobileMenuClose) {
+    mobileMenuClose.addEventListener('click', closeMobileMenu);
+  }
+  
+  if (mobileMenuOverlay) {
+    mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+  }
+
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
+      closeMobileMenu();
+    }
+  });
+});
+</script>
+
+<style>
+/* Smooth transitions for mobile menu */
+[data-mobile-menu] {
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-mobile-menu-overlay] {
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
+
 {% endblock %}
