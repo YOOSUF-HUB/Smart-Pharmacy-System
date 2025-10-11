@@ -6,8 +6,11 @@ from django.conf import settings
 from .models import Prescription
 from onlineStore.models import Order
 
-NIC_REGEX = r'^(\d{12}|\d{9}[VvXx])$'
-nic_validator = RegexValidator(NIC_REGEX, "Enter a valid NIC (12 digits or 9 digits + V/v/X).")
+from django.core.validators import RegexValidator
+
+NIC_REGEX = r'^(?:\d{9}[VvXx]|\d{12})$'
+nic_validator = RegexValidator(NIC_REGEX,message="Enter a valid Sri Lankan NIC (old: 9 digits + V/v/X, or new: 12 digits).")
+
 
 MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MB
 

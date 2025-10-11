@@ -30,7 +30,7 @@
                 Upload Prescription
               </a>
             {% else %}
-              <a href="{% url 'login' %}?next={% url 'onlinePrescription:create' %}"
+              <a href="{% url 'customer_login' %}?next={% url 'onlinePrescription:create' %}"
                 class="w-full sm:w-auto rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                 Login to Upload Prescription
               </a>
