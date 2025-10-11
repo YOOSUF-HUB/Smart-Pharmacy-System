@@ -24,6 +24,7 @@ urlpatterns = [
 
     # Supplier management URLs
     path('suppliers/', include('supplierManagement.urls', namespace='suppliers')),
+    path('online-prescriptions/', include('onlinePrescription.urls', namespace='onlinePrescription')),
 
 
 ]

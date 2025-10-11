@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Pharmacist — Prescription Queue</h2>
+        <a href="{% url 'onlinePrescription:list' %}" class="btn btn-outline-secondary">Customer view</a>
+    </div>
+
+    <form method="get" class="row g-2 align-items-center mb-3">
+        <div class="col-auto">
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" class="form-control" placeholder="Search by user, NIC or ID">
+        </div>
+        <div class="col-auto">
+            <select name="status" class="form-select">
+                <option value="">All statuses</option>
+                <option value="Pending" {% if request.GET.status == "Pending" %}selected{% endif %}>Pending</option>
+                <option value="Reviewed" {% if request.GET.status == "Reviewed" %}selected{% endif %}>Reviewed</option>
+                <option value="Approved" {% if request.GET.status == "Approved" %}selected{% endif %}>Approved</option>
+                <option value="Rejected" {% if request.GET.status == "Rejected" %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" type="submit">Filter</button>
+            <a href="{% url 'onlinePrescription:pharmacist_list' %}" class="btn btn-link">Reset</a>
+        </div>
+    </form>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if prescriptions %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>NIC</th>
+                        <th>Order</th>
+                        <th>Status</th>
+                        <th>Uploaded</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prescription in prescriptions %}
+                    <tr>
+                        <td style="width:90px;">
+                            {% if prescription.prescription_image %}
+                                <img src="{{ prescription.prescription_image.url }}" alt="thumb" style="height:64px; width:auto; object-fit:contain; border:1px solid #e9ecef; padding:4px;">
+                            {% else %}
+                                <div class="bg-light text-center" style="height:64px; width:64px; line-height:64px;">—</div>
+                            {% endif %}
+                        </td>
+                        <td>#{% autoescape off %}{{ prescription.id }}{% endautoescape %}</td>
+                        <td>{{ prescription.user.get_full_name|default:prescription.user.username }}</td>
+                        <td>{{ prescription.nic }}</td>
+                        <td>
+                            {% if prescription.order %}
+                                <a href="{% url 'onlineStore:order_detail' prescription.order.pk %}">Order #{{ prescription.order.order_id }}</a>
+                            {% else %}
+                                <em>Not attached</em>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if prescription.status == 'Pending' %}bg-secondary
+                                {% elif prescription.status == 'Reviewed' %}bg-info
+                                {% elif prescription.status == 'Approved' %}bg-success
+                                {% elif prescription.status == 'Rejected' %}bg-danger
+                                {% else %}bg-light text-dark{% endif %}">
+                                {{ prescription.status }}
+                            </span>
+                        </td>
+                        <td>{{ prescription.uploaded_at|date:"SHORT_DATETIME_FORMAT" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'onlinePrescription:pharmacist_review' prescription.pk %}" class="btn btn-sm btn-success">Review</a>
+                            <a href="{% url 'onlinePrescription:detail' prescription.pk %}" class="btn btn-sm btn-outline-primary ms-1">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+            <nav aria-label="Prescription pagination" class="mt-3">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">&laquo;</a></li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                    {% endif %}
+
+                    {% for num in paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">&raquo;</a></li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">No prescriptions found.</div>
+    {% endif %}
+</div>
+{% endblock %}

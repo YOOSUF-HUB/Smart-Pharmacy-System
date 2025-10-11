@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Review Prescription #{{ prescription.id }}</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row g-3">
+        <div class="col-md-5">
+            {% if prescription.prescription_image %}
+                <div class="card">
+                    <img src="{{ prescription.prescription_image.url }}" class="card-img-top" alt="Prescription image" style="max-height:500px; object-fit:contain;">
+                    <div class="card-body">
+                        <p class="mb-0"><strong>Uploaded:</strong> {{ prescription.uploaded_at|date:"SHORT_DATETIME_FORMAT" }}</p>
+                        <p class="mb-0"><strong>Uploaded by:</strong> {{ prescription.user.username }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">No image available.</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-7">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <table class="table table-borderless">
+                    <tr>
+                        <th>NIC</th>
+                        <td>{{ prescription.nic }}</td>
+                    </tr>
+                    <tr>
+                        <th>Order</th>
+                        <td>
+                            {% if prescription.order %}
+                                Order #{{ prescription.order.order_id }}
+                            {% else %}
+                                <em>Not attached</em>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Current status</th>
+                        <td>
+                            <span class="badge 
+                                {% if prescription.status == 'Pending' %}bg-secondary
+                                {% elif prescription.status == 'Reviewed' %}bg-info
+                                {% elif prescription.status == 'Approved' %}bg-success
+                                {% elif prescription.status == 'Rejected' %}bg-danger
+                                {% else %}bg-light text-dark{% endif %}">
+                                {{ prescription.status }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="mb-3">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">Update status</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div class="text-danger small">{{ form.status.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.pharmacist_comment.id_for_label }}" class="form-label">Pharmacist comment</label>
+                    {{ form.pharmacist_comment }}
+                    {% if form.pharmacist_comment.errors %}
+                        <div class="text-danger small">{{ form.pharmacist_comment.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a href="{% url 'onlinePrescription:pharmacist_list' %}" class="btn btn-secondary">Back to queue</a>
+                    <a href="{% url 'onlinePrescription:detail' prescription.pk %}" class="btn btn-link">View public detail</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

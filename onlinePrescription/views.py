@@ -12,8 +12,7 @@ from onlineStore.models import Order
 
 # Role check for pharmacists (match your user.role implementation)
 pharmacist_required = user_passes_test(
-    lambda u: u.is_authenticated and getattr(u, "role", "") == "pharmacist"
-)
+    lambda u: u.is_authenticated and getattr(u, "role", "") == "pharmacist")
 
 # ---------- Forms ----------
 class PrescriptionForm(forms.ModelForm):

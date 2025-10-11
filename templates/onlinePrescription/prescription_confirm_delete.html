@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Delete Prescription #{{ prescription.id }}</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-5">
+            {% if prescription.prescription_image %}
+                <div class="card mb-3">
+                    <img src="{{ prescription.prescription_image.url }}" class="card-img-top" alt="Prescription image" style="max-height:480px; object-fit:contain;">
+                    <div class="card-body">
+                        <p class="mb-0"><strong>Uploaded:</strong> {{ prescription.uploaded_at|date:"SHORT_DATETIME_FORMAT" }}</p>
+                        <p class="mb-0"><strong>Uploaded by:</strong> {{ prescription.user.username }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">No image available.</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-7">
+            <div class="alert alert-danger">
+                <strong>Warning:</strong> Deleting this prescription cannot be undone.
+            </div>
+
+            <table class="table table-borderless">
+                <tr>
+                    <th>NIC</th>
+                    <td>{{ prescription.nic }}</td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>{{ prescription.status }}</td>
+                </tr>
+                <tr>
+                    <th>Notes</th>
+                    <td>{% if prescription.notes %}{{ prescription.notes|linebreaksbr }}{% else %}<em>—</em>{% endif %}</td>
+                </tr>
+                <tr>
+                    <th>Order</th>
+                    <td>
+                        {% if prescription.order %}
+                            Order #{{ prescription.order.order_id }}
+                        {% else %}
+                            <em>Not attached</em>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                <a href="{% url 'onlinePrescription:detail' prescription.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+                <a href="{% url 'onlinePrescription:list' %}" class="btn btn-link ms-2">Back to list</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

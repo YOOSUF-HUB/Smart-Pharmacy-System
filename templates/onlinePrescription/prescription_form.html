@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}Edit Prescription{% else %}Upload Prescription{% endif %}</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="mb-3">
+            <label for="{{ form.prescription_image.id_for_label }}" class="form-label">Prescription image</label>
+            {{ form.prescription_image }}
+            {% if form.prescription_image.errors %}
+                <div class="text-danger small">{{ form.prescription_image.errors|striptags }}</div>
+            {% endif %}
+            <div class="mt-2">
+                <img id="preview" src="{% if form.instance.prescription_image %}{{ form.instance.prescription_image.url }}{% endif %}" alt="preview" style="max-width:320px; max-height:240px; display: {% if form.instance.prescription_image %}block{% else %}none{% endif %}; border:1px solid #ddd; padding:4px;">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.nic.id_for_label }}" class="form-label">NIC</label>
+            {{ form.nic }}
+            {% if form.nic.errors %}
+                <div class="text-danger small">{{ form.nic.errors|striptags }}</div>
+            {% endif %}
+            <small class="form-text text-muted">Enter NIC (12 digits or 9 digits + V/v/X)</small>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.notes.id_for_label }}" class="form-label">Notes (optional)</label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+                <div class="text-danger small">{{ form.notes.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.order.id_for_label }}" class="form-label">Attach to order (optional)</label>
+            {{ form.order }}
+            {% if form.order.errors %}
+                <div class="text-danger small">{{ form.order.errors|striptags }}</div>
+            {% endif %}
+            <small class="form-text text-muted">Only your orders without a prescription are shown.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a href="{% url 'onlinePrescription:list' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.querySelector('input[type="file"][name$="prescription_image"]');
+    const preview = document.getElementById('preview');
+
+    if (!fileInput) return;
+
+    fileInput.setAttribute('accept', 'image/*');
+
+    fileInput.addEventListener('change', function (e) {
+        const f = e.target.files && e.target.files[0];
+        if (!f) {
+            preview.style.display = 'none';
+            preview.src = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            preview.src = ev.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(f);
+    });
+});
+</script>
+{% endblock %}

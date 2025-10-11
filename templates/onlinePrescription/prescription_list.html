@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Your Prescriptions</h2>
+        <a href="{% url 'onlinePrescription:create' %}" class="btn btn-primary">Upload Prescription</a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if prescriptions %}
+        <div class="row g-3">
+            {% for prescription in prescriptions %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    {% if prescription.prescription_image %}
+                        <img src="{{ prescription.prescription_image.url }}" class="card-img-top" alt="Prescription image" style="height:200px; object-fit:contain;">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height:200px;">
+                            <span class="text-muted">No image</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title mb-1">Prescription #{{ prescription.id }}</h5>
+                        <p class="mb-1 small text-muted">Uploaded: {{ prescription.uploaded_at|date:"SHORT_DATE_FORMAT" }} {{ prescription.uploaded_at|time:"H:i" }}</p>
+                        <p class="mb-1"><strong>NIC:</strong> {{ prescription.nic }}</p>
+
+                        <div class="mt-auto">
+                            <span class="badge 
+                                {% if prescription.status == 'Pending' %}bg-secondary
+                                {% elif prescription.status == 'Reviewed' %}bg-info
+                                {% elif prescription.status == 'Approved' %}bg-success
+                                {% elif prescription.status == 'Rejected' %}bg-danger
+                                {% else %}bg-light text-dark{% endif %}">
+                                {{ prescription.status }}
+                            </span>
+                            <div class="mt-2">
+                                <a href="{% url 'onlinePrescription:detail' prescription.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+
+                                {% if request.user.is_authenticated and request.user == prescription.user %}
+                                    <a href="{% url 'onlinePrescription:edit' prescription.pk %}" class="btn btn-sm btn-primary ms-1">Edit</a>
+                                    <a href="{% url 'onlinePrescription:delete' prescription.pk %}" class="btn btn-sm btn-danger ms-1">Delete</a>
+                                {% endif %}
+
+                                {% if request.user.is_authenticated and request.user.role|default:'' == 'pharmacist' %}
+                                    <a href="{% url 'onlinePrescription:pharmacist_review' prescription.pk %}" class="btn btn-sm btn-outline-success ms-1">Review</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+            <nav aria-label="Prescriptions pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">&laquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                    {% endif %}
+
+                    {% for num in paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">&raquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="alert alert-info">You have not uploaded any prescriptions yet.</div>
+    {% endif %}
+
+    {% if request.user.is_authenticated and request.user.role|default:'' == 'pharmacist' %}
+        <div class="mt-3">
+            <a href="{% url 'onlinePrescription:pharmacist_list' %}" class="btn btn-outline-secondary">Open Pharmacist Queue</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
