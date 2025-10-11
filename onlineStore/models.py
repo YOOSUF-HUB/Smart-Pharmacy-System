@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 from Medicine_inventory.models import Medicine
 from Non_Medicine_inventory.models import NonMedicalProduct
 
@@ -148,6 +149,37 @@ class Order(models.Model):
     def __str__(self):
         return f"Order #{self.order_id} - {self.customer_user.username}"
     
+    # ---- Prescription integration helpers (reverse OneToOne from onlinePrescription.Prescription) ----
+    @property
+    def has_prescription(self):
+        try:
+            _ = self.prescription  # reverse accessor
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    @property
+    def prescription_status(self):
+        try:
+            return self.prescription.status
+        except ObjectDoesNotExist:
+            return None
+
+    @property
+    def prescription_image_url(self):
+        try:
+            img = self.prescription.prescription_image
+            return img.url if img else None
+        except ObjectDoesNotExist:
+            return None
+
+    @property
+    def prescription_nic(self):
+        try:
+            return self.prescription.nic
+        except ObjectDoesNotExist:
+            return None
+
 # OrderItem adds products to Order
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
@@ -157,3 +189,6 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"OrderItem({self.product.name}, Qty: {self.quantity})"
+
+
+
