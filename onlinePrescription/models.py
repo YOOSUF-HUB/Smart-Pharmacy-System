@@ -6,6 +6,7 @@ class Prescription(models.Model):
         ('Pending', 'Pending'),
         ('Reviewed', 'Reviewed'),
         ('Approved', 'Approved'),
+        ('Available for Pickup', 'Available for Pickup'),
         ('Rejected', 'Rejected'),
     ]
 

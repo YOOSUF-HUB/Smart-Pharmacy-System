@@ -40,13 +40,14 @@
                   <p class="text-sm text-gray-600">{{ prescription.uploaded_at|date:"F d, Y" }} at {{ prescription.uploaded_at|time:"H:i" }}</p>
                 </div>
                 <div class="text-right">
-                  <span class="px-3 py-1 rounded-full text-sm font-medium
-                    {% if prescription.status == 'Pending' %}bg-yellow-100 text-yellow-800
-                    {% elif prescription.status == 'Reviewed' %}bg-blue-100 text-blue-800
-                    {% elif prescription.status == 'Approved' %}bg-green-100 text-green-800
-                    {% elif prescription.status == 'Rejected' %}bg-red-100 text-red-800
-                    {% else %}bg-gray-100 text-gray-800{% endif %}">
-                    {{ prescription.status }}
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                      {% if prescription.status == 'Pending' %} bg-yellow-100 text-yellow-800
+                      {% elif prescription.status == 'Reviewed' %} bg-blue-100 text-blue-800
+                      {% elif prescription.status == 'Approved' %} bg-green-100 text-green-800
+                      {% elif prescription.status == 'Available for Pickup' %} bg-indigo-100 text-indigo-800
+                      {% elif prescription.status == 'Rejected' %} bg-red-100 text-red-800
+                      {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                      {{ prescription.status }}
                   </span>
                 </div>
               </div>

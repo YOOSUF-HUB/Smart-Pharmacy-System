@@ -57,12 +57,12 @@
                                 <div class="bg-light text-center" style="height:64px; width:64px; line-height:64px;">—</div>
                             {% endif %}
                         </td>
-                        <td>#{% autoescape off %}{{ prescription.id }}{% endautoescape %}</td>
+                        <td>#{{ prescription.id }}</td>
                         <td>{{ prescription.user.get_full_name|default:prescription.user.username }}</td>
                         <td>{{ prescription.nic }}</td>
                         <td>
                             {% if prescription.order %}
-                                <a href="{% url 'onlineStore:order_detail' prescription.order.pk %}">Order #{{ prescription.order.order_id }}</a>
+                                Order #{{ prescription.order.order_id }}
                             {% else %}
                                 <em>Not attached</em>
                             {% endif %}

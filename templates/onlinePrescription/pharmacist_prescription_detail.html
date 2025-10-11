@@ -62,10 +62,7 @@
                     <th>Order</th>
                     <td>
                         {% if prescription.order %}
-                            <a href="{% url 'onlineStore:order_detail' prescription.order.pk %}">Order #{{ prescription.order.order_id }}</a>
-                            {% if request.user.is_staff %}
-                                &middot; <a href="{% url 'admin:%s_%s_change' prescription.order._meta.app_label prescription.order._meta.model_name prescription.order.pk %}">Open in admin</a>
-                            {% endif %}
+                            Order #{{ prescription.order.order_id }}
                         {% else %}
                             <em>Not attached</em>
                         {% endif %}

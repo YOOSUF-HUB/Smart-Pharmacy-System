@@ -53,7 +53,7 @@ class PrescriptionCreateView(CreateView):
     model = Prescription
     form_class = PrescriptionForm
     template_name = "onlinePrescription/prescription_form.html"
-    success_url = reverse_lazy("onlineStore:cart")  # change to desired url
+    success_url = reverse_lazy("onlinePrescription:list")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

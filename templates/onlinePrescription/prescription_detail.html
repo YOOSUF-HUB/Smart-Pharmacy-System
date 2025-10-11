@@ -60,9 +60,6 @@
                     <td>
                         {% if prescription.order %}
                             Order #{{ prescription.order.order_id }}
-                            {% if request.user.is_staff %}
-                                &middot; <a href="/admin/{{ prescription.order._meta.app_label }}/{{ prescription.order._meta.model_name }}/{{ prescription.order.pk }}/change/">Open in admin</a>
-                            {% endif %}
                         {% else %}
                             <em>Not attached</em>
                         {% endif %}
