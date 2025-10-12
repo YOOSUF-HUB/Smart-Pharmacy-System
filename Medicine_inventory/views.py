@@ -252,7 +252,8 @@ def create_medicine(request):
                     user=request.user
                 )
                 messages.success(request, f"Successfully registered new medication: '{medicine.name}'.")
-                return redirect('medicine_table')
+                # Redirect to the medicine detail page after creation
+                return redirect('medicine_detail', pk=medicine.pk)
             except ValidationError as e:
                 # Handle model validation errors
                 for field, errors in e.message_dict.items():
@@ -355,7 +356,7 @@ def update_medicine(request, id):
                     user=request.user
                 )
                 messages.success(request, f"The record for '{medicine.name}' has been updated successfully with Product ID '{ medicine.id}'.")
-                return redirect('medicine_table')
+                return redirect('medicine_detail', id=medicine.pk)
             except ValidationError as e:
                 # Handle model validation errors
                 for field, errors in e.message_dict.items():
