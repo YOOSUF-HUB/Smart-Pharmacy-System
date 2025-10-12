@@ -15,12 +15,20 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, F, Q, Value
 from django.db.models.functions import Coalesce
-from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.template.loader import render_to_string
-from django.utils import timezone
-from weasyprint import HTML
-from django.db.models import ProtectedError
+from django.http import HttpResponse, JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404 
+
+# Guard Celery imports
+try:
+    from celery.result import AsyncResult
+    from .tasks import export_medicines_pdf_task
+    HAS_CELERY = True
+except Exception:
+    HAS_CELERY = False
+    AsyncResult = None
+    export_medicines_pdf_task = None
+
 
 from .forms import MedicineForm
 from .models import Medicine, MedicineAction
@@ -1200,3 +1208,26 @@ def toggle_medicine_online(request, pk):
         return redirect(request.META.get('HTTP_REFERER', 'medicine_cards'))
     
     return redirect('medicine_cards')
+
+@login_required
+def export_medicines_pdf_start(request):
+    if not HAS_CELERY:
+        return JsonResponse({"ready": False, "error": "Celery is not installed/configured"}, status=501)
+    filters = {}
+    if q := request.GET.get("q"):
+        filters["q"] = q
+    task = export_medicines_pdf_task.delay(filters)
+    return JsonResponse({"task_id": task.id})
+
+@login_required
+def export_medicines_pdf_status(request, task_id):
+    if not HAS_CELERY:
+        return JsonResponse({"ready": False, "error": "Celery is not installed/configured"}, status=501)
+    res = AsyncResult(task_id)
+    if res.successful():
+        return JsonResponse({"ready": True, "url": res.result})
+    if res.failed():
+        return JsonResponse({"ready": False, "error": "failed"}, status=500)
+    return JsonResponse({"ready": False})
+
+

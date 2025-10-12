@@ -179,6 +179,10 @@
               </svg>
               Export as PDF
             </a>
+
+
+
+
             <a href="{% url 'export_medicine_csv' %}" class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-100/70 transition-colors duration-200">
               <svg class="w-4 h-4 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -195,6 +199,24 @@
           </div>
         </div>
       </div>
+
+      <!-- <button id="exportBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Export PDF</button>
+      <a id="downloadLink" href="#" class="hidden px-4 py-2 bg-emerald-600 text-white rounded-lg">Download PDF</a>
+
+    <div class="flex gap-2">
+      <button id="exportPdfBtn"
+              class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+        Export PDF (Async)
+      </button>
+      <a id="downloadPdfLink" href="#" target="_blank"
+        class="hidden inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+        Download PDF
+      </a>
+      <a id="exportPdfSync" href="{% url 'export_medicine_pdf' %}"
+        class="hidden inline-flex items-center px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700">
+        Export PDF (Fallback)
+      </a>
+    </div> -->
 
       <div class="relative inline-block group">
         <button type="button" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
@@ -1015,6 +1037,91 @@ Prednisone 20mg,Steroid,RX,20mg,BATCH010,2024-08-01,2026-08-01,16.00,11.00,90,20
       });
     });
   });
+
+
+  document.getElementById('exportBtn').addEventListener('click', async () => {
+  const res = await fetch("{% url 'export_meds_pdf_start' %}");
+  const { task_id } = await res.json();
+  const poll = setInterval(async () => {
+    const r = await fetch("{% url 'export_meds_pdf_status' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', task_id));
+    const data = await r.json();
+    if (data.ready) {
+      clearInterval(poll);
+      const link = document.getElementById('downloadLink');
+      link.href = data.url;
+      link.classList.remove('hidden');
+    }
+  }, 1500);
+});
+
+(function() {
+  const startUrl = "{% url 'export_meds_pdf_start' %}";
+  const statusUrlTemplate = "{% url 'export_meds_pdf_status' '00000000-0000-0000-0000-000000000000' %}";
+  const btn = document.getElementById('exportPdfBtn');
+  const link = document.getElementById('downloadPdfLink');
+  const fallback = document.getElementById('exportPdfSync');
+
+  function setBusy(busy) {
+    btn.disabled = busy;
+    btn.textContent = busy ? 'Preparing PDF…' : 'Export PDF (Async)';
+  }
+
+  async function pollStatus(taskId) {
+    if (!taskId) return;
+    const statusUrl = statusUrlTemplate.replace('00000000-0000-0000-0000-000000000000', taskId);
+    const timer = setInterval(async () => {
+      try {
+        const r = await fetch(statusUrl, { cache: 'no-store' });
+        if (!r.ok) return;
+        const data = await r.json();
+        if (data.ready) {
+          clearInterval(timer);
+          setBusy(false);
+          link.href = data.url;
+          link.classList.remove('hidden');
+          btn.textContent = 'PDF Ready';
+        } else if (data.error) {
+          clearInterval(timer);
+          setBusy(false);
+          alert(data.error || 'Export failed.');
+          fallback.classList.remove('hidden');
+        }
+      } catch {}
+    }, 1500);
+  }
+
+  btn.addEventListener('click', async () => {
+    setBusy(true);
+    link.classList.add('hidden');
+    try {
+      const res = await fetch(startUrl, { cache: 'no-store' });
+      if (res.status === 501) {
+        const err = await res.json().catch(() => ({}));
+        setBusy(false);
+        alert(err.error || 'Async export is unavailable. Using fallback export.');
+        fallback.classList.remove('hidden');
+        return;
+      }
+      if (!res.ok) {
+        const text = await res.text();
+        setBusy(false);
+        alert(`Could not start export. HTTP ${res.status}\n${text.slice(0, 300)}`);
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      const taskId = data.task_id;
+      if (!taskId) {
+        setBusy(false);
+        alert('Export task could not be started (no task_id).');
+        return;
+      }
+      pollStatus(taskId);
+    } catch (e) {
+      setBusy(false);
+      alert('Network error. Please try again.');
+    }
+  });
+})();
 </script>
 </div>
 

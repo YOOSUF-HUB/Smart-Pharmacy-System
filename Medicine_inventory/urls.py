@@ -27,6 +27,9 @@ urlpatterns = [
     path('online-orders/', views.view_online_orders, name='view_online_orders'),
     path('order/<str:order_id>/', views.order_detail, name='order_detail'),
     path('order/<str:order_id>/update-status/', views.update_order_status, name='update_order_status'),
+
+    path("export/medicines/pdf/start/", views.export_medicines_pdf_start, name="export_meds_pdf_start"),
+    path("export/medicines/pdf/status/<uuid:task_id>/", views.export_medicines_pdf_status, name="export_meds_pdf_status"),
 ]
 
 if settings.DEBUG:
