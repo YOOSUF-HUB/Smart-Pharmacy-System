@@ -6,6 +6,7 @@ app_name = "onlinePrescription"
 urlpatterns = [
     # Customer
     path("", views.PrescriptionListView.as_view(), name="list"),
+    #path("home/", views.PrescriptionHomeView.as_view(), name="home"),
     path("upload/", views.PrescriptionCreateView.as_view(), name="create"),
     path("<int:pk>/", views.PrescriptionDetailView.as_view(), name="detail"),
     path("<int:pk>/edit/", getattr(views, "PrescriptionUpdateView", views.PrescriptionCreateView).as_view(), name="edit"),
