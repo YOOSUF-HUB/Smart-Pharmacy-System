@@ -16,9 +16,9 @@ import stripe
 from django.conf import settings
 from django.http import JsonResponse
 import json
+from django.views.decorators.http import require_POST
 # Configure Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
 
 # Customer required
 def customer_required(view_func):
@@ -581,6 +581,51 @@ def order_confirmation(request, order_id):
     }
     
     return render(request, 'onlineStore/orderConfirmation.html', context)
+
+@customer_required
+@require_POST
+def cancel_order(request, order_id):
+    """
+    Cancel an order if it belongs to the current user and is Pending/Paid.
+    If paid and Stripe intent exists, attempt a refund.
+    """
+    order = get_object_or_404(Order, order_id=order_id)
+
+    # Basic ownership check without assuming field names
+    owner_user_id = getattr(getattr(order, 'customer', None), 'user_id', None)
+    if owner_user_id and owner_user_id != request.user.id:
+        messages.error(request, "You are not allowed to cancel this order.")
+        return redirect('onlineStore:order_history')
+
+    status = (order.status or '').strip().lower()
+    if status not in ('pending', 'paid'):
+        messages.error(request, "This order cannot be cancelled at its current stage.")
+        return redirect('onlineStore:order_history')
+
+    try:
+        payment_status = (getattr(order, 'payment_status', '') or '').lower()
+        intent_id = getattr(order, 'stripe_payment_intent_id', None)
+
+        if payment_status == 'succeeded' and intent_id:
+            try:
+                stripe.Refund.create(payment_intent=intent_id)
+                setattr(order, 'payment_status', 'refunded')
+            except Exception as e:
+                messages.error(request, f"Refund failed: {e}")
+                setattr(order, 'payment_status', 'refund_failed')
+                order.save()
+                return redirect('onlineStore:order_history')
+
+        order.status = 'Cancelled'
+        if getattr(order, 'payment_status', None) not in ('refunded', 'refund_failed'):
+            setattr(order, 'payment_status', 'cancelled')
+        order.save()
+
+        messages.success(request, f"Order #{order.order_id} has been cancelled.")
+    except Exception as e:
+        messages.error(request, f"Could not cancel order: {e}")
+
+    return redirect('onlineStore:order_history')
 
 # ...existing code...
 

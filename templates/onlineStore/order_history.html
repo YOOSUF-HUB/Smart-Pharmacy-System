@@ -13,7 +13,7 @@
             <div class="bg-gray-50/80 rounded-xl p-6 border border-gray-200">
               <div class="flex justify-between items-start mb-4">
                 <div>
-                  <h2 class="text-xl font-semibold text-gray-900">Order #{{ order.id }}</h2>
+                  <h2 class="text-xl font-semibold text-gray-900">Order #{{ forloop.counter }}</h2>
                   <p class="text-sm text-gray-600">{{ order.created_at|date:"F d, Y" }}</p>
                 </div>
                 <div class="text-right">
@@ -41,18 +41,40 @@
                         <p class="text-sm text-gray-600">Qty: {{ item.quantity }}</p>
                       </div>
                     </div>
-                    <p class="font-semibold text-gray-900">Rs. {{ item.subtotal|floatformat:2 }}</p>
+                    <!-- Show unit price of the product -->
+                    <p class="font-semibold text-gray-900">
+                      {% with price=item.unit_price|default:item.product.price %}
+                        Rs. {{ price|floatformat:2 }}
+                      {% endwith %}
+                    </p>
                   </div>
                 {% endfor %}
               </div>
               
               <div class="border-t pt-4 flex justify-between items-center">
                 <p class="text-lg font-semibold text-gray-900">Total: Rs. {{ order.total_amount|floatformat:2 }}</p>
-                <a href="#" 
-                   class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
-                  View Details
-                </a>
+                <div class="flex items-center space-x-3">
+                  {% if order.order_id %}
+                    <a href="{% url 'onlineStore:order_confirmation' order_id=order.order_id %}" 
+                       class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                      View Details
+                    </a>
+
+                    {% with s=order.status|default_if_none:''|lower|cut:' ' %}
+                      {% if s == 'pending' or s == 'paid' %}
+                        <button type="button"
+                                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+                                onclick="openCancelModal('{{ order.order_id }}')">
+                          Cancel Order
+                        </button>
+                      {% endif %}
+                    {% endwith %}
+                  {% endif %}
+                </div>
               </div>
+
+              {# Modal moved to bottom of the page to avoid clipping/stacking issues #}
+              {# <div id="cancelModal-{{ order.order_id }}">...</div> #}
             </div>
           {% endfor %}
         </div>
@@ -74,4 +96,70 @@
     </div>
   </div>
 </div>
+
+
+{% if orders %}
+  {% for order in orders %}
+    <div id="cancelModal-{{ order.order_id }}" class="fixed inset-0 z-50 hidden items-center justify-center" aria-hidden="true">
+      <!-- backdrop -->
+      <div id="cancelModalBack-{{ order.order_id }}" class="absolute inset-0 bg-black/50"></div>
+      <!-- dialog -->
+      <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4" role="dialog" aria-modal="true" aria-labelledby="cancelOrderTitle-{{ order.order_id }}">
+        <div class="px-6 py-4 border-b">
+          <h3 id="cancelOrderTitle-{{ order.order_id }}" class="text-lg font-semibold text-gray-900">Cancel this order?</h3>
+        </div>
+        <div class="px-6 py-4">
+          <p class="text-sm text-gray-600">
+            Order #{{ order.order_id }} will be cancelled. If payment was captured, a refund will be attempted.
+          </p>
+        </div>
+        <div class="px-6 py-4 border-t flex justify-end space-x-3">
+          <button type="button"
+                  class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  onclick="closeCancelModal('{{ order.order_id }}')">
+            Keep Order
+          </button>
+          <form action="{% url 'onlineStore:cancel_order' order_id=order.order_id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+              Cancel Order
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+{% endif %}
+
+<script>
+  function openCancelModal(id) {
+    const modal = document.getElementById(`cancelModal-${id}`);
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  function closeCancelModal(id) {
+    const modal = document.getElementById(`cancelModal-${id}`);
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+  document.addEventListener('click', function (e) {
+    const el = e.target;
+    if (el.id && el.id.startsWith('cancelModalBack-')) {
+      const id = el.id.replace('cancelModalBack-', '');
+      closeCancelModal(id);
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('[id^="cancelModal-"]').forEach(m => {
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+      });
+    }
+  });
+</script>
+
 {% endblock %}
+
