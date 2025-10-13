@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Order Tracking{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h3 class="m-0">Order Tracking</h3>
+  <div class="btn-group">
+    <a href="{% url 'suppliers:list' %}" class="btn btn-secondary">
+      ← Back to Home
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="get" class="row g-3 mb-4">
+      <div class="col-md-5">
+        <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search by supplier, product, or order ID">
+      </div>
+      <div class="col-md-3">
+        <select name="status" class="form-select">
+          <option value="">All Status</option>
+          <option value="Pending" {% if request.GET.status == "Pending" %}selected{% endif %}>Pending</option>
+          <option value="Shipped" {% if request.GET.status == "Shipped" %}selected{% endif %}>Shipped</option>
+          <option value="Delivered" {% if request.GET.status == "Delivered" %}selected{% endif %}>Delivered</option>
+          <option value="Cancelled" {% if request.GET.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+        </select>
+      </div>
+      <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </div>
+    </form>
+
+    {% if orders %}
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>Order ID</th>
+              <th>Supplier</th>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Expected Delivery</th>
+              <th>Last Updated</th>
+              <!-- NEW COLUMN HEADER -->
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for order in orders %}
+            {% for item in order.items.all %}
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.supplier.name }}</td>
+              <td>{{ item.product.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>
+                {% if order.status == "Pending" %}
+                  <span class="badge text-bg-warning">Pending</span>
+                {% elif order.status == "Shipped" %}
+                  <span class="badge text-bg-info">Shipped</span>
+                {% elif order.status == "Delivered" %}
+                  <span class="badge text-bg-success">Delivered</span>
+                {% elif order.status == "Cancelled" %}
+                  <span class="badge text-bg-danger">Cancelled</span>
+                {% else %}
+                  <span class="badge text-bg-light">Unknown</span>
+                {% endif %}
+              </td>
+              <td>{{ order.expected_delivery }}</td>
+              <td>{{ order.updated_at|date:"Y-m-d H:i" }}</td>
+              
+              <!-- NEW ACTIONS COLUMN -->
+              <td>
+                {% if forloop.first %}
+                  <a href="{% url 'suppliers:update_order_status' order.id %}" class="btn btn-sm btn-primary">Update Status</a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="alert alert-info text-center mt-4">
+        No orders found.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

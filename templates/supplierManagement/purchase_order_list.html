@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase Orders{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Purchase Orders</h2>
+    <div>
+      <a href="{% url 'suppliers:supplier_daily_totals' %}" class="btn btn-info me-2">
+        View Daily Totals
+      </a>
+      <a href="{% url 'suppliers:list' %}" class="btn btn-secondary me-2">
+        Go to Supplier Page
+      </a>
+      <a href="{% url 'suppliers:purchase_order_create' %}" class="btn btn-primary">
+        + Create Purchase Order
+      </a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Order ID</th>
+          <th>Supplier</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Cost per Product</th>
+          <!-- Subtotal column removed -->
+          <th>Order Date</th>
+          <th>Expected Delivery</th>
+          <th>Total Cost</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+          {% for item in order.items.all %}
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.supplier.name }}</td>
+              <td>{{ item.product.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.price }}</td>
+              <!-- Subtotal data cell removed -->
+              <td>{{ order.order_date }}</td>
+              <td>{{ order.expected_delivery }}</td>
+
+              {% if forloop.first %}
+                <td rowspan="{{ order.items.all|length }}">{{ order.total_cost }}</td>
+              {% endif %}
+
+              <td>
+                <form method="post" action="{% url 'suppliers:purchase_item_delete' item.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Are you sure you want to delete this product?');">
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        {% empty %}
+          <!-- Updated colspan from 10 to 9 -->
+          <tr>
+            <td colspan="9" class="text-center">No purchase orders found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if is_paginated %}
+<nav>
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">«</span></li>
+    {% endif %}
+
+    {% for num in paginator.page_range %}
+      {% if num == page_obj.number %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">»</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+  </div>
+</div>
+{% endblock %}

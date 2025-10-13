@@ -1,6 +1,6 @@
 from django import forms
-from .models import Supplier, Product
 from django.core.exceptions import ValidationError
+from .models import Supplier, Product, PurchaseOrder, PurchaseOrderItem
 
 class SupplierForm(forms.ModelForm):
     class Meta:
@@ -50,3 +50,56 @@ class ProductForm(forms.ModelForm):
             "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter product name"}),
             "category": forms.Select(attrs={"class": "form-select"}),
         }
+
+class PurchaseOrderForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrder
+        fields = [f.name for f in PurchaseOrder._meta.fields if f.editable and f.name not in ("id", "total_cost")]
+        widgets = {
+            "expected_delivery": forms.DateInput(attrs={"type": "date"}),
+        }
+
+class PurchaseOrderItemForm(forms.ModelForm):
+    product_name = forms.CharField(
+        label="Product",
+        widget=forms.TextInput(attrs={
+            "placeholder": "Type product name",
+            "autocomplete": "off",
+            "list": "product-list",  # optional datalist
+        })
+    )
+
+    class Meta:
+        model = PurchaseOrderItem
+        # exclude the FK; we will set it in clean/save
+        fields = ["product_name", "quantity", "price"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and getattr(self.instance, "product_id", None):
+            self.fields["product_name"].initial = self.instance.product.name
+
+    def clean_product_name(self):
+        name = (self.cleaned_data.get("product_name") or "").strip()
+        if not name:
+            raise ValidationError("Enter a product name.")
+        # Auto-create the product if it doesn't exist
+        product, _created = Product.objects.get_or_create(name=name)
+        self._resolved_product = product
+        return name
+
+    def clean(self):
+        cleaned = super().clean()
+        # Ensure FK is set before model validation
+        if getattr(self, "_resolved_product", None):
+            self.instance.product = self._resolved_product
+        return cleaned
+
+    def save(self, commit=True):
+        # product already set in clean()
+        return super().save(commit=commit)
+
+class PurchaseOrderStatusForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrder
+        fields = ["status"]

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Order History & Reports</h2>
+
+  <form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+      <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from }}">
+    </div>
+    <div class="col-md-3">
+      <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to }}">
+    </div>
+    <div class="col-md-3">
+      <select name="supplier" class="form-select">
+        <option value="">All Suppliers</option>
+        {% for sup in suppliers %}
+        <option value="{{ sup.id }}" {% if request.GET.supplier == sup.id|stringformat:"s" %}selected{% endif %}>{{ sup.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="status" class="form-select">
+        <option value="">All Statuses</option>
+        {% for s in statuses %}
+        <option value="{{ s }}" {% if request.GET.status == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-1">
+      <button class="btn btn-primary">Filter</button>
+    </div>
+  </form>
+
+  <div class="mb-3">
+    <a href="{% url 'suppliers:export_orders_csv' %}?{{ query_string }}" class="btn btn-outline-secondary">Export CSV</a>
+    <a href="{% url 'suppliers:export_orders_pdf' %}?{{ query_string }}" class="btn btn-outline-secondary">Export PDF</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Order ID</th>
+          <th>Supplier</th>
+          <th>Order Date</th>
+          <th>Expected Delivery</th>
+          <th>Status</th>
+          <th>Total Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>{{ order.id }}</td>
+          <td>{{ order.supplier.name }}</td>
+          <td>{{ order.order_date }}</td>
+          <td>{{ order.expected_delivery }}</td>
+          <td>{{ order.status }}</td>
+          <td>{{ order.total_cost }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center">No orders found in this range.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <nav>
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ query_string }}">Previous</a></li>
+      {% endif %}
+      <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ query_string }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

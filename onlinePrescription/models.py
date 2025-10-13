@@ -33,7 +33,7 @@ class Prescription(models.Model):
         blank=True,
         related_name='prescription'
     )
-    nic = models.CharField(max_length=12, validators=[nic_validator], unique=True, help_text="Enter 9-digit + V/v/X (old) or 12-digit (new) NIC")
+    nic = models.CharField(max_length=12, validators=[nic_validator], help_text="Enter 9-digit + V/v/X (old) or 12-digit (new) NIC")
 
     def __str__(self):
         return f"Prescription #{self.id} - {self.user.username}"

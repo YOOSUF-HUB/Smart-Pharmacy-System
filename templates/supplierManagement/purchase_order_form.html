@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-lg rounded-3">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Create Purchase Order</h2>
+    </div>
+    <div class="card-body">
+      <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% if formset.non_form_errors %}
+          <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+        {% endif %}
+
+        <!-- Order Details -->
+        <div class="mb-4">
+          <h4 class="text-secondary">Order Details</h4>
+          <div class="border rounded p-3 bg-light">
+            {{ order_form.as_p }}
+          </div>
+        </div>
+
+        <!-- Global datalist for product suggestions -->
+        <datalist id="product-list">
+          {% for p in products %}
+            <option value="{{ p.name }}"></option>
+          {% endfor %}
+        </datalist>
+
+        <!-- Product Table -->
+        <div class="mb-4">
+          <h4 class="text-secondary">Products</h4>
+          <div class="table-responsive">
+            <table id="orderTable" class="table table-bordered align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th style="width: 40%;">Product</th>
+                  <th style="width: 20%;">Quantity</th>
+                  <th style="width: 20%;">Price (per unit)</th>
+                  <th style="width: 10%;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for form in formset %}
+                <tr class="form-row">
+                  <td>
+                    {{ form.product_name }}
+                    {% for e in form.errors.product_name %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                  </td>
+                  <td>
+                    {{ form.quantity }}
+                    {% for e in form.errors.quantity %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                  </td>
+                  <td>
+                    {{ form.price }}
+                    {% for e in form.errors.price %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                  </td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-danger remove-row">Remove</button>
+                  </td>
+                </tr>
+                {% if form.non_field_errors %}
+                  <tr><td colspan="4"><div class="text-danger small">{{ form.non_field_errors }}</div></td></tr>
+                {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="btn btn-outline-success mt-2" id="add-row">+ Add Product</button>
+        </div>
+
+        <!-- Total Cost -->
+        <div class="alert alert-info fs-5">
+          <strong>Total Cost: </strong> <span id="total">0.00</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between">
+          <a href="{% url 'suppliers:list' %}" class="btn btn-outline-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Submit Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const tableBody = document.querySelector("#orderTable tbody");
+  const form = document.querySelector("form");
+
+  // Bootstrap form validation + ensure at least one valid row
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      form.addEventListener('submit', function(event) {
+        let hasValidProduct = false;
+        tableBody.querySelectorAll(".form-row").forEach(row => {
+          const product = row.querySelector("input[name$='product_name']");
+          const quantity = row.querySelector("input[name$='quantity']");
+          const price = row.querySelector("input[name$='price']");
+          if (product && product.value && quantity && quantity.value && price && price.value) {
+            hasValidProduct = true;
+          }
+        });
+        if (!hasValidProduct) {
+          event.preventDefault();
+          event.stopPropagation();
+          const alertDiv = document.createElement('div');
+          alertDiv.className = 'alert alert-danger mt-3';
+          alertDiv.textContent = 'Please add at least one product with valid details.';
+          form.appendChild(alertDiv);
+          setTimeout(() => alertDiv.remove(), 5000);
+          form.classList.add('was-validated');
+          return false;
+        }
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+          form.classList.add('was-validated');
+          return false;
+        }
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+      }, false);
+    }, false);
+  })();
+
+  function updateTotal() {
+    let total = 0;
+    tableBody.querySelectorAll(".form-row").forEach(row => {
+      const qty = parseFloat(row.querySelector("input[name$='quantity']").value || 0);
+      const price = parseFloat(row.querySelector("input[name$='price']").value || 0);
+      total += qty * price;
+    });
+    document.getElementById("total").innerText = total.toFixed(2);
+  }
+
+  function updateIndexes() {
+    tableBody.querySelectorAll(".form-row").forEach((row, index) => {
+      row.querySelectorAll("input, select").forEach(input => {
+        if (input.name && input.name.includes("-")) {
+          const newName = input.name.replace(/form-\d+-/, `form-${index}-`);
+          input.name = newName;
+          input.id = newName;
+        }
+      });
+    });
+  }
+
+  function updateTotalForms() {
+    const totalFormsInput = document.querySelector('input[name="form-TOTAL_FORMS"]');
+    totalFormsInput.value = tableBody.querySelectorAll(".form-row").length;
+  }
+
+  // Add row by cloning last form-row
+  document.getElementById("add-row").addEventListener("click", function() {
+    const lastRow = tableBody.querySelector(".form-row:last-child");
+    const newRow = lastRow.cloneNode(true);
+
+    // Clear values (text/number inputs)
+    newRow.querySelectorAll("input").forEach(input => {
+      if (input.type === "checkbox" || input.type === "radio") {
+        input.checked = false;
+      } else {
+        input.value = "";
+      }
+    });
+
+    tableBody.appendChild(newRow);
+    updateIndexes();
+    updateTotalForms();
+    updateTotal();
+  });
+
+  // Remove row
+  document.addEventListener("click", function(e) {
+    if (e.target.classList.contains("remove-row")) {
+      const rows = tableBody.querySelectorAll(".form-row");
+      if (rows.length > 1) {
+        e.target.closest(".form-row").remove();
+        updateIndexes();
+        updateTotalForms();
+        updateTotal();
+      }
+    }
+  });
+
+  // Recalculate total on input
+  document.addEventListener("input", function(e) {
+    if (e.target.matches("input[name$='quantity'], input[name$='price']")) {
+      updateTotal();
+    }
+  });
+
+  // Update TOTAL_FORMS before submit
+  form.addEventListener("submit", function() {
+    updateTotalForms();
+    updateTotal();
+  });
+
+  // Initial total calculation
+  updateTotal();
+});
+</script>
+{% endblock %}

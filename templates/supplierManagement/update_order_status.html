@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Update Order Status{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-lg rounded-3">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Update Order Status</h2>
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+        <h5>Order Details</h5>
+        <p><strong>Order ID:</strong> PO-{{ order.id }}</p>
+        <p><strong>Supplier:</strong> {{ order.supplier.name }}</p>
+        <p><strong>Order Date:</strong> {{ order.order_date }}</p>
+        <p><strong>Expected Delivery:</strong> {{ order.expected_delivery }}</p>
+        <p><strong>Total Cost:</strong> Rs. {{ order.total_cost }}</p>
+      </div>
+      
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+          {{ form.status }}
+        </div>
+        <div class="d-flex justify-content-between">
+          <a href="{% url 'suppliers:order_tracking' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Update Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
