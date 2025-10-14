@@ -123,13 +123,17 @@ class PurchaseOrderListView(ListView):
     """List purchase orders with supplier and items preloaded"""
     model = PurchaseOrder
     template_name = "supplierManagement/purchase_order_list.html"
-    context_object_name = "orders"
+    context_object_name = "object_list"
     paginate_by = 10
 
     def get_queryset(self):
+        # Debug: Print all GET parameters
+        print("GET parameters:", dict(self.request.GET))
+        
         qs = (
             PurchaseOrder.objects.select_related("supplier")
             .prefetch_related("items__product")
+            .all()
         )
 
         # Search by order ID or product name
@@ -154,29 +158,32 @@ class PurchaseOrderListView(ListView):
         if status:
             qs = qs.filter(status=status)
 
-        # Filter by date
+        # Filter by date - ONLY if explicitly provided
         date_from = (self.request.GET.get("date_from") or "").strip()
         if date_from:
             qs = qs.filter(order_date__gte=date_from)
 
-        qs = qs.order_by("-order_date", "-id")
-
-        # keep filtered queryset for aggregates
-        self.filtered_qs = qs
-        return qs
+        # Debug: Print the count before ordering
+        print(f"Total orders found: {qs.count()}")
+        
+        return qs.order_by("-order_date", "-id")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # overall totals across the filtered queryset
-        context["total_orders"] = self.filtered_qs.count()
-        context["total_items"] = self.filtered_qs.aggregate(
+        
+        # Get the filtered queryset for aggregates
+        qs = self.get_queryset()
+        
+        # Overall totals across the filtered queryset
+        context["total_orders"] = qs.count()
+        context["total_items"] = qs.aggregate(
             total=Count("items", distinct=True)
         )["total"] or 0
-        context["total_value"] = self.filtered_qs.aggregate(
+        context["total_value"] = qs.aggregate(
             total=Sum("total_cost")
         )["total"] or 0
 
-        # optional: totals for current page only (uses prefetch, no extra queries)
+        # Optional: totals for current page only
         page_orders = context["object_list"]
         context["page_total_items"] = sum(len(o.items.all()) for o in page_orders)
 

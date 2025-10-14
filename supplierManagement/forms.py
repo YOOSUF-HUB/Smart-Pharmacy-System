@@ -62,23 +62,19 @@ class PurchaseOrderForm(forms.ModelForm):
 class PurchaseOrderItemForm(forms.ModelForm):
     product_name = forms.CharField(
         label="Product",
-        required=True,
         widget=forms.TextInput(attrs={
             "placeholder": "Type product name",
             "autocomplete": "off",
             "list": "product-list",
-            "class": "form-control",
         })
     )
 
     class Meta:
         model = PurchaseOrderItem
-        # Include id for editing existing items
-        fields = ["id", "product_name", "quantity", "price"]
+        fields = ["product_name", "quantity", "price"]
         widgets = {
-            "id": forms.HiddenInput(),  # Hidden field for item ID
-            "quantity": forms.NumberInput(attrs={"min": 1, "step": 1, "class": "form-control"}),
-            "price": forms.NumberInput(attrs={"min": "0", "step": "0.01", "class": "form-control"}),
+            "quantity": forms.NumberInput(attrs={"min": 1, "step": 1}),
+            "price": forms.NumberInput(attrs={"min": "0", "step": "0.01"}),
         }
 
     def __init__(self, *args, **kwargs):

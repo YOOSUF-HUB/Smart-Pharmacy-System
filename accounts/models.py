@@ -1,9 +1,14 @@
 # accounts/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import RegexValidator
 from django.utils import timezone
 
-
+NIC_REGEX = r'^(?:\d{9}[VvXx]|\d{12})$'
+nic_validator = RegexValidator(
+    NIC_REGEX,
+    message="Enter a valid Sri Lankan NIC (old: 9 digits + V/v/X, or new: 12 digits)."
+)
 class User(AbstractUser):
     """
     Custom User model extending Django's AbstractUser.
@@ -25,7 +30,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
     
     # Contact information for all users
-    phone = models.CharField(max_length=15, blank=True, null=True)
+    phone = models.CharField(max_length=10)
     
     # Date hired field primarily for staff members (admin, pharmacist, cashier)
     date_hired = models.DateField(default=timezone.now, null=True, blank=True)
@@ -45,7 +50,7 @@ class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     
     # Contact information (separate from User.phone for additional flexibility)
-    phone = models.CharField(max_length=15, blank=True, null=True)
+    phone = models.CharField(max_length=10, default='0700000000')
     
     # Address information for delivery and billing purposes
     address = models.TextField(blank=True, null=True)
@@ -56,7 +61,7 @@ class Customer(models.Model):
     country = models.CharField(max_length=100, blank=True, null=True)
     
     # National Identity Card number for verification purposes
-    nic = models.CharField(max_length=20, blank=True, null=True, verbose_name="NIC Number")
+    nic = models.CharField(max_length=20, verbose_name="NIC Number", validators=[nic_validator], default='000000000V')
     
     def __str__(self):
         # Return username for easy identification

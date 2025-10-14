@@ -4,11 +4,13 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from .models import Customer, User
 
 User = get_user_model()  # This gets your custom User model
 
-
+NIC_REGEX = r'^(?:\d{9}[VvXx]|\d{12})$'
+nic_validator = RegexValidator(NIC_REGEX,message="Enter a valid Sri Lankan NIC (old: 9 digits + V/v/X, or new: 12 digits).")
 class CustomerSignUpForm(UserCreationForm):
     """
     Form for customer registration with both User and Customer profile fields.
@@ -16,11 +18,15 @@ class CustomerSignUpForm(UserCreationForm):
     """
     # User fields
     email = forms.EmailField(required=True,widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    first_name = forms.CharField(max_length=30, required=False)
-    last_name = forms.CharField(max_length=30, required=False)
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
     
     # Customer profile fields
-    phone = forms.CharField(max_length=15, required=False)
+    phone = forms.CharField(
+        max_length=10,
+        min_length=10,
+        required=True,
+    )
     address = forms.CharField(
         widget=forms.Textarea(attrs={
             'rows': 3, 
@@ -31,7 +37,7 @@ class CustomerSignUpForm(UserCreationForm):
     city = forms.CharField(max_length=100, required=False)
     postal_code = forms.CharField(max_length=20, required=False)
     country = forms.CharField(max_length=100, required=False)
-    nic = forms.CharField(max_length=20, required=False, label="NIC Number")
+    nic = forms.CharField(max_length=12, required=True, label="NIC Number", validators=[nic_validator])
     
     class Meta(UserCreationForm.Meta):
         model = User
@@ -43,6 +49,25 @@ class CustomerSignUpForm(UserCreationForm):
         if User.objects.filter(email=email).exists():
             raise ValidationError("A user with this email already exists.")
         return email
+    
+    def clean_phone(self):
+        """Validate phone number format and uniqueness"""
+        phone = self.cleaned_data.get('phone')
+        if phone:
+            # Remove any spaces or special characters
+            phone = re.sub(r'\D', '', phone)
+            
+            if len(phone) != 10:
+                raise ValidationError('Phone number must be exactly 10 digits.')
+            
+            if not phone.isdigit():
+                raise ValidationError('Phone number must contain only digits.')
+                
+            # Check if the phone number is unique
+            # if User.objects.filter(customer__phone=phone).exists():
+            #     raise ValidationError('A user with this phone number already exists.')
+        
+        return phone
     
     def save(self, commit=True):
         """Save user and create associated customer profile."""
