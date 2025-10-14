@@ -72,7 +72,7 @@ class PurchaseOrder(models.Model):
 
 class PurchaseOrderItem(models.Model):
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="items")
-    # Optional link to Product if it exists; free-typed name is always stored
+
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, blank=True, null=True, related_name="purchase_items")
     product_name = models.CharField(max_length=150, default="Unknown Product")
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])

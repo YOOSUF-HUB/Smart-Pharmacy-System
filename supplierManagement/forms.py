@@ -62,41 +62,54 @@ class PurchaseOrderForm(forms.ModelForm):
 class PurchaseOrderItemForm(forms.ModelForm):
     product_name = forms.CharField(
         label="Product",
+        required=True,
         widget=forms.TextInput(attrs={
             "placeholder": "Type product name",
             "autocomplete": "off",
-            "list": "product-list",  # optional datalist
+            "list": "product-list",
+            "class": "form-control",
         })
     )
 
     class Meta:
         model = PurchaseOrderItem
-        # exclude the FK; we will set it in clean/save
-        fields = ["product_name", "quantity", "price"]
+        # Include id for editing existing items
+        fields = ["id", "product_name", "quantity", "price"]
+        widgets = {
+            "id": forms.HiddenInput(),  # Hidden field for item ID
+            "quantity": forms.NumberInput(attrs={"min": 1, "step": 1, "class": "form-control"}),
+            "price": forms.NumberInput(attrs={"min": "0", "step": "0.01", "class": "form-control"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance and getattr(self.instance, "product_id", None):
-            self.fields["product_name"].initial = self.instance.product.name
+        # Pre-fill product_name from existing item
+        if self.instance and self.instance.pk:
+            # Use product_name field first, fallback to product FK
+            if hasattr(self.instance, 'product_name') and self.instance.product_name:
+                self.fields["product_name"].initial = self.instance.product_name
+            elif getattr(self.instance, "product_id", None):
+                self.fields["product_name"].initial = self.instance.product.name
 
     def clean_product_name(self):
         name = (self.cleaned_data.get("product_name") or "").strip()
         if not name:
             raise ValidationError("Enter a product name.")
-        # Auto-create the product if it doesn't exist
+        # Auto-create product if doesn't exist
         product, _created = Product.objects.get_or_create(name=name)
         self._resolved_product = product
         return name
 
     def clean(self):
         cleaned = super().clean()
-        # Ensure FK is set before model validation
+        # Set product FK before model validation
         if getattr(self, "_resolved_product", None):
             self.instance.product = self._resolved_product
+            self.instance.product_name = self.cleaned_data.get("product_name", "")
         return cleaned
 
     def save(self, commit=True):
-        # product already set in clean()
+        # product and product_name already set in clean()
         return super().save(commit=commit)
 
 class PurchaseOrderStatusForm(forms.ModelForm):

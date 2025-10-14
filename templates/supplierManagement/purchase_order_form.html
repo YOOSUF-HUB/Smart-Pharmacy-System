@@ -45,6 +45,7 @@
               <tbody>
                 {% for form in formset %}
                 <tr class="form-row">
+                  {{ form.id }}  <!-- Hidden ID field -->
                   <td>
                     {{ form.product_name }}
                     {% for e in form.errors.product_name %}<div class="text-danger small">{{ e }}</div>{% endfor %}

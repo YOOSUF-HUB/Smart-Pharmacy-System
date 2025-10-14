@@ -1,4 +1,4 @@
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum  # add Sum
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.auth.decorators import user_passes_test
@@ -127,11 +127,61 @@ class PurchaseOrderListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return (
+        qs = (
             PurchaseOrder.objects.select_related("supplier")
             .prefetch_related("items__product")
-            .order_by("-id")
         )
+
+        # Search by order ID or product name
+        search = (self.request.GET.get("search") or "").strip()
+        if search:
+            qs = qs.filter(
+                Q(id__icontains=search) |
+                Q(items__product_name__icontains=search) |
+                Q(items__product__name__icontains=search)
+            ).distinct()
+
+        # Filter by supplier
+        supplier_param = (self.request.GET.get("supplier") or "").strip()
+        if supplier_param:
+            if supplier_param.isdigit():
+                qs = qs.filter(supplier_id=int(supplier_param))
+            else:
+                qs = qs.filter(supplier__name__icontains=supplier_param)
+
+        # Filter by status
+        status = (self.request.GET.get("status") or "").strip()
+        if status:
+            qs = qs.filter(status=status)
+
+        # Filter by date
+        date_from = (self.request.GET.get("date_from") or "").strip()
+        if date_from:
+            qs = qs.filter(order_date__gte=date_from)
+
+        qs = qs.order_by("-order_date", "-id")
+
+        # keep filtered queryset for aggregates
+        self.filtered_qs = qs
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # overall totals across the filtered queryset
+        context["total_orders"] = self.filtered_qs.count()
+        context["total_items"] = self.filtered_qs.aggregate(
+            total=Count("items", distinct=True)
+        )["total"] or 0
+        context["total_value"] = self.filtered_qs.aggregate(
+            total=Sum("total_cost")
+        )["total"] or 0
+
+        # optional: totals for current page only (uses prefetch, no extra queries)
+        page_orders = context["object_list"]
+        context["page_total_items"] = sum(len(o.items.all()) for o in page_orders)
+
+        context["suppliers"] = Supplier.objects.all().order_by("name")
+        return context
 
 
 @pharmacist_required
@@ -431,4 +481,75 @@ def update_order_status(request, pk):
         request,
         "supplierManagement/update_order_status.html",
         {"form": form, "order": order},
+    )
+
+
+@pharmacist_required
+def delete_purchase_order(request, pk):
+    """
+    Delete an entire purchase order and all its items.
+    """
+    order = get_object_or_404(PurchaseOrder, pk=pk)
+    if request.method == "POST":
+        order.delete()  # CASCADE will delete all items automatically
+        messages.success(request, f"Purchase order #{pk} deleted successfully.")
+    else:
+        messages.error(request, "Invalid request method.")
+    return redirect("suppliers:purchase_order_list")
+
+
+@pharmacist_required
+def edit_purchase_order(request, pk):
+    """
+    Edit an existing purchase order and its items.
+    """
+    order = get_object_or_404(PurchaseOrder, pk=pk)
+    ItemFormSet = modelformset_factory(
+        PurchaseOrderItem, form=PurchaseOrderItemForm, extra=0, can_delete=True
+    )
+
+    if request.method == "POST":
+        order_form = PurchaseOrderForm(request.POST, instance=order)
+        formset = ItemFormSet(request.POST, queryset=order.items.all())
+
+        # Debug: Print errors
+        if not order_form.is_valid():
+            print("Order form errors:", order_form.errors.as_json())
+        if not formset.is_valid():
+            print("Formset errors:")
+            for i, form in enumerate(formset):
+                if form.errors:
+                    print(f"  Form {i} errors:", form.errors.as_json())
+
+        if order_form.is_valid() and formset.is_valid():
+            order = order_form.save()
+
+            total = 0
+            for f in formset:
+                if f.cleaned_data and not f.cleaned_data.get("DELETE", False):
+                    item = f.save(commit=False)
+                    item.purchase_order = order
+                    item.save()
+                    total += item.get_subtotal()
+
+            order.total_cost = total
+            order.save()
+
+            messages.success(request, f"Purchase order #{pk} updated successfully!")
+            return redirect("suppliers:purchase_order_list")
+        else:
+            messages.error(request, "Please correct the errors below.")
+            # Pass errors to template for display
+            for form in formset:
+                if form.errors:
+                    for field, errors in form.errors.items():
+                        messages.error(request, f"{field}: {', '.join(errors)}")
+    else:
+        order_form = PurchaseOrderForm(instance=order)
+        formset = ItemFormSet(queryset=order.items.all())
+
+    return render(
+        request,
+        "supplierManagement/purchase_order_form.html",
+        {"order_form": order_form, "formset": formset, "products": Product.objects.all(), "edit_mode": True},
     )

@@ -13,7 +13,9 @@ urlpatterns = [
         # Purchase orders
     path("purchase-orders/", views.PurchaseOrderListView.as_view(), name="purchase_order_list"),
     path("purchase-orders/new/", views.create_purchase_order, name="purchase_order_create"),
+    path("purchase-orders/<int:pk>/edit/", views.edit_purchase_order, name="purchase_order_edit"),
     path("purchase-items/<int:pk>/delete/", views.delete_purchase_item, name="purchase_item_delete"),
+    path("purchase-orders/<int:pk>/delete/", views.delete_purchase_order, name="purchase_order_delete"),
     path("orders/tracking/", views.order_tracking, name="order_tracking"),
     path("orders/history/", views.order_history, name="order_history"),
     path("orders/export/csv/", views.export_orders_csv, name="export_orders_csv"),
