@@ -34,13 +34,15 @@ from .models import User, Customer
 # DECORATORS
 # =============================================================================
 
+
 def admin_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect(settings.LOGIN_URL)
         if request.user.role != "admin":
-            raise PermissionDenied("You must be an admin to access this page.")
+            messages.error(request, "You do not have permission to access this page.")
+            return redirect('account_not_found')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
@@ -50,7 +52,8 @@ def pharmacist_required(view_func):
         if not request.user.is_authenticated:
             return redirect(settings.LOGIN_URL)
         if request.user.role != "pharmacist":
-            raise PermissionDenied("You must be a pharmacist to access this page.")
+            messages.error(request, "You do not have permission to access this page.")
+            return redirect('account_not_found')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
@@ -60,7 +63,8 @@ def cashier_required(view_func):
         if not request.user.is_authenticated:
             return redirect(settings.LOGIN_URL)
         if request.user.role != "cashier":
-            raise PermissionDenied("You must be a cashier to access this page.")
+            messages.error(request, "You do not have permission to access this page.")
+            return redirect('account_not_found')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
@@ -70,9 +74,15 @@ def customer_required(view_func):
         if not request.user.is_authenticated:
             return redirect(settings.LOGIN_URL)
         if request.user.role != "customer":
-            raise PermissionDenied("You must be a customer to access this page.")
+            messages.error(request, "You do not have permission to access this page.")
+            return redirect('account_not_found')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
+
+
+def custom_403(request, exception):
+    messages.error(request, "You do not have access to that page.")
+    return redirect('account_not_found')
 
 
 # =============================================================================
@@ -476,3 +486,5 @@ def customer_logout_view(request):
     response['Expires'] = '0'
     return response
 
+def custom_404(request, exception):
+    return redirect('account_not_found')
