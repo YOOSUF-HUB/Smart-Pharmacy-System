@@ -560,3 +560,59 @@ def edit_purchase_order(request, pk):
         "supplierManagement/purchase_order_form.html",
         {"order_form": order_form, "formset": formset, "products": Product.objects.all(), "edit_mode": True},
     )
+
+@pharmacist_required
+def export_suppliers_csv(request):
+    """
+    Export all suppliers to CSV.
+    """
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="suppliers.csv"'
+    writer = csv.writer(response)
+    writer.writerow(
+        ["Supplier Name", "Contact Person", "Email", "Phone", "Address", "Status", "Products Count"]
+    )
+
+    suppliers = Supplier.objects.annotate(
+        product_count=Count("products")
+    ).order_by("name")
+    
+    for supplier in suppliers:
+        writer.writerow(
+            [
+                supplier.name,
+                supplier.contact_person,
+                supplier.email,
+                supplier.phone,
+                supplier.address,
+                supplier.status,
+                supplier.product_count,
+            ]
+        )
+    return response
+
+
+@pharmacist_required
+def export_suppliers_pdf(request):
+    """
+    Export all suppliers to a PDF table.
+    """
+    from django.template.loader import render_to_string
+    from weasyprint import HTML
+    from datetime import datetime
+    
+    suppliers = Supplier.objects.annotate(
+        product_count=Count("products")
+    ).order_by("name")
+    
+    html_string = render_to_string('supplierManagement/suppliers_pdf.html', {
+        'suppliers': suppliers,
+        'date': datetime.now().strftime('%Y-%m-%d %H:%M')
+    })
+    
+    html = HTML(string=html_string)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="suppliers.pdf"'
+    html.write_pdf(response)
+    
+    return response

@@ -9,6 +9,8 @@ urlpatterns = [
     path('<int:pk>/edit/', views.SupplierUpdateView.as_view(), name='edit'),
     path('<int:pk>/delete/', views.SupplierDeleteView.as_view(), name='delete'),
     path('<int:pk>/', views.SupplierDetailView.as_view(), name='detail'),
+    path("suppliers/export/csv/", views.export_suppliers_csv, name="export_suppliers_csv"),
+    path("suppliers/export/pdf/", views.export_suppliers_pdf, name="export_suppliers_pdf"),
 
         # Purchase orders
     path("purchase-orders/", views.PurchaseOrderListView.as_view(), name="purchase_order_list"),
