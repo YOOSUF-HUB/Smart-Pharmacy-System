@@ -131,7 +131,10 @@ class PrescriptionItemForm(forms.ModelForm):
     medicine = forms.ModelChoiceField(
         queryset=Medicine.objects.all().order_by('name', 'batch_number'),
         label="Select Medicine (Batch)",
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={
+            'class': 'form-control select2-medicine',
+            'data-placeholder': 'Search for a medicine...'
+        })
     )
 
     class Meta:

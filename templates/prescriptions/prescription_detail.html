@@ -3,6 +3,53 @@
 
 {% block title %}Prescription #{{ prescription.id }} Details{% endblock %}
 
+{% block extra_css %}
+<!-- jQuery (required for Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 38px;
+        padding-left: 12px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+    .select2-container {
+        width: 100% !important;
+    }
+    /* Make search box more prominent */
+    .select2-search--dropdown {
+        padding: 8px;
+        background: #f3f4f6;
+    }
+    .select2-search--dropdown .select2-search__field {
+        padding: 8px 12px;
+        border: 2px solid #6366f1;
+        border-radius: 0.375rem;
+        font-size: 14px;
+        width: 100%;
+    }
+    .select2-search--dropdown .select2-search__field:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    .select2-results__option {
+        padding: 10px 12px;
+    }
+    .select2-results__option--highlighted {
+        background-color: #6366f1 !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="bg-white shadow-md rounded-lg p-6 mb-6">
     <!-- Header with action buttons -->
@@ -282,6 +329,44 @@
                 modal.classList.add('hidden');
             }
         });
+
+        // Initialize Select2 for medicine dropdown with search functionality
+        setTimeout(function() {
+            // Check if jQuery and Select2 are loaded
+            if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined') {
+                jQuery('.select2-medicine').select2({
+                    placeholder: 'Type to search for a medicine...',
+                    allowClear: true,
+                    width: '100%',
+                    theme: 'default',
+                    minimumResultsForSearch: 0, // Always show search box
+                    closeOnSelect: true,
+                    language: {
+                        searching: function() {
+                            return "Typing...";
+                        },
+                        noResults: function() {
+                            return "No medicines found";
+                        },
+                        inputTooShort: function() {
+                            return "Keep typing...";
+                        }
+                    }
+                });
+                
+                // Auto-open dropdown when clicking to make search visible
+                jQuery('.select2-medicine').on('select2:opening', function() {
+                    console.log('Dropdown opening - search box visible');
+                });
+                
+                console.log('Select2 initialized successfully');
+            } else {
+                console.error('jQuery or Select2 not loaded');
+            }
+        }, 500);
     });
 </script>
+
+<!-- Select2 JS - Load after jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 {% endblock %}
