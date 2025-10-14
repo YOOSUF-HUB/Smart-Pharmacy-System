@@ -12,7 +12,7 @@ class Patient(models.Model):
     date_of_birth = models.DateField()
     contact_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    email = models.EmailField(blank=True, null=True) 
+    email = models.EmailField()  # Required field 
     
     class Meta:
         # Orders patients by their last name, then first name, for consistent listing.

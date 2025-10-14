@@ -44,4 +44,84 @@
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the contact number input field
+    const contactInput = document.querySelector('input[name="contact_number"]');
+    
+    if (contactInput) {
+        // Set HTML5 pattern validation
+        contactInput.setAttribute('pattern', '\\+94[0-9]{9}');
+        contactInput.setAttribute('title', 'Contact number must start with +94 followed by 9 digits (e.g., +94771234567)');
+        
+        // Add real-time validation feedback
+        contactInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            const errorDiv = document.getElementById('contact-error');
+            
+            // Remove existing error message
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+            
+            // Validate format
+            if (value.length > 0) {
+                let errorMessage = '';
+                
+                if (!value.startsWith('+94')) {
+                    errorMessage = 'Contact number must start with +94';
+                } else {
+                    const digitsAfter94 = value.substring(3);
+                    if (!/^\d*$/.test(digitsAfter94)) {
+                        errorMessage = 'Only digits allowed after +94';
+                    } else if (digitsAfter94.length > 0 && digitsAfter94.length !== 9) {
+                        errorMessage = `Need ${9 - digitsAfter94.length} more digit(s). Total should be 9 digits after +94`;
+                    } else if (digitsAfter94.length === 9) {
+                        // Valid format - show success
+                        contactInput.style.borderColor = '#10b981';
+                        return;
+                    }
+                }
+                
+                if (errorMessage) {
+                    contactInput.style.borderColor = '#ef4444';
+                    const error = document.createElement('p');
+                    error.id = 'contact-error';
+                    error.className = 'text-red-500 text-xs italic mt-1';
+                    error.textContent = errorMessage;
+                    contactInput.parentElement.appendChild(error);
+                } else {
+                    contactInput.style.borderColor = '#d1d5db';
+                }
+            }
+        });
+        
+        // Format input automatically
+        contactInput.addEventListener('keypress', function(e) {
+            const value = e.target.value;
+            
+            // If empty, automatically add +94
+            if (value.length === 0 && e.key !== '+') {
+                e.target.value = '+94';
+            }
+            
+            // Prevent deletion of +94
+            if (value === '+94' && e.key === 'Backspace') {
+                e.preventDefault();
+            }
+            
+            // Only allow digits after +94
+            if (value.length >= 3 && !/\d/.test(e.key)) {
+                e.preventDefault();
+            }
+            
+            // Limit to +94 + 9 digits = 12 characters
+            if (value.length >= 12) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

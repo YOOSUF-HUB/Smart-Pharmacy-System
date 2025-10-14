@@ -17,7 +17,7 @@ class PatientForm(forms.ModelForm):
             'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Patient First Name'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Patient Last Name'}),
-            'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., +1234567890'}),
+            'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+94XXXXXXXXX'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Patient Address'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'patient@example.com'}),
         }
@@ -30,6 +30,29 @@ class PatientForm(forms.ModelForm):
             'address': 'Address',
             'email' : 'Email-Address'
         }
+    
+    def clean_contact_number(self):
+        """
+        Validate that contact number starts with +94 and has exactly 9 digits after that.
+        Format: +94XXXXXXXXX (where X is a digit)
+        """
+        contact_number = self.cleaned_data.get('contact_number', '').strip()
+        
+        # Check if it starts with +94
+        if not contact_number.startswith('+94'):
+            raise ValidationError('Contact number must start with +94')
+        
+        # Extract the digits after +94
+        digits_after_code = contact_number[3:]
+        
+        # Check if the remaining part contains exactly 9 digits
+        if not digits_after_code.isdigit():
+            raise ValidationError('Contact number must contain only digits after +94')
+        
+        if len(digits_after_code) != 9:
+            raise ValidationError('Contact number must have exactly 9 digits after +94 (e.g., +94771234567)')
+        
+        return contact_number
 
 # Form for creating and updating Doctor instances.
 class DoctorForm(forms.ModelForm):
