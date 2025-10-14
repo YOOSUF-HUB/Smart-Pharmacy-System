@@ -30,6 +30,13 @@ class MedicineForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'placeholder': 'SEQ', 'class': 'form-control'})
     )
 
+    cost_price = forms.DecimalField(
+        max_digits=10, min_value=0)
+    
+    selling_price = forms.DecimalField(
+        max_digits=10, min_value=0
+    )
+
     class Meta:
         model = Medicine
         fields = [
@@ -54,6 +61,7 @@ class MedicineForm(forms.ModelForm):
             ),
             'batch_number': forms.TextInput(attrs={'readonly': 'readonly'}),
             'medicine_type': forms.Select(attrs={'class': 'form-control'}),
+
         }
 
     def __init__(self, *args, **kwargs):

@@ -18,7 +18,11 @@ from django.db.models import Count, F, Q, Value
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models.deletion import ProtectedError
+from django.template.loader import render_to_string  # Add this if missing
+from weasyprint import HTML
+
 
 # Guard Celery imports
 try:
@@ -262,7 +266,7 @@ def create_medicine(request):
                 )
                 messages.success(request, f"Successfully registered new medication: '{medicine.name}'.")
                 # Redirect to the medicine detail page after creation
-                return redirect('medicine_detail', pk=medicine.pk)
+                return redirect('medicine_detail', id=medicine.pk)
             except ValidationError as e:
                 # Handle model validation errors
                 for field, errors in e.message_dict.items():
