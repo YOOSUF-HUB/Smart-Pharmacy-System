@@ -166,8 +166,8 @@ def generate_invoice_pdf(request, pk):
         <tr>
             <td>{item.medicine.name} ({item.medicine.batch_number})</td>
             <td>{item.dispensed_quantity}</td>
-            <td class="price-cell">${item.medicine.selling_price:.2f}</td>
-            <td class="price-cell">${item.total_price:.2f}</td>
+            <td class="price-cell">${item.medicine.selling_price / 100:.2f}</td>
+            <td class="price-cell">${item.total_price / 100:.2f}</td>
         </tr>
         """ for item in prescription.items.all()
     ])
@@ -278,8 +278,8 @@ def generate_invoice_pdf(request, pk):
     <body>
         <div class="container">
             <div class="header">
-                <h1>Pharmacy Rix</h1>
-                <p>123 Medical Drive, Healthville, USA</p>
+                <h1>MediSync Pharmacy</h1>
+                <p>123 Colmbo Raod Kandy</p>
             </div>
 
             <div class="invoice-info">
@@ -310,12 +310,12 @@ def generate_invoice_pdf(request, pk):
             </table>
             
             <div class="total-section">
-                <p><span class="label">Total Amount:</span> ${prescription.total_cost:.2f}</p>
+                <p><span class="label">Total Amount:</span> ${prescription.total_cost / 100:.2f}</p>
             </div>
             
             <div class="footer">
                 <p>Thank you for your business. All payments are due upon receipt.</p>
-                <p>For questions regarding this invoice, please contact us at support@pharmacyrix.com.</p>
+                <p>For questions regarding this invoice, please contact us at medisync30@gmail.com</p>
             </div>
         </div>
     </body>

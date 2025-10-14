@@ -58,7 +58,8 @@
                         {{ payment.payment_date|naturalday }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${{ payment.total_amount|intcomma }}
+                        {% widthratio payment.total_amount 100 1 as total_amount_divided %}
+                        ${{ total_amount_divided|floatformat:2 }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">
                         {% if payment.status == 'paid' %}

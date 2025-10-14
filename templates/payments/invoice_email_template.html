@@ -63,7 +63,7 @@
 
         <div class="invoice-details">
             <div>
-                <p><strong>Patient:</strong> {{ patient.full_name }}</p>
+                <p><strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}</p>
                 <p><strong>Payment Date:</strong> {{ payment.payment_date|date:"F d, Y" }}</p>
             </div>
             <div>
@@ -84,12 +84,14 @@
             </thead>
             <tbody>
                 <!-- Loop through the invoice items. Assuming 'payment.items' exists. -->
-                {% for item in payment.items.all %}
+                {% for item in payment.payment_items.all %}
                 <tr>
                     <td>{{ item.medicine.name }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>${{ item.price_per_unit|floatformat:2 }}</td>
-                    <td>${{ item.total_price|floatformat:2 }}</td>
+                    {% widthratio item.price 100 1 as price_divided %}
+                    {% widthratio item.total_price 100 1 as total_divided %}
+                    <td>${{ price_divided|floatformat:2 }}</td>
+                    <td>${{ total_divided|floatformat:2 }}</td>
                 </tr>
                 {% empty %}
                 <tr>
@@ -100,7 +102,8 @@
         </table>
 
         <div class="total-section">
-            <p>Total Invoice Amount: ${{ payment.total_amount|floatformat:2 }}</p>
+            {% widthratio payment.total_amount 100 1 as total_amount_divided %}
+            <p>Total Invoice Amount: ${{ total_amount_divided|floatformat:2 }}</p>
         </div>
 
         <p style="text-align: center; font-size: 0.9em; margin-top: 30px; color: #777;">
