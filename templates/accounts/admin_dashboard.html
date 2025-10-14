@@ -96,6 +96,9 @@
                     <div>
                         <p class="text-slate-600 text-sm font-medium">Total Staff</p>
                         <p class="text-3xl font-bold text-slate-800">{{ staff_count|default:0 }}</p>
+                        <div class="text-xs text-slate-500 mt-1">
+                        Admins: {{ admin_count }} • Pharmacists: {{ pharmacist_count }} • Cashiers: {{ cashier_count }}
+                        </div>
                     </div>
                     <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

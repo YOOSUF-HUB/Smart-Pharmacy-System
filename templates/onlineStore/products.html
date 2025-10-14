@@ -80,32 +80,43 @@
       </div>
       <!-- Product Grid -->
       <div class="lg:col-span-3">
-        <div class="flex justify-between mb-8">
-          <h2 class="text-2xl font-bold tracking-tight text-gray-900">Products</h2>
-          <form method="get">          
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3" type="submit">
-                <button type="submit">
-                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </button>
-              </span>
-              <input type="text" name="search" id="search"
-                value="{{ search_query|default:'' }}"
-                class="block w-full pl-10 py-2 border-gray-200 border-2 rounded-full shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                placeholder="Search Products..."
-              />
+            <div class="flex flex-col sm:flex-row justify-between mb-8 items-start sm:items-center gap-4">
+              <!-- Title -->
+              <h2 class="text-2xl font-bold tracking-tight text-gray-900">
+                Medical Devices
+              </h2>
+
+              <!-- Responsive Search Form -->
+              <form method="get" class="flex-1 min-w-[200px] sm:max-w-md lg:max-w-lg">
+                <div class="relative w-full">
+                  <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <button type="submit">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                      </svg>
+                    </button>
+                  </span>
+                  <input
+                    type="text"
+                    name="search"
+                    id="search"
+                    value="{{ search_query|default:'' }}"
+                    class="block w-full pl-10 py-2 border-gray-200 border-2 rounded-full shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    placeholder="Search Products..."
+                  />
+                </div>
+              </form>
             </div>
-          </form>
-        </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-5 gap-6">
               {% for product in products %}
                 <div class="group relative bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-2xl transition-all duration-300">
                   
                   <!-- Product Image with Overlay -->
-                  <div class="relative w-full h-80 overflow-hidden">
+                  <div class="relative w-full h-60 overflow-hidden">
                     {% if product.image_url %}
                       <img src="{{ product.image_url }}" alt="{{ product.name }}" 
-                          class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110">
+                          class="w-fit h-fit object-cover object-center transition-transform duration-500 group-hover:scale-100">
                     {% else %}
                       <div class="flex items-center justify-center w-full h-full bg-gray-100">
                         <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"

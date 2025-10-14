@@ -93,7 +93,22 @@ def custom_403(request, exception):
 @never_cache
 @admin_required
 def admin_dashboard(request):
-    return render(request, "accounts/admin_dashboard.html")
+    admin_count = User.objects.filter(role='admin').count()
+    pharmacist_count = User.objects.filter(role='pharmacist').count()
+    cashier_count = User.objects.filter(role='cashier').count()
+    customer_count = User.objects.filter(role='customer').count()
+    staff_count = admin_count + pharmacist_count + cashier_count
+    inactive_account = User.objects.filter(is_active=False).count()
+
+    context = {
+        'admin_count': admin_count,
+        'pharmacist_count': pharmacist_count,
+        'cashier_count': cashier_count,
+        'staff_count': staff_count,
+        'customer_count': customer_count,
+        'inactive_staff_count': inactive_account,
+    }
+    return render(request, "accounts/admin_dashboard.html", context)
 
 # Create new staff member (pharmacist or cashier)
 @admin_required
@@ -116,8 +131,13 @@ def create_staff(request):
 @admin_required
 def staff_list(request):
     # Get only pharmacists and cashiers
-    staff_users = User.objects.filter(role__in=["pharmacist", "cashier"])
-    return render(request, "accounts/staff_list.html", {"staff_users": staff_users})
+    staff_users = User.objects.filter(role__in=["admin","pharmacist", "cashier"])
+    inactive_account = User.objects.filter(is_active=False).count()
+
+    context = {
+        'inactive_account': inactive_account
+    }
+    return render(request, "accounts/staff_list.html", {"staff_users": staff_users, **context})
 
 # Show detailed view of individual staff member
 @admin_required
@@ -172,7 +192,14 @@ def delete_staff(request, staff_id):
 @admin_required
 def customer_list(request):
     customers = User.objects.filter(role="customer")
-    return render(request, "accounts/customer_list.html", {"customers": customers})
+    active_count = customers.filter(is_active=True).count()
+    inactive_count = customers.filter(is_active=False).count()
+    
+    return render(request, "accounts/customer_list.html", {
+        "customers": customers,
+        "active_count": active_count,
+        "inactive_count": inactive_count,
+    })
 
 # Show detailed view of individual customer
 @admin_required
@@ -488,3 +515,23 @@ def customer_logout_view(request):
 
 def custom_404(request, exception):
     return redirect('account_not_found')
+
+@admin_required
+def export_customers_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="customers.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Username', 'Email', 'Phone', 'Address', 'Status', 'Date Joined'])
+    for c in User.objects.filter(role='customer').select_related('customer'):
+        writer.writerow([c.id, c.username, c.email, c.customer.phone or 'N/A', c.customer.address or 'N/A', 'Active' if c.is_active else 'Inactive', c.date_joined.strftime('%Y-%m-%d')])
+    return response
+
+@admin_required
+def export_customers_pdf(request):
+    customers = User.objects.filter(role='customer').select_related('customer')
+    html_string = render_to_string('accounts/customers_pdf.html', {'customers': customers})
+    html = HTML(string=html_string)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="customers.pdf"'
+    html.write_pdf(response)
+    return response

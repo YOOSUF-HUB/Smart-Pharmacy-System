@@ -10,7 +10,6 @@
     background-color: #f8fafc;
   }
 
-  /* Floating Action Button */
   .fab {
     position: fixed;
     bottom: 2rem;
@@ -25,6 +24,7 @@
     box-shadow: 0 10px 20px rgba(0,0,0,0.15);
     font-weight: 600;
     transition: all 0.3s ease;
+    z-index: 50;
   }
   .fab:hover {
     transform: translateY(-3px) scale(1.05);
@@ -32,12 +32,60 @@
     background: linear-gradient(135deg, #0891b2, #2563eb);
   }
 
-    @media (min-width: 1280px) {
+  @media (min-width: 1280px) {
     .table-container-wide {
       max-width: 95vw;
       margin-left: calc(50% - 47.5vw);
       margin-right: calc(50% - 47.5vw);
     }
+  }
+
+  /* Dropdown menu */
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+    z-index: 10;
+    overflow: hidden;
+  }
+  .dropdown:hover .dropdown-content,
+  .dropdown-content.show {
+    display: block;
+  }
+  .dropdown-content a {
+    color: #374151;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    transition: background 0.2s;
+  }
+  .dropdown-content a:hover {
+    background-color: #f3f4f6;
+  }
+
+  /* Smooth row animations */
+  tbody tr {
+    animation: fadeInRow 0.3s ease-in-out;
+  }
+  @keyframes fadeInRow {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Bulk action bar */
+  #bulkActionBar {
+    transition: all 0.3s ease;
   }
 </style>
 
@@ -45,16 +93,55 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
     <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Customer Accounts</h2>
-    <a href="{% url 'admin_dashboard' %}"
-       class="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl shadow-lg transition-all duration-300 ease-in-out hover:scale-[1.02]">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-      </svg>
-      Back to Dashboard
-    </a>
+    <div class="flex gap-3">
+      <!-- Export Dropdown -->
+      <div class="dropdown">
+        <button class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl shadow-lg transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Export
+        </button>
+        <div class="dropdown-content">
+          <a href="{% url 'export_customers_csv' %}">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L13 1.586A2 2 0 0011.586 1H9z"/></svg>
+            CSV
+          </a>
+          <a href="{% url 'export_customers_pdf' %}">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V6.414A2 2 0 0016.414 5L13 1.586A2 2 0 0011.586 1H9z"/></svg>
+            PDF
+          </a>
+        </div>
+      </div>
+
+      <a href="{% url 'admin_dashboard' %}"
+         class="flex items-center gap-2 bg-gray-700 hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl shadow-lg transition-all duration-300 ease-in-out hover:scale-[1.02]">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Dashboard
+      </a>
+    </div>
   </div>
 
-  <!-- Search -->
+  <!-- Summary Stats Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600">Total Customers</p>
+          <p class="text-2xl font-bold text-gray-900">{{ customers|length }}</p>
+        </div>
+        <div class="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
   <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
     <div class="relative w-full sm:w-1/3">
       <input type="text" id="searchInput" placeholder="Search by username or email..."
@@ -78,13 +165,12 @@
             <th class="py-4 px-6">Phone</th>
             <th class="py-4 px-6">Address</th>
             <th class="py-4 px-6">Date Joined</th>
-            <th class="py-4 px-6">View</th>
+            <th class="py-4 px-6">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 text-sm">
           {% for customer in customers %}
-          <tr class="hover:bg-cyan-50 hover:shadow-sm transition-all cursor-pointer">
-
+          <tr class="hover:bg-cyan-50 hover:shadow-sm transition-all cursor-pointer customer-row">
             <td class="py-4 px-6">
               <div class="flex items-center justify-center">
                 <span class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-medium text-xs">
@@ -102,7 +188,6 @@
               </div>
             </td>
 
-            <!-- Email -->
             <td class="py-4 px-6">
               <span class="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700">
                 {{ customer.email }}
@@ -117,11 +202,10 @@
 
             <td class="py-4 px-6">
               <span class="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700">
-                {{ customer.customer.address|default:"N/A" }}
+                {{ customer.customer.address|default:"N/A"|truncatechars:30 }}
               </span>
             </td>
 
-            <!-- Date -->
             <td class="py-4 px-6">
               <span class="px-3 py-1 rounded-lg text-xs font-medium bg-cyan-100 text-cyan-800">
                 {{ customer.date_joined|date:"Y-m-d H:i" }}
@@ -129,26 +213,28 @@
             </td>
 
             <td class="py-4 px-6 text-center">
-              <a href="{% url 'customer_detail' customer_id=customer.id %}" 
-                class="inline-flex items-center px-3 py-1 bg-cyan-100 text-cyan-800 rounded-lg hover:bg-cyan-200 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                View
-              </a>
+              <div class="flex gap-2 justify-center">
+                <a href="{% url 'customer_detail' customer_id=customer.id %}" 
+                  class="inline-flex items-center px-3 py-1 bg-cyan-100 text-cyan-800 rounded-lg hover:bg-cyan-200 transition"
+                  title="View Details">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </a>
+              </div>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="3" class="py-10 text-center text-gray-500">
+            <td colspan="7" class="py-10 text-center text-gray-500">
               <div class="flex flex-col items-center justify-center space-y-3">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-cyan-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 17v-2h6v2a2 2 0 01-2 2h-2a2 2 0 01-2-2zM9 7V5h6v2m0 0v6H9V7h6z" />
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <p class="text-lg font-semibold text-gray-700">No customers yet</p>
-                <p class="text-sm text-gray-400">Add a new customer using the button below.</p>
+                <p class="text-lg font-semibold text-gray-700">No customers found</p>
+                <p class="text-sm text-gray-400">Adjust your search or add new customers.</p>
               </div>
             </td>
           </tr>
@@ -159,18 +245,11 @@
   </div>
 </div>
 
-<!-- Floating Action Button
-<a href="#" class="fab">
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-  </svg>
-  Add Customer
-</a> -->
-
 <script>
+  // Search functionality
   document.getElementById("searchInput").addEventListener("keyup", function() {
     let filter = this.value.toLowerCase();
-    let rows = document.querySelectorAll("tbody tr");
+    let rows = document.querySelectorAll(".customer-row");
 
     rows.forEach(row => {
       let text = row.textContent.toLowerCase();

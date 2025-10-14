@@ -103,6 +103,36 @@
     </svg>
   </div>
 
+  <!-- Summary Cards: Staff Breakdown & Inactive Accounts -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <!-- Staff Breakdown Card -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-slate-600 text-sm font-medium">Staff Breakdown</p>
+          <p class="text-xs text-gray-500 mt-1" id="staffCountsLabel">Loading…</p>
+        </div>
+        <canvas id="staffPieMini" width="120" height="120" class="!w-[120px] !h-[120px]"></canvas>
+      </div>
+    </div>
+
+    <!-- Inactive Accounts Card -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-slate-600 text-sm font-medium">Inactive Accounts</p>
+          <p class="text-3xl font-bold text-slate-800 mt-1">{{ inactive_account|default:0 }}</p>
+          <p class="text-xs text-gray-500 mt-1">Total inactive users</p>
+        </div>
+        <div class="text-red-500">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.732-3L13.732 4a2 2 0 00-3.464 0L3.268 16A2 2 0 005 19z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Table -->
   <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
     <div class="overflow-x-auto">
@@ -167,15 +197,15 @@
                 </svg>
                 View
               </a>
-              <!-- Edit -->
-              <a href="{% url 'edit_staff' staff.id %}"
-                 class="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 rounded-lg hover:bg-amber-200 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16.862 3.487l2.651 2.651a1.75 1.75 0 010 2.475l-9.31 9.31a2 2 0 01-.9.52l-3.41.85a.75.75 0 01-.91-.91l.85-3.41a2 2 0 01.52-.9l9.31-9.31a1.75 1.75 0 012.475 0z" />
-                </svg>
-                Edit
-              </a>
+              {% if staff.role != 'admin' %}
+                <a href="{% url 'edit_staff' staff.id %}"
+                  class="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-800 rounded-lg hover:bg-amber-200 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M16.862 3.487l2.651 2.651a1.75 1.75 0 010 2.475l-9.31 9.31a2 2 0 01-.9.52l-3.41.85a.75.75 0 01-.91-.91l.85-3.41a2 2 0 01.52-.9l9.31-9.31a1.75 1.75 0 012.475 0z" />
+                  </svg>
+                  Edit
+                </a>
               <!-- Delete -->
               <a href="#"
                  data-user-id="{{ staff.id }}" data-username="{{ staff.username }}"
@@ -185,6 +215,9 @@
                         d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v11a1 1 0 001 1h4a1 1 0 001-1V7M4 7h16" />
                 </svg>
                 Delete
+              {% endif %}
+
+
               </a>
             </td>
           </tr>
@@ -276,6 +309,85 @@
         row.style.display = text.includes(filter) ? "" : "none";
       });
     });
+
+    // Build staff role counts from table
+    function computeStaffCounts() {
+      const rows = document.querySelectorAll('tbody tr');
+      const counts = { Admin: 0, Pharmacist: 0, Cashier: 0 };
+      rows.forEach(row => {
+        const roleSpan = row.querySelector('td:nth-child(3) span');
+        if (!roleSpan) return;
+        const role = roleSpan.textContent.trim();
+        if (counts.hasOwnProperty(role)) counts[role]++;
+      });
+      return counts;
+    }
+
+    // Render mini pie chart
+    function renderMiniPie() {
+      const counts = computeStaffCounts();
+      const data = [counts.Admin, counts.Pharmacist, counts.Cashier];
+      const total = data.reduce((a,b) => a + b, 0);
+      const labelEl = document.getElementById('staffCountsLabel');
+      if (labelEl) {
+        labelEl.textContent = `Admins: ${counts.Admin} • Pharmacists: ${counts.Pharmacist} • Cashiers: ${counts.Cashier}`;
+      }
+      const canvas = document.getElementById('staffPieMini');
+      if (!canvas) return;
+
+      // Destroy previous chart if re-rendering
+      if (canvas._miniChart) {
+        canvas._miniChart.destroy();
+      }
+
+      const cfg = {
+        type: 'doughnut',
+        data: {
+          labels: ['Admins', 'Pharmacists', 'Cashiers'],
+          datasets: [{
+            data: total > 0 ? data : [1, 0, 0], // show empty state as a faint segment
+            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+            borderColor: 'rgba(255,255,255,0.9)',
+            borderWidth: 2,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: false,
+          cutout: '60%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const val = ctx.raw || 0;
+                  const pct = total ? ((val / total) * 100).toFixed(1) : 0;
+                  return `${ctx.label}: ${val} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      };
+
+      canvas._miniChart = new Chart(canvas, cfg);
+    }
+
+    // Initial render
+    renderMiniPie();
+
+    // Re-render after search filter changes visibility
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+      let filter = this.value.toLowerCase();
+      let rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        let text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+      renderMiniPie();
+    });
   });
 </script>
+<!-- Chart.js (for mini pie) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 {% endblock %}

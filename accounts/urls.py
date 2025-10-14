@@ -42,6 +42,8 @@ urlpatterns = [
     # Staff Export URLs
     path('staff/export/csv/', views.staff_list_csv, name='staff_list_csv'),
     path('staff/export/pdf/', views.staff_list_pdf, name='staff_list_pdf'),
+    path('dashboard/admin/customers/export/csv/', views.export_customers_csv, name='export_customers_csv'),
+    path('dashboard/admin/customers/export/pdf/', views.export_customers_pdf, name='export_customers_pdf'),
 
     # Password Reset URLs - using custom staff-only views
     path('password-reset/', StaffPasswordResetView.as_view(), name='password_reset'),
