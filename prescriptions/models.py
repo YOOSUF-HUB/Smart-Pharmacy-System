@@ -10,7 +10,7 @@ class Patient(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     date_of_birth = models.DateField()
-    contact_number = models.CharField(max_length=20, blank=True, null=True)
+    contact_number = models.CharField(max_length=20, default='+94000000000')  # Required field
     address = models.TextField(blank=True, null=True)
     email = models.EmailField()  # Required field 
     
