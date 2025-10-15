@@ -567,7 +567,7 @@
                 <svg class="w-6 h-6 mr-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                 </svg>
-                Product Linkage
+                Purchase Order Linkage
               </h4>
               <p class="text-sm text-slate-600">Link specific products to this supplier for inventory management</p>
             </div>
@@ -578,13 +578,13 @@
                 <svg class="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                 </svg>
-                Select Products
+                Select Purchase Orders
               </label>
               <select name="products" id="id_products" class="form-select select2" multiple>
                 {% for product in form.products.field.queryset %}
                   <option value="{{ product.pk }}" 
                           {% if product.pk in form.products.value|default_if_none:'' %}selected{% endif %}>
-                    {{ product.name }} - {{ product.category }}
+                    {{ product.name }}
                   </option>
                 {% endfor %}
               </select>
