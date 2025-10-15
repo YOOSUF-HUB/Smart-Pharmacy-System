@@ -1,7 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Supplier, Product, PurchaseOrder, PurchaseOrderItem
-
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier

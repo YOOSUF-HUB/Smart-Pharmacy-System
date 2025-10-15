@@ -467,7 +467,7 @@
                 Products Supplied
               </label>
               <textarea name="products_supplied" id="id_products_supplied" rows="4" class="form-textarea" 
-                        placeholder="Describe the products or services this supplier provides (e.g., Pharmaceuticals, Medical Devices, Laboratory Equipment)">{{ form.products_supplied.value|default_if_none:'' }}</textarea>
+                        placeholder="Describe the products or services this supplier provides (Medicines, Non-Medical, Medical Devices, Laboratory Equipment, OTC, Other)">{{ form.products_supplied.value|default_if_none:'' }}</textarea>
               {% if form.products_supplied.errors %}
                 <div class="mt-2 text-sm text-red-600 flex items-center">
                   <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
